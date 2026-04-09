@@ -66,7 +66,7 @@
             <h2><i class="bi bi-box-seam"></i> Static Products</h2>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="/dashboard">Dashboard</a></li>
                     <li class="breadcrumb-item active">Static Products</li>
                 </ol>
             </nav>

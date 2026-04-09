@@ -12,20 +12,23 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::create('static_products', function (Blueprint $table) {
+       Schema::create('static_products', function (Blueprint $table) {
             $table->id();
-            $table->string('brand'); // hikvision, dahua, hilook, unv, hiview
-            $table->string('tab'); // basic, cooper, pro, enterprise
-            $table->string('sku')->unique();
+            $table->string('brand'); 
+            $table->string('tab_category')->nullable();
+            $table->string('sku')->nullable();
             $table->string('nama_produk');
-            $table->string('channel'); // 4, 8, 16, 32
-            $table->string('kategori'); // Small Business, Cooper Series, etc
-            $table->string('image')->nullable();
-            $table->json('specs'); // Store specifications as JSON
+            $table->string('kategori')->nullable(); 
+            $table->integer('position')->default(0); 
+            
+            // Disesuaikan agar cocok dengan data Seeder
+            $table->decimal('harga_modal', 12, 2)->nullable(); 
             $table->decimal('harga_jual', 12, 2)->nullable();
             $table->integer('stok')->default(0);
-            $table->enum('status', ['active', 'inactive', 'out_of_stock'])->default('active');
-            $table->integer('order')->default(0); // For ordering products
+            $table->text('deskripsi')->nullable(); 
+            $table->string('gambar')->nullable(); 
+            $table->boolean('is_active')->default(true); 
+            
             $table->timestamps();
         });
     }

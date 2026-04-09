@@ -38,7 +38,7 @@ use App\Http\Controllers\Admin\AdminProductController;
 // PUBLIC ROUTES
 // =====================================
 
-Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 // Debug route
 Route::get('/debug-products/{brand?}', [ProductController::class, 'debugProducts']);
@@ -454,7 +454,7 @@ Route::prefix('admin/inventory')->name('admin.inventory.')->group(function () {
     
     // ⭐ NEW: Incoming Items - Continuous Scan Mode
     Route::get('/incoming-continuous', function() {
-        return view('admin.inventory.incoming-continuous');
+        return view('admin.inventory.incoming');
     })->name('incoming.continuous');
     
     // ⭐ NEW: Incoming Items - Grouped Mode (Tanpa Serial Number)

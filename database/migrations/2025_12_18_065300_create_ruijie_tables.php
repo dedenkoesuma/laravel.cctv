@@ -37,7 +37,7 @@ return new class extends Migration
         });
 
         // Create ruijie_products table
-        Schema::create('ruijie_products', function (Blueprint $table) {
+       Schema::create('ruijie_products', function (Blueprint $table) {
             $table->id();
             $table->foreignId('category_id')->constrained('ruijie_categories')->onDelete('cascade');
             $table->string('name');
@@ -45,13 +45,22 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->string('short_description', 500)->nullable();
             $table->string('image')->nullable();
+            
+            // Kolom Harga (Gabungan)
             $table->decimal('price', 15, 2)->nullable();
+            $table->decimal('original_price', 15, 2)->nullable(); // Tambahan dari versi lama
+            
+            // Kolom Stok (Tambahan dari versi lama)
+            $table->integer('stock')->default(0); 
+
             $table->json('features')->nullable();
             $table->json('specifications')->nullable();
             $table->integer('order')->default(0);
             $table->boolean('is_active')->default(true);
             $table->boolean('is_featured')->default(false);
             $table->timestamps();
+            
+            $table->softDeletes(); 
         });
     }
 

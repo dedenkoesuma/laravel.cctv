@@ -336,7 +336,7 @@ class BookkeepingController extends Controller
         $statistics = $this->getStatistics($startDate, $endDate);
         
         $pdfClass = \Barryvdh\DomPDF\Facade\Pdf::class;
-        $pdf = $pdfClass::loadView('admin.bookkeeping.pdf', compact('transactions', 'statistics', 'startDate', 'endDate'));
+        $pdf = $pdfClass::loadView('admin.bookkeeping.index', compact('transactions', 'statistics', 'startDate', 'endDate'));
         $pdf->setPaper('a4', 'landscape');
         
         return $pdf->stream('Laporan_Pembukuan.pdf');
