@@ -817,40 +817,47 @@ $brands = [
 
             @foreach($packages as $package)
             <div class="col-lg-3 col-md-6">
-                <div class="package-card">
-                    <div class="package-header">
-                        <h5 class="package-channel">{{ $package['channel'] }} Channel</h5>
-                        <p class="package-subtitle">{{ $package['title'] }}</p>
-                    </div>
+                <div class="package-card d-flex flex-column h-100">
                     
-                  <div class="package-image">
-                        <img src="{{ $package['image'] }}" 
-                            alt="{{ $package['channel'] }} Channel Package" 
-                            class="img-fluid" 
-                           >
-                    </div>
+                    <a href="{{ route('products.brand', $package['brand']) }}" class="text-decoration-none" style="color: inherit; display: flex; flex-direction: column; flex-grow: 1;">
+                        <div class="package-header">
+                            <h5 class="package-channel">{{ $package['channel'] }} Channel</h5>
+                            <p class="package-subtitle">{{ $package['title'] }}</p>
+                        </div>
+                        
+                        <div class="package-image">
+                            <img src="{{ $package['image'] }}" 
+                                alt="{{ $package['channel'] }} Channel Package" 
+                                class="img-fluid">
+                        </div>
+                        
+                        <div class="package-price">
+                            <span class="badge {{ $package['badge_class'] }}">
+                                IDR. {{ number_format((float)str_replace(['.', ','], '', $package['price']), 0, ',', '.') }}
+                            </span>
+                        </div>
+                        
+                        <div class="package-features flex-grow-1">
+                            <p class="features-title">Sudah Termasuk:</p>
+                            <ul class="features-list">
+                                @foreach($package['items'] as $item)
+                                <li>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>{{ $item }}</span>
+                                </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </a>
                     
-                    <div class="package-price">
-                        <span class="badge {{ $package['badge_class'] }}">
-                            IDR. {{ number_format((float)str_replace(['.', ','], '', $package['price']), 0, ',', '.') }}
-                        </span>
-                    </div>
-                    
-                    <div class="package-features">
-                        <p class="features-title">Sudah Termasuk:</p>
-                        <ul class="features-list">
-                            @foreach($package['items'] as $item)
-                            <li>
-                                <i class="bi bi-check-circle-fill"></i>
-                                <span>{{ $item }}</span>
-                            </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    
-                    <div class="package-footer">
-                        <a href="{{ route('products.brand', $package['brand']) }}" class="btn btn-outline-primary w-100">
-                            <i class="bi bi-cart-plus me-2"></i>Order Sekarang
+                    <div class="package-footer mt-auto position-relative" style="z-index: 2;">
+                        @php
+                            // Meracik pesan WhatsApp otomatis sesuai brand dan channel
+                            $pesanWa = "Halo, saya tertarik dengan produk Paket CCTV " . ucfirst($package['brand']) . " " . $package['channel'] . " Channel - " . $package['title'];
+                        @endphp
+                        
+                        <a href="https://wa.me/6281234567890?text={{ urlencode($pesanWa) }}" target="_blank" class="btn btn-outline-primary w-100">
+                            <i class="bi bi-whatsapp me-2"></i>Order Sekarang
                         </a>
                     </div>
                 </div>
