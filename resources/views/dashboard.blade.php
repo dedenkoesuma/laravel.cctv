@@ -477,8 +477,7 @@
         </a>
     </div>
     
-    <a href="{{ route('logout') }}" class="logout-btn" 
-       onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+    <a href="{{ route('admin.logout') }}" class="logout-btn" onclick="hapusJejakBrowser(event)">
         <i class="bi bi-box-arrow-right"></i>
         <span>Logout</span>
     </a>
@@ -840,6 +839,15 @@ function updateStatCard(cardIndex, value) {
     }
 }
 </script>
-
+<script>
+function hapusJejakBrowser(event) {
+    event.preventDefault();
+    
+    localStorage.clear();
+    sessionStorage.clear();
+    
+    window.location.href = event.currentTarget.href;
+}
+</script>
 </body>
 </html>
