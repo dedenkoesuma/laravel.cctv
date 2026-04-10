@@ -762,8 +762,13 @@ $brands = [
                         'Jasa Pasang & Konfigurasi',
                         'Garansi Unit 2 Tahun',
                         '1 DVR 4 Channel',
-                        '2 Camera Indoor/Outdoor 2MP',
-                        '1 Hardisk 500GB'
+                        '2 Camera Indoor / Outdoor 2MP',
+                        '1 Hardisk 500GB',
+                        '30m Coaxial Cable',
+                        '4 Konektor BNC',
+                        '2 Konektor DC',
+                        '1 Kabel HDMI 1.5 Meter',
+                        'Power Supply 4 Port',
                     ],
                     'brand' => 'dahua'
                 ],
@@ -777,8 +782,13 @@ $brands = [
                         'Jasa Pasang & Konfigurasi',
                         'Garansi Unit 2 Tahun',
                         '1 DVR 4 Channel',
-                        '4 Camera Indoor/Outdoor 2MP',
-                        '1 Hardisk 500GB'
+                        '4 Camera Indoor / Outdoor 2MP',
+                        '1 Hardisk 500GB',
+                        '60m Coaxial Cable',
+                        '8 Konektor BNC',
+                        '4 Konektor DC',
+                        '1 Kabel HDMI 1.5 Meter',
+                        'Power Supply 4 Port',
                     ],
                     'brand' => 'hilook'
                 ],
@@ -792,8 +802,13 @@ $brands = [
                         'Jasa Pasang & Konfigurasi',
                         'Garansi Unit 2 Tahun',
                         '1 DVR 8 Channel',
-                        '8 Camera Indoor/Outdoor 2MP',
-                        '1 Hardisk 1 TB'
+                        '8 Camera Indoor / Outdoor 2MP',
+                        '1 Hardisk 1 TB',
+                        '120m Coaxial Cable',
+                        '16 Konektor BNC',
+                        '8 Konektor DC',
+                        '1 Kabel HDMI 1.5 Meter',
+                        'Power Supply 8 Port',
                     ],
                     'brand' => 'unv'
                 ],
@@ -804,11 +819,16 @@ $brands = [
                     'image' => 'storage/products/UHJzPJfliIFuX8C3mAnxYeZqZCuidRtykeBXYxei.png',
                     'badge_class' => 'bg-danger',
                     'items' => [
-                        'Jasa Pasang & Konfigurasi',
+                    'Jasa Pasang & Konfigurasi',
                         'Garansi Unit 2 Tahun',
-                        '1 NVR 16 Channel',
-                        '16 Camera Indoor/Outdoor 2MP',
-                        '1 Hardisk 4 TB'
+                        '1 DVR 16 Channel',
+                        '16 Camera Indoor / Outdoor 2MP',
+                        '1 Hardisk 4 TB',
+                        '240m Coaxial Cable',
+                        '32 Konektor BNC',
+                        '16 Konektor DC',
+                        '1 Kabel HDMI 1.5 Meter',
+                        'Power Supply 8 Port',
                     ],
                     'brand' => 'hikvision'
                 ],

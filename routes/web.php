@@ -37,7 +37,7 @@ use App\Http\Controllers\Admin\AdminProductController;
 // =====================================
 // PUBLIC ROUTES
 // =====================================
-
+Route::redirect('/', '/home');
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 // Debug route
