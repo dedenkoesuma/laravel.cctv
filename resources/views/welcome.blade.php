@@ -756,7 +756,7 @@ $brands = [
                     'channel' => '2',
                     'title' => '2MP 1080P HDCVI Camera',
                     'price' => '2.899.000',
-                    'image' => '2+Camera',
+                    'image' => 'storage/products/TeJYvHLEn3OmJs3mRGAHskW4cWO9EDpeSD81iinI.png',
                     'badge_class' => 'bg-primary',
                     'items' => [
                         'Jasa Pasang & Konfigurasi',
@@ -771,7 +771,7 @@ $brands = [
                     'channel' => '4',
                     'title' => '2MP 1080P HDCVI Camera',
                     'price' => '4.699.000',
-                    'image' => '4+Camera',
+                    'image' => 'storage/products/m3fLjMn24gT6zoguqqMGtMjg1mMeKTnwcGholNZl.png',
                     'badge_class' => 'bg-success',
                     'items' => [
                         'Jasa Pasang & Konfigurasi',
@@ -786,7 +786,7 @@ $brands = [
                     'channel' => '8',
                     'title' => '2MP 1080P Color Hunter',
                     'price' => '8.799.000',
-                    'image' => '8+Camera',
+                    'image' => 'storage/products/CftBpkpFDz5MRbLcB0WyICtapW66qkuSZUIXnApv.png',
                     'badge_class' => 'bg-info',
                     'items' => [
                         'Jasa Pasang & Konfigurasi',
@@ -801,7 +801,7 @@ $brands = [
                     'channel' => '16',
                     'title' => '2MP 1080P Network Camera',
                     'price' => '29.899.000',
-                    'image' => '16+Camera',
+                    'image' => 'storage/products/UHJzPJfliIFuX8C3mAnxYeZqZCuidRtykeBXYxei.png',
                     'badge_class' => 'bg-danger',
                     'items' => [
                         'Jasa Pasang & Konfigurasi',
@@ -824,11 +824,11 @@ $brands = [
                     </div>
                     
                   <div class="package-image">
-                    <img src="{{ asset('storage/image/packages/' . $package['channel'] . '-channel.png') }}" 
-                    alt="{{ $package['channel'] }} Channel Package" 
-                     class="img-fluid" 
-                         onerror="this.src='https://via.placeholder.com/200x150/f5f5f5/666?text={{ $package['image'] }}'">
-                        </div>
+                        <img src="{{ $package['image'] }}" 
+                            alt="{{ $package['channel'] }} Channel Package" 
+                            class="img-fluid" 
+                           >
+                    </div>
                     
                     <div class="package-price">
                         <span class="badge {{ $package['badge_class'] }}">
