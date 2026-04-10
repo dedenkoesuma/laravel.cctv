@@ -1092,28 +1092,22 @@ $brands = [
         </div>
     </div>
 
-<!-- Clients Section -->
 <section class="py-5 bg-light">
-    <div class="container">
-        <h2 class="section-title text-center mb-5">Klien Terbaik Kami</h2>
+    <div class="container text-center">
+        <h2 class="section-title mb-5">Klien Terbaik Kami</h2>
         
-        <div class="row g-3">
-            @php
-            $clients = [
-                'BCA', 'BRI', 'BNI', 'EPSON', 'MRT Jakarta', 'XL AXIATA', 
-                'MNC', 'INKA', 'KAI', 'PAM JAYA', 'COMMUTER', 'INDOMARET', 
-                'IKEA', 'HONDA', 'INDOSAT', 'PLN', 'JAKARTA SMART CITY', 'PERTAMINA'
-            ];
-            @endphp
+        <img 
+            src="{{ asset('storage/gambar/desktop_client.png') }}" 
+            alt="Brand Logos Desktop" 
+            class="img-fluid d-none d-md-inline"
+        >
 
-            @foreach($clients as $client)
-            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
-                <div class="client-card">
-                    <strong>{{ $client }}</strong>
-                </div>
-            </div>
-            @endforeach
+        <img 
+            src="{{ asset('storage/gambar/mobile_client.png') }}" 
+            alt="Brand Logos Mobile" 
+            class="img-fluid d-inline d-md-none"
+        >
+        
         </div>
-    </div>
 </section>
 @endsection
