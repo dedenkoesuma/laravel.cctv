@@ -56,7 +56,7 @@ class RuijieController extends Controller
             ->limit(4)
             ->get();
 
-        return view('products.ruijie-detail', compact('product', 'relatedProducts'));
+        return view('ruijie-details', compact('product', 'relatedProducts'));
     }
 
     /**

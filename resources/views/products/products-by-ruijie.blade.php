@@ -1208,7 +1208,7 @@ function updateFilterCount() {
 }
 
 function showDetail(id) {
-    window.location.href = `/ruijie/${id}`;
+    window.location.href = `/products/ruijie/${id}`;
 }
 
 function buyProduct(id) {

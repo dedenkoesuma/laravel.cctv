@@ -911,7 +911,7 @@ $brands = [
                     perangkat yang terhubung ke jaringan yang sama, seperti smartphone, tablet, atau komputer.
                 </p>
             </div>
-            <a href="#" class="btn btn-danger">
+            <a href="/wifi-cam" class="btn btn-danger">
                 <i class="bi bi-grid me-2"></i>Produk Lainnya
             </a>
         </div>
@@ -965,7 +965,7 @@ $brands = [
                     ke suatu area, fasilitas, atau informasi.
                 </p>
             </div>
-            <a href="#" class="btn btn-danger">
+            <a href="/access-control" class="btn btn-danger">
                 <i class="bi bi-grid me-2"></i>Produk Lainnya
             </a>
         </div>

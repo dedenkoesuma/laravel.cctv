@@ -969,7 +969,7 @@ function updateFilterCount() {
 }
 
 function viewDetail(id) {
-    alert('Detail produk #' + id + ' - Coming soon!');
+    window.location.href = '/foreages/' + id;
 }
 
 function contactWhatsApp() {

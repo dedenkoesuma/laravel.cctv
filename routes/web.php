@@ -638,7 +638,26 @@ Route::get('/api/brand-products/{id}', function($id) {
         ], 404);
     }
 })->name('api.brand.product.detail');
-
+// Route untuk Detail Produk Foreage (Mengambil data dari static_products)
+Route::get('/foreages/{id}', function($id) {
+    // Ambil data produk berdasarkan ID dari tabel static_products
+    $product = \Illuminate\Support\Facades\DB::table('static_products')
+        ->where('id', $id)
+        ->where('brand', 'foreage') // Pastikan hanya produk foreage
+        ->where('is_active', 1)
+        ->first();
+        
+    // Jika data tidak ditemukan, kembalikan error 404
+    if (!$product) {
+        abort(404, 'Produk Foreage tidak ditemukan');
+    }
+    
+    // Convert object stdClass ke array agar sesuai dengan struktur Blade yang baru dibuat
+    $productArray = (array) $product;
+    
+    // Return view ke file yang baru kita buat (sesuaikan nama file blade-nya jika berbeda)
+    return view('foreages-detail', ['product' => $productArray]);
+})->name('foreages-detail');
 // ⭐ NEW: API for /products/{brand} route - Updated ProductController endpoints
 Route::prefix('api')->group(function () {
     // Get all brands configuration
