@@ -54,8 +54,11 @@
 
 /* ===== HERO SECTION ===== */
 .hero-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.8)),
+                url('{{ asset("storage/gambar/bg-cctv.jpg") }}');
     color: white;
+    background-position: 50% 10%;
+    background-repeat: no-repeat;
     padding: 80px 20px;
     text-align: center;
     margin: 0;
@@ -528,6 +531,8 @@
     
     .hero-section {
         padding: 60px 20px;
+        background-size: 1200% auto;
+        background-position: 50% 10%;
     }
     
     .navbar-nav {
