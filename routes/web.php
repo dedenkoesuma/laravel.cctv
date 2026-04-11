@@ -15,6 +15,7 @@ use App\Http\Controllers\RuijieController;
 use App\Models\RuijieProduct;
 use App\Models\RuijiePageSettings;
 use App\Models\RuijieCategory;
+use App\Models\WifiCamera; 
 
 // ⭐ NEW: Bookkeeping Controller
 use App\Http\Controllers\BookkeepingController;
@@ -53,7 +54,7 @@ Route::get('/wifi-cam/{slug}', [WiFiCameraController::class, 'show'])->name('wif
 
 // ⭐ NEW: WiFi Cam Detail Page Route (Alternative URL with ID)
 Route::get('/wifi-cam/detail/{id}', function($id) {
-    $wifi_cam = \App\Models\WifiCamera::find($id); 
+    $wifi_cam = WifiCamera::find($id); 
     
     // Jika data tidak ditemukan, tampilkan error 404
     if (!$wifi_cam) {
