@@ -141,12 +141,12 @@
                         @php
                             $brands = [
                                 'hikvision' => ['name' => 'Hikvision', 'color' => '#E62B2E'],
-                                'hilook' => ['name' => 'HiLook', 'color' => '#00A0E9'],
+                                'hilook' => ['name' => 'HiLook', 'color' => '#8B4513'],
                                 'dahua' => ['name' => 'Dahua', 'color' => '#0066B3'],
                                 
                                 
-                                'hiview' => ['name' => 'Hiview', 'color' => '#9C27B0'],
-                                'unv' => ['name' => 'UNV', 'color' => '#FF9800'],
+                                'hiview' => ['name' => 'Hiview', 'color' => '#8B0000'],
+                                'unv' => ['name' => 'UNV', 'color' => '#9C27B0'],
                             ];
                             
                             $currentBrand = strtolower($brandName);
@@ -155,7 +155,8 @@
                         @foreach($brands as $brandKey => $brandInfo)
                         <a href="{{ url('/products/' . $brandKey) }}" 
                            class="brand-filter-btn {{ $brandKey === $currentBrand ? 'active' : '' }}"
-                           style="--brand-color: {{ $brandInfo['color'] }}">
+                           {{-- Berikan background warna langsung, dan teks putih --}}
+                           style="background-color: {{ $brandInfo['color'] }}; border-color: {{ $brandInfo['color'] }}; color: white; --brand-color: {{ $brandInfo['color'] }};">
                             {{ $brandInfo['name'] }}
                             @if($brandKey === $currentBrand)
                             <i class="bi bi-check-circle-fill ms-1"></i>
@@ -278,16 +279,16 @@
                                             @endif
                                         </div>
 
-                                        <div class="card-footer bg-white border-top text-center">
-                                            <a href="https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20dengan%20produk%20{{ urlencode($product->nama_produk ?? $product->product_name) }}%20-%20{{ urlencode($product->sku ?? '') }}" 
-                                               target="_blank"
-                                               class="btn btn-sm w-100" 
-                                               style="background-color: {{ $brandData['color'] }}; color: white; border: none;"
-                                               onmouseover="this.style.opacity='0.8'" 
-                                               onmouseout="this.style.opacity='1'">
-                                                <i class="bi bi-eye"></i> Lihat Spesifikasi
-                                            </a>
-                                        </div>
+                                       <div class="card-footer bg-white border-top text-center">
+                                        <a href="https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20dengan%20produk%20{{ urlencode($product->nama_produk ?? $product->product_name) }}%20-%20{{ urlencode($product->sku ?? '') }}" 
+                                        target="_blank"
+                                        class="btn btn-sm w-100" 
+                                        style="background-color: {{ $brandData['color'] }}; color: white; border: none;"
+                                        onmouseover="this.style.opacity='0.8'" 
+                                        onmouseout="this.style.opacity='1'">
+                                            <i class="bi bi-whatsapp"></i> Order Sekarang 
+                                        </a>
+                                    </div>
                                     </div>
                                 </div>
                                 @empty
@@ -372,15 +373,12 @@
     display: flex;
     align-items: center;
 }
-
 .brand-filter-btn {
     display: inline-flex;
     align-items: center;
     padding: 12px 24px;
-    background: #f8f9fa;
-    border: 2px solid #dee2e6;
     border-radius: 8px;
-    color: #495057;
+    border: 2px solid transparent;
     text-decoration: none;
     font-size: 1rem;
     font-weight: 500;
@@ -388,22 +386,18 @@
 }
 
 .brand-filter-btn:hover {
-    background: #e9ecef;
-    border-color: #adb5bd;
-    color: #212529;
     text-decoration: none;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    opacity: 0.85;
+    color: white; /* Pastikan teks tetap putih saat di-hover */
 }
 
 .brand-filter-btn.active {
-    background: var(--brand-color);
-    border-color: var(--brand-color);
-    color: white;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    transform: scale(1.05); /* Sedikit membesar untuk menandakan aktif */
 }
-
 .brand-filter-btn.active:hover {
     opacity: 0.9;
     transform: translateY(-2px);

@@ -53,7 +53,14 @@ Route::get('/wifi-cam/{slug}', [WiFiCameraController::class, 'show'])->name('wif
 
 // ⭐ NEW: WiFi Cam Detail Page Route (Alternative URL with ID)
 Route::get('/wifi-cam/detail/{id}', function($id) {
-    return view('wifi-cam.detail', ['productId' => $id]);
+    $wifi_cam = \App\Models\WifiCamera::find($id); 
+    
+    // Jika data tidak ditemukan, tampilkan error 404
+    if (!$wifi_cam) {
+        abort(404, 'Produk tidak ditemukan');
+    }
+    
+    return view('wifi-cam.detail', compact('wifi_cam'));
 })->name('wifi-cam.detail-by-id')->where('id', '[0-9]+');
 
 // Access Control - Frontend (Public) - UPDATED

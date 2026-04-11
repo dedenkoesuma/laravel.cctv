@@ -58,6 +58,7 @@
                 url('{{ asset("storage/gambar/bg-cctv.jpg") }}');
     color: white;
     background-position: 50% 10%;
+    background-size: 120%;
     background-repeat: no-repeat;
     padding: 80px 20px;
     text-align: center;
@@ -107,7 +108,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #f8f9fa;
     border-radius: 10px;
     padding: 15px;
 }
@@ -260,15 +260,23 @@
 }
 
 .package-image {
-    padding: 1.5rem;
+    padding: 0; 
     text-align: center;
-    min-height: 150px;
     display: flex;
     align-items: center;
     justify-content: center;
     background: #f8f9fa;
+    width: 100%;
+    height: 250px; 
+    overflow: hidden;
+    margin: 15px 0;
 }
 
+.package-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+}
 .package-price {
     text-align: center;
     padding: 0 1.5rem 1rem;

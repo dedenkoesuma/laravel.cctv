@@ -18,7 +18,7 @@ class AdminAccessControlController extends Controller
     // Get all access control products for admin
     public function getProducts(Request $request)
     {
-        $query = DB::table('access_control');
+        $query = DB::table('access_control_products');
 
         // Filter by brand
         if ($request->has('brand') && $request->brand != '') {
@@ -56,7 +56,7 @@ class AdminAccessControlController extends Controller
     // Get single product
     public function show($id)
     {
-        $product = DB::table('access_control')->find($id);
+        $product = DB::table('access_control_products')->find($id);
 
         if (!$product) {
             return response()->json([
@@ -72,12 +72,13 @@ class AdminAccessControlController extends Controller
     }
 
     // Create new product
+    // Create new product
     public function store(Request $request)
     {
         $validated = $request->validate([
             'nama_produk' => 'required|string|max:255',
             'brand' => 'required|string',
-            'sku' => 'required|string|unique:access_control,sku',
+            'sku' => 'required|string|unique:access_control_products,sku',
             'deskripsi' => 'nullable|string',
             'harga_modal' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
@@ -108,20 +109,20 @@ class AdminAccessControlController extends Controller
             }
         }
 
-        $productId = DB::table('access_control')->insertGetId([
-            'nama_produk' => $validated['nama_produk'],
+        $productId = DB::table('access_control_products')->insertGetId([
+            'name' => $validated['nama_produk'],
             'brand' => $validated['brand'],
             'sku' => $validated['sku'],
-            'deskripsi' => $validated['deskripsi'] ?? null,
-            'harga_modal' => $validated['harga_modal'],
-            'harga_jual' => $validated['harga_jual'],
+            'description' => $validated['deskripsi'] ?? null,
+            'cost_price' => $validated['harga_modal'],
+            'sell_price' => $validated['harga_jual'], // Mapping benar ke sell_price
             'original_price' => $validated['original_price'] ?? null,
-            'gambar' => $imagePath,
-            'gallery' => !empty($galleryPaths) ? json_encode($galleryPaths) : null,
+            'main_image' => $imagePath, // Mapping ke main_image
+            'gallery_images' => !empty($galleryPaths) ? json_encode($galleryPaths) : null, // Mapping ke gallery_images
             'specifications' => isset($validated['specifications']) ? json_encode($validated['specifications']) : null,
-            'package_includes' => isset($validated['package_includes']) ? json_encode($validated['package_includes']) : null,
-            'stok' => $validated['stok'],
-            'kategori' => $validated['kategori'] ?? null,
+            'features' => isset($validated['package_includes']) ? json_encode($validated['package_includes']) : null, // Masuk ke kolom features
+            'stock' => $validated['stok'],
+            'category' => $validated['kategori'] ?? null,
             'status' => $validated['status'],
             'is_featured' => $validated['is_featured'] ?? false,
             'created_at' => now(),
@@ -131,14 +132,15 @@ class AdminAccessControlController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Product created successfully',
-            'product' => DB::table('access_control')->find($productId)
+            'product' => DB::table('access_control_products')->find($productId)
         ]);
     }
 
     // Update product
+    // Update product
     public function update(Request $request, $id)
     {
-        $product = DB::table('access_control')->find($id);
+        $product = DB::table('access_control_products')->find($id);
 
         if (!$product) {
             return response()->json([
@@ -150,7 +152,7 @@ class AdminAccessControlController extends Controller
         $validated = $request->validate([
             'nama_produk' => 'nullable|string|max:255',
             'brand' => 'nullable|string',
-            'sku' => 'nullable|string|unique:access_control,sku,' . $id,
+            'sku' => 'nullable|string|unique:access_control_products,sku,' . $id,
             'deskripsi' => 'nullable|string',
             'harga_modal' => 'nullable|numeric|min:0',
             'harga_jual' => 'nullable|numeric|min:0',
@@ -167,9 +169,23 @@ class AdminAccessControlController extends Controller
 
         $updateData = [];
 
-        foreach (['nama_produk', 'brand', 'sku', 'deskripsi', 'harga_modal', 'harga_jual', 'original_price', 'stok', 'kategori', 'status'] as $field) {
-            if (isset($validated[$field])) {
-                $updateData[$field] = $validated[$field];
+        // Mapping yang benar: 'Nama_di_DB' => 'Nama_di_Form'
+        $fieldMapping = [
+            'name' => 'nama_produk',
+            'brand' => 'brand',
+            'sku' => 'sku',
+            'description' => 'deskripsi',
+            'cost_price' => 'harga_modal',
+            'sell_price' => 'harga_jual',
+            'original_price' => 'original_price',
+            'stock' => 'stok',
+            'category' => 'kategori',
+            'status' => 'status'
+        ];
+
+        foreach ($fieldMapping as $dbColumn => $formField) {
+            if (isset($validated[$formField])) {
+                $updateData[$dbColumn] = $validated[$formField];
             }
         }
 
@@ -182,25 +198,27 @@ class AdminAccessControlController extends Controller
         }
 
         if (isset($validated['package_includes'])) {
-            $updateData['package_includes'] = json_encode($validated['package_includes']);
+            $updateData['features'] = json_encode($validated['package_includes']); // Masuk ke kolom features
         }
 
         // Handle main image upload
         if ($request->hasFile('gambar')) {
-            // Delete old image
-            if ($product->gambar) {
-                Storage::disk('public')->delete($product->gambar);
+            // Delete old image using the correct DB column name
+            if ($product->main_image) {
+                Storage::disk('public')->delete($product->main_image);
             }
-            $updateData['gambar'] = $request->file('gambar')->store('access-control', 'public');
+            $updateData['main_image'] = $request->file('gambar')->store('access-control', 'public');
         }
 
         // Handle gallery images
         if ($request->hasFile('gallery')) {
-            // Delete old gallery images
-            if ($product->gallery) {
-                $oldGallery = json_decode($product->gallery, true);
-                foreach ($oldGallery as $oldImage) {
-                    Storage::disk('public')->delete($oldImage);
+            // Delete old gallery images using the correct DB column name
+            if ($product->gallery_images) {
+                $oldGallery = json_decode($product->gallery_images, true);
+                if(is_array($oldGallery)) {
+                    foreach ($oldGallery as $oldImage) {
+                        Storage::disk('public')->delete($oldImage);
+                    }
                 }
             }
             
@@ -210,24 +228,25 @@ class AdminAccessControlController extends Controller
                     $galleryPaths[] = $file->store('access-control/gallery', 'public');
                 }
             }
-            $updateData['gallery'] = json_encode($galleryPaths);
+            $updateData['gallery_images'] = json_encode($galleryPaths);
         }
 
         $updateData['updated_at'] = now();
 
-        DB::table('access_control')->where('id', $id)->update($updateData);
+        DB::table('access_control_products')->where('id', $id)->update($updateData);
 
         return response()->json([
             'success' => true,
             'message' => 'Product updated successfully',
-            'product' => DB::table('access_control')->find($id)
+            'product' => DB::table('access_control_products')->find($id)
         ]);
     }
 
     // Delete product
+    // Delete product
     public function destroy($id)
     {
-        $product = DB::table('access_control')->find($id);
+        $product = DB::table('access_control_products')->find($id);
 
         if (!$product) {
             return response()->json([
@@ -236,19 +255,21 @@ class AdminAccessControlController extends Controller
             ], 404);
         }
 
-        // Delete images
-        if ($product->gambar) {
-            Storage::disk('public')->delete($product->gambar);
+        // Delete images using correct DB column names
+        if ($product->main_image) {
+            Storage::disk('public')->delete($product->main_image);
         }
 
-        if ($product->gallery) {
-            $gallery = json_decode($product->gallery, true);
-            foreach ($gallery as $image) {
-                Storage::disk('public')->delete($image);
+        if ($product->gallery_images) {
+            $gallery = json_decode($product->gallery_images, true);
+            if(is_array($gallery)) {
+                foreach ($gallery as $image) {
+                    Storage::disk('public')->delete($image);
+                }
             }
         }
 
-        DB::table('access_control')->where('id', $id)->delete();
+        DB::table('access_control_products')->where('id', $id)->delete();
 
         return response()->json([
             'success' => true,
@@ -259,7 +280,7 @@ class AdminAccessControlController extends Controller
     // Toggle status
     public function toggleStatus($id)
     {
-        $product = DB::table('access_control')->find($id);
+        $product = DB::table('access_control_products')->find($id);
 
         if (!$product) {
             return response()->json([
@@ -270,7 +291,7 @@ class AdminAccessControlController extends Controller
 
         $newStatus = $product->status === 'active' ? 'inactive' : 'active';
 
-        DB::table('access_control')->where('id', $id)->update([
+        DB::table('access_control_products')->where('id', $id)->update([
             'status' => $newStatus,
             'updated_at' => now()
         ]);
@@ -285,7 +306,7 @@ class AdminAccessControlController extends Controller
     // Get public access control products (for frontend)
     public function getPublicProducts(Request $request)
     {
-        $query = DB::table('access_control')
+        $query = DB::table('access_control_products')
             ->where('status', 'active')
             ->orderBy('is_featured', 'desc')
             ->orderBy('created_at', 'desc');
@@ -306,11 +327,11 @@ class AdminAccessControlController extends Controller
     // Get statistics
     public function getStatistics()
     {
-        $total = DB::table('access_control')->count();
-        $active = DB::table('access_control')->where('status', 'active')->count();
-        $featured = DB::table('access_control')->where('is_featured', true)->count();
-        $brands = DB::table('access_control')->distinct('brand')->count('brand');
-        $lowStock = DB::table('access_control')->where('stok', '<', 10)->where('status', 'active')->count();
+        $total = DB::table('access_control_products')->count();
+        $active = DB::table('access_control_products')->where('status', 'active')->count();
+        $featured = DB::table('access_control_products')->where('is_featured', true)->count();
+        $brands = DB::table('access_control_products')->distinct('brand')->count('brand');
+        $lowStock = DB::table('access_control_products')->where('stok', '<', 10)->where('status', 'active')->count();
 
         return response()->json([
             'success' => true,

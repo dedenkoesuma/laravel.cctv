@@ -169,23 +169,23 @@
     box-shadow: 0 12px 24px rgba(0,0,0,0.15);
 }
 
+
 .camera-image {
-    background: #f8f9fa;
-    padding: 2rem;
+    padding: 0; 
     text-align: center;
-    min-height: 250px;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
+    background: #f8f9fa;
+    width: 100%;
+    height: 250px; 
     overflow: hidden;
 }
 
 .camera-image img {
-    max-width: 100%;
-    max-height: 200px;
-    object-fit: contain;
-    transition: transform 0.3s ease;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
 }
 
 .wifi-camera-card:hover .camera-image img {

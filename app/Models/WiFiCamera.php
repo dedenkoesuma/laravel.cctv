@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 class WiFiCamera extends Model
 {
     use HasFactory;
-
+    protected $table = 'wifi_cameras';
     protected $fillable = [
         'slug',
         'name',

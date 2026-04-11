@@ -414,30 +414,34 @@ body {
         <span>C6N</span>
     </a>
     
-    <div class="product-main">
-        <div class="product-gallery">
+    <div class="product-gallery">
             <div class="main-image" id="mainImage">
-                <img src="https://via.placeholder.com/400x400/ffffff/cccccc?text=EZVIZ+C6N" alt="EZVIZ C6N">
+                {{-- Menampilkan gambar utama --}}
+                <img id="currentMainImage" src="{{ asset('storage/' . $wifi_cam->main_image) }}" alt="{{ $wifi_cam->name }}">
             </div>
             
+           @php
+                // Cek apakah data sudah otomatis menjadi array dari Model, jika belum baru di-decode
+                $gallery = is_string($wifi_cam->gallery_images) 
+                            ? json_decode($wifi_cam->gallery_images, true) 
+                            : $wifi_cam->gallery_images;
+            @endphp
+
+            @if(!empty($gallery))
             <div class="thumbnail-grid">
-                <div class="thumbnail active">
-                    <img src="https://via.placeholder.com/120x120/ffffff/cccccc?text=C6N+1" alt="View 1">
-                </div>
-                <div class="thumbnail">
-                    <img src="https://via.placeholder.com/120x120/ffffff/cccccc?text=C6N+2" alt="View 2">
-                </div>
-                <div class="thumbnail">
-                    <img src="https://via.placeholder.com/120x120/ffffff/cccccc?text=C6N+3" alt="View 3">
-                </div>
+                @foreach($gallery as $index => $imagePath)
+                    <div class="thumbnail {{ $index === 0 ? 'active' : '' }}" onclick="changeMainImage('{{ asset('storage/' . str_replace('\\', '/', $imagePath)) }}', this)">
+                        <img src="{{ asset('storage/' . str_replace('\\', '/', $imagePath)) }}" alt="View {{ $index + 1 }}">
+                    </div>
+                @endforeach
             </div>
+            @endif
         </div>
         
         <div class="product-info">
             <div class="product-header">
                 <div class="product-badges">
-                    <span class="badge badge-sale">SALE</span>
-                    <span class="badge badge-spec">4MP</span>
+                    <span class="badge badge-sale">2MP</span>
                 </div>
                 <img src="https://via.placeholder.com/100x40/ffffff/667eea?text=EZVIZ" alt="EZVIZ" class="brand-logo">
             </div>
@@ -446,80 +450,53 @@ body {
                 <h1 class="product-title">C6N</h1>
                 <p class="product-subtitle">Smart Pan & Tilt Indoor WiFi Camera</p>
             </div>
-            
             <div class="specs-section">
                 <h3 class="section-title">Spesifikasi</h3>
                 <div class="specs-grid">
-                    <div class="spec-item">
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>2MP 1080P Resolution</span>
-                    </div>
-                    <div class="spec-item">
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>WiFi 2.4 Ghz</span>
-                    </div>
-                    <div class="spec-item">
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>Motion Detection</span>
-                    </div>
-                    <div class="spec-item">
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>Motorized Pan & Tilt 360°</span>
-                    </div>
-                    <div class="spec-item">
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>Smart Night Vision with Smart IR (up to 10m)</span>
-                    </div>
-                    <div class="spec-item">
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>MicroSD Slot Up to 256GB</span>
-                    </div>
-                    <div class="spec-item">
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>Smart Tracking</span>
-                    </div>
-                    <div class="spec-item">
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>Two-way Talk Audio</span>
-                    </div>
-                    <div class="spec-item">
-                        <i class="bi bi-check-circle-fill"></i>
-                        <span>Sleep Mode for Privacy Protection</span>
-                    </div>
+                    @php
+                        // Menggunakan nama kolom 'specifications' dari database
+                        $specs = is_string($wifi_cam->specifications) 
+                                    ? json_decode($wifi_cam->specifications, true) 
+                                    : $wifi_cam->specifications;
+                    @endphp
+
+                    @if(!empty($specs) && is_array($specs))
+                        @foreach($specs as $spec)
+                            <div class="spec-item">
+                                <i class="bi bi-check-circle-fill"></i>
+                                <span>{{ $spec }}</span>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="spec-item">
+                            <span>Spesifikasi belum tersedia.</span>
+                        </div>
+                    @endif
                 </div>
             </div>
             
             <div class="included-section">
                 <h3 class="section-title">Sudah Termasuk</h3>
                 <div class="included-grid">
-                    <div class="included-item">
-                        <i class="bi bi-box-seam"></i>
-                        <span>1 Kamera C6N 2MP</span>
-                    </div>
-                    <div class="included-item">
-                        <i class="bi bi-box-seam"></i>
-                        <span>Memory Card 32GB</span>
-                    </div>
-                    <div class="included-item">
-                        <i class="bi bi-box-seam"></i>
-                        <span>Kabel Power 5v</span>
-                    </div>
-                    <div class="included-item">
-                        <i class="bi bi-box-seam"></i>
-                        <span>Training Cloud</span>
-                    </div>
-                    <div class="included-item">
-                        <i class="bi bi-box-seam"></i>
-                        <span>Terminal 1 Lubang 1 Unit</span>
-                    </div>
-                    <div class="included-item">
-                        <i class="bi bi-box-seam"></i>
-                        <span>Jasa Pasang & Konfigurasi</span>
-                    </div>
-                    <div class="included-item">
-                        <i class="bi bi-box-seam"></i>
-                        <span>Sticker 1 Unit</span>
-                    </div>
+                    @php
+                        // Menggunakan nama kolom 'package_includes' dari database
+                        $includes = is_string($wifi_cam->package_includes) 
+                                        ? json_decode($wifi_cam->package_includes, true) 
+                                        : $wifi_cam->package_includes;
+                    @endphp
+
+                    @if(!empty($includes) && is_array($includes))
+                        @foreach($includes as $item)
+                            <div class="included-item">
+                                <i class="bi bi-box-seam"></i>
+                                <span>{{ $item }}</span>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="included-item">
+                            <span>Informasi paket belum tersedia.</span>
+                        </div>
+                    @endif
                 </div>
             </div>
             
@@ -585,38 +562,6 @@ body {
             </div>
         </div>
     </div>
-    
-    <!-- Terms and Conditions -->
-    <div class="terms-section">
-        <h2 class="terms-title">Syarat dan Ketentuan</h2>
-        <ul class="terms-list">
-            <li>
-                <i class="bi bi-check-circle-fill"></i>
-                <span>Survei lokasi & demo produk gratis jika diperlukan.</span>
-            </li>
-            <li>
-                <i class="bi bi-check-circle-fill"></i>
-                <span>Harga belum termasuk monitor/TV.</span>
-            </li>
-            <li>
-                <i class="bi bi-check-circle-fill"></i>
-                <span>Garansi DVR & Kamera 2 Tahun. HDD 1 Tahun. Garansi Instalasi 1 bulan.</span>
-            </li>
-            <li>
-                <i class="bi bi-check-circle-fill"></i>
-                <span>Kekurangan kabel Coaxial akan dikenakan biaya ép. 5.000 / Meter</span>
-            </li>
-            <li>
-                <i class="bi bi-check-circle-fill"></i>
-                <span>Kekurangan kabel UTP akan dikenakan biaya sebesar Rp. 7.000,-/m.</span>
-            </li>
-            <li>
-                <i class="bi bi-check-circle-fill"></i>
-                <span>Harga belum termasuk pipa conduit.</span>
-            </li>
-        </ul>
-    </div>
-</div>
 
 <script>
 function orderNow() {

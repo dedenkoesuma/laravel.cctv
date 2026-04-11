@@ -271,7 +271,7 @@ class RuijieController extends Controller
             ->orderBy('order')
             ->get();
 
-        return view('admin.ruijie.edit-product', compact('product', 'categories'));
+        return view('admin.ruijie.edit', compact('product', 'categories'));
     }
 
     /**
