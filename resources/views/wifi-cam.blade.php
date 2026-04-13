@@ -623,7 +623,20 @@ function showDetail(id) {
 }
 
 function buyProduct(id) {
-    alert('Fitur pembelian akan segera hadir!\nProduct ID: ' + id);
+   const product = allCameras.find(c => c.id === id);
+
+    if (product) {
+        const waNumber = "6281234567890"; 
+
+        const message = `Halo Admin TechStore, saya tertarik untuk membeli produk:\n\n*${product.name}*\nHarga: Rp ${formatPrice(product.price)}\n\nApakah stoknya masih tersedia?`;
+
+        const encodedMessage = encodeURIComponent(message);
+
+        const waUrl = `https://wa.me/${waNumber}?text=${encodedMessage}`;
+        window.open(waUrl, '_blank');
+    } else {
+        alert('Maaf, data produk tidak ditemukan.');
+    }
 }
 
 function showLoading() {
