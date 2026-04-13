@@ -3,6 +3,15 @@
 @section('title', 'Admin Dashboard')
 
 @section('content')
+@php
+    $adminRoleName = session('admin_role');
+    $currentRole = \Spatie\Permission\Models\Role::where('name', $adminRoleName)->first();
+    
+    // Fungsi ngecek izin murni HANYA dari centangan di database
+    $canAccess = function($permissionName) use ($currentRole) {
+        return $currentRole ? $currentRole->hasPermissionTo($permissionName) : false;
+    };
+@endphp
 <!-- Design Variant Selector -->
 <div class="variant-selector" id="variantSelector">
     <button class="variant-btn" onclick="switchVariant(1)" id="variant-btn-1">

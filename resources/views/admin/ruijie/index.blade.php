@@ -17,6 +17,15 @@
     </style>
 </head>
 <body class="bg-gray-50">
+@php
+    $adminRoleName = session('admin_role');
+    $currentRole = \Spatie\Permission\Models\Role::where('name', $adminRoleName)->first();
+    
+    // Fungsi ngecek izin murni HANYA dari centangan di database
+    $canAccess = function($permissionName) use ($currentRole) {
+        return $currentRole ? $currentRole->hasPermissionTo($permissionName) : false;
+    };
+@endphp
     <!-- Header -->
     <header class="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">

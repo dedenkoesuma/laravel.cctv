@@ -3,30 +3,31 @@
 @section('title', 'Produk ' . $brandName . ' - TechStore')
 
 @section('content')
+
+@php 
+    // Kita set variabel warna utama menjadi Kuning untuk seluruh halaman ini
+    $themeColor = '#deb01f'; 
+@endphp
+
 <div class="container py-5">
-    <!-- Breadcrumb -->
     <div class="row mb-3">
         <div class="col-12">
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ url('/') }}" class="text-decoration-none">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url('/') }}#brands" class="text-decoration-none">Brands</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url('/') }}" class="text-decoration-none" style="color: {{ $themeColor }};">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url('/') }}#brands" class="text-decoration-none" style="color: {{ $themeColor }};">Brands</a></li>
                     <li class="breadcrumb-item active">{{ $brandName }}</li>
                 </ol>
             </nav>
         </div>
     </div>
 
-   
-
-    <!-- Brand Header with Logo & Description -->
     <div class="row mb-5">
         <div class="col-12">
-            
-            <div class="brand-header p-4 rounded-3 shadow-sm" style="background: linear-gradient(135deg, {{ $brandData['color'] }}15 0%, {{ $brandData['color'] }}05 100%); border-left: 5px solid {{ $brandData['color'] }};">
+            <div class="brand-header p-4 rounded-3 shadow-sm" style="background: linear-gradient(135deg, {{ $themeColor }}15 0%, {{ $themeColor }}05 100%); border-left: 5px solid {{ $themeColor }};">
                 <div class="row align-items-center">
                     <div class="col-md-8">
-                        <h1 class="display-4 fw-bold mb-3" style="color: {{ $brandData['color'] }}">
+                        <h1 class="display-4 fw-bold mb-3" style="color: {{ $themeColor }}">
                             {{ $brandData['name'] }}
                         </h1>
                         <p class="lead text-muted mb-0">
@@ -34,7 +35,7 @@
                         </p>
                     </div>
                     <div class="col-md-4 text-end">
-                        <div class="badge fs-6 px-4 py-2" style="background-color: {{ $brandData['color'] }}; color: white;">
+                        <div class="badge fs-6 px-4 py-2" style="background-color: {{ $themeColor }}; color: white;">
                             <i class="bi bi-shield-check"></i> Authorized Dealer
                         </div>
                     </div>
@@ -43,82 +44,77 @@
         </div>
     </div>
 
-    <!-- Product Categories -->
     <div class="row mb-4">
         <div class="col-12">
             <h2 class="fw-bold mb-4">
-                <i class="bi bi-grid-3x3-gap"></i> Kategori Produk {{ $brandName }}
+                <i class="bi bi-grid-3x3-gap" style="color: {{ $themeColor }}"></i> Kategori Produk {{ $brandName }}
             </h2>
         </div>
     </div>
 
     <div class="row g-4 mb-5">
-        <!-- Basic -->
         <div class="col-lg-3 col-md-6 col-sm-6">
             <div class="card h-100 border-0 shadow-sm product-category-card">
                 <div class="card-body text-center">
-                    <div class="category-icon mb-3" style="background-color: {{ $brandData['color'] }}15; width: 80px; height: 80px; margin: 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                        <i class="bi bi-camera-video fs-1" style="color: {{ $brandData['color'] }}"></i>
+                    <div class="category-icon mb-3" style="background-color: {{ $themeColor }}15; width: 80px; height: 80px; margin: 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-camera-video fs-1" style="color: {{ $themeColor }}"></i>
                     </div>
                     <h5 class="card-title fw-bold">Basic Series</h5>
                     <p class="card-text text-muted small">
                         Kamera CCTV series basic dengan kualitas HD
                     </p>
-                    <span class="badge" style="background-color: {{ $brandData['color'] }}; color: white;">
+                    <span class="badge" style="background-color: {{ $themeColor }}; color: white;">
                         {{ $categoryCounts['basic'] ?? 0 }} Produk
                     </span>
                 </div>
             </div>
         </div>
 
-        <!-- Audio -->
         <div class="col-lg-3 col-md-6 col-sm-6">
             <div class="card h-100 border-0 shadow-sm product-category-card">
                 <div class="card-body text-center">
-                    <div class="category-icon mb-3" style="background-color: {{ $brandData['color'] }}15; width: 80px; height: 80px; margin: 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                        <i class="bi bi-mic fs-1" style="color: {{ $brandData['color'] }}"></i>
+                    <div class="category-icon mb-3" style="background-color: {{ $themeColor }}15; width: 80px; height: 80px; margin: 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-mic fs-1" style="color: {{ $themeColor }}"></i>
                     </div>
                     <h5 class="card-title fw-bold">Audio Series</h5>
                     <p class="card-text text-muted small">
                         Kamera CCTV dengan fitur audio built-in
                     </p>
-                    <span class="badge" style="background-color: {{ $brandData['color'] }}; color: white;">
+                    <span class="badge" style="background-color: {{ $themeColor }}; color: white;">
                         {{ $categoryCounts['audio'] ?? 0 }} Produk
                     </span>
                 </div>
             </div>
         </div>
 
-        <!-- Full Color -->
         <div class="col-lg-3 col-md-6 col-sm-6">
             <div class="card h-100 border-0 shadow-sm product-category-card">
                 <div class="card-body text-center">
-                    <div class="category-icon mb-3" style="background-color: {{ $brandData['color'] }}15; width: 80px; height: 80px; margin: 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                        <i class="bi bi-palette fs-1" style="color: {{ $brandData['color'] }}"></i>
+                    <div class="category-icon mb-3" style="background-color: {{ $themeColor }}15; width: 80px; height: 80px; margin: 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-palette fs-1" style="color: {{ $themeColor }}"></i>
                     </div>
                     <h5 class="card-title fw-bold">Full Color</h5>
                     <p class="card-text text-muted small">
                         Kamera full color dengan night vision
                     </p>
-                    <span class="badge" style="background-color: {{ $brandData['color'] }}; color: white;">
+                    <span class="badge" style="background-color: {{ $themeColor }}; color: white;">
                         {{ $categoryCounts['fullcolor'] ?? 0 }} Produk
                     </span>
                 </div>
             </div>
         </div>
 
-        <!-- IP Camera -->
         <div class="col-lg-3 col-md-6 col-sm-6">
             <div class="card h-100 border-0 shadow-sm product-category-card">
                 <div class="card-body text-center">
-                    <div class="category-icon mb-3" style="background-color: {{ $brandData['color'] }}15; width: 80px; height: 80px; margin: 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                        <i class="bi bi-wifi fs-1" style="color: {{ $brandData['color'] }}"></i>
+                    <div class="category-icon mb-3" style="background-color: {{ $themeColor }}15; width: 80px; height: 80px; margin: 0 auto; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-wifi fs-1" style="color: {{ $themeColor }}"></i>
                     </div>
                     <h5 class="card-title fw-bold">IP Camera</h5>
                     <p class="card-text text-muted small">
                         Kamera IP dengan koneksi jaringan
                     </p>
-                    <span class="badge" style="background-color: {{ $brandData['color'] }}; color: white;">
+                    <span class="badge" style="background-color: {{ $themeColor }}; color: white;">
                         {{ $categoryCounts['ipcamera'] ?? 0 }} Produk
                     </span>
                 </div>
@@ -126,10 +122,8 @@
         </div>
     </div>
 
-    <!-- Product Catalog Section -->
     <div class="row mb-5">
         <div class="col-12">
-            <!-- Brand Filter Navigation -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">
                     <div class="mb-3">
@@ -141,21 +135,17 @@
                         @php
                             $brands = [
                                 'hikvision' => ['name' => 'Hikvision', 'color' => '#E62B2E'],
-                                'hilook' => ['name' => 'HiLook', 'color' => '#8B4513'],
-                                'dahua' => ['name' => 'Dahua', 'color' => '#0066B3'],
-                                
-                                
-                                'hiview' => ['name' => 'Hiview', 'color' => '#8B0000'],
-                                'unv' => ['name' => 'UNV', 'color' => '#9C27B0'],
+                                'hilook'    => ['name' => 'HiLook',    'color' => '#8B4513'],
+                                'dahua'     => ['name' => 'Dahua',     'color' => '#0066B3'],
+                                'hiview'    => ['name' => 'Hiview',    'color' => '#deb01f'],
+                                'unv'       => ['name' => 'UNV',       'color' => '#9C27B0'],
                             ];
-                            
                             $currentBrand = strtolower($brandName);
                         @endphp
                         
-                     @foreach($brands as $brandKey => $brandInfo)
+                        @foreach($brands as $brandKey => $brandInfo)
                         <a href="{{ url('/products/' . $brandKey) }}" 
                            class="brand-filter-btn {{ $brandKey === $currentBrand ? 'active' : '' }}"
-                           {{-- Berikan background warna langsung, dan teks putih --}}
                            style="background-color: {{ $brandInfo['color'] }}; border-color: {{ $brandInfo['color'] }}; color: white; --brand-color: {{ $brandInfo['color'] }};">
                             {{ $brandInfo['name'] }}
                             @if($brandKey === $currentBrand)
@@ -167,15 +157,13 @@
                 </div>
             </div>
 
-            <!-- Product Catalog Card -->
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
                     <h3 class="fw-bold mb-4">
-                        <i class="bi bi-camera-fill" style="color: {{ $brandData['color'] }}"></i> 
+                        <i class="bi bi-camera-fill" style="color: {{ $themeColor }}"></i> 
                         Katalog Produk {{ $brandName }}
                     </h3>
 
-                    <!-- Product Tabs -->
                     <ul class="nav nav-tabs mb-4" id="productTabs" role="tablist">
                         @foreach(['basic' => 'Basic', 'audio' => 'Audio', 'fullcolor' => 'Full Color', 'ipcamera' => 'IP Camera'] as $key => $label)
                         <li class="nav-item" role="presentation">
@@ -186,14 +174,13 @@
                                     type="button">
                                 {{ $label }}
                                 @if(isset($categoryCounts[$key]) && $categoryCounts[$key] > 0)
-                                    <span class="badge bg-secondary ms-1">{{ $categoryCounts[$key] }}</span>
+                                    <span class="badge ms-1" style="background-color: {{ $themeColor }}; color: white;">{{ $categoryCounts[$key] }}</span>
                                 @endif
                             </button>
                         </li>
                         @endforeach
                     </ul>
 
-                    <!-- Tab Content -->
                     <div class="tab-content" id="productTabContent">
                         @foreach(['basic' => 'Basic', 'audio' => 'Audio', 'fullcolor' => 'Full Color', 'ipcamera' => 'IP Camera'] as $key => $label)
                         <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}" 
@@ -225,23 +212,17 @@
                                             @php
                                                 $displayPrice = 0;
                                                 if (isset($product->harga_jual) && $product->harga_jual > 0) {
-                                                    $displayPrice = is_numeric($product->harga_jual) 
-                                                        ? $product->harga_jual 
-                                                        : (float)str_replace([','], '', $product->harga_jual);
+                                                    $displayPrice = is_numeric($product->harga_jual) ? $product->harga_jual : (float)str_replace([','], '', $product->harga_jual);
                                                 } elseif (isset($product->harga) && $product->harga > 0) {
-                                                    $displayPrice = is_numeric($product->harga) 
-                                                        ? $product->harga 
-                                                        : (float)str_replace([','], '', $product->harga);
+                                                    $displayPrice = is_numeric($product->harga) ? $product->harga : (float)str_replace([','], '', $product->harga);
                                                 } elseif (isset($product->price) && $product->price > 0) {
-                                                    $displayPrice = is_numeric($product->price) 
-                                                        ? $product->price 
-                                                        : (float)str_replace([','], '', $product->price);
+                                                    $displayPrice = is_numeric($product->price) ? $product->price : (float)str_replace([','], '', $product->price);
                                                 }
                                             @endphp
                                             <div class="text-center mb-3">
-                                                <div class="price-badge px-3 py-2" style="background-color: {{ $brandData['color'] }}15; border: 2px solid {{ $brandData['color'] }}; border-radius: 8px;">
+                                                <div class="price-badge px-3 py-2" style="background-color: {{ $themeColor }}15; border: 2px solid {{ $themeColor }}; border-radius: 8px;">
                                                     <small class="d-block text-muted" style="font-size: 0.75rem;">Harga</small>
-                                                    <span class="fw-bold" style="color: {{ $brandData['color'] }}; font-size: 1.1rem;">
+                                                    <span class="fw-bold" style="color: {{ $themeColor }}; font-size: 1.1rem;">
                                                         Rp {{ number_format($displayPrice, 0, ',', '.') }}
                                                     </span>
                                                 </div>
@@ -259,7 +240,7 @@
                                                     </div>
                                                     <ul class="list-unstyled small description-list">
                                                         @foreach($lines as $line)
-                                                        <li><i class="bi bi-check-circle-fill text-success"></i> {{ $line }}</li>
+                                                        <li><i class="bi bi-check-circle-fill" style="color: {{ $themeColor }}"></i> {{ $line }}</li>
                                                         @endforeach
                                                     </ul>
                                                 @else
@@ -273,7 +254,7 @@
                                             @if(!empty($product->specifications) && is_array($product->specifications))
                                             <ul class="list-unstyled small specs-list mb-3">
                                                 @foreach(array_slice($product->specifications, 0, 3) as $key => $value)
-                                                <li><i class="bi bi-check-circle-fill text-success"></i> {{ ucfirst(str_replace('_', ' ', $key)) }}: {{ $value }}</li>
+                                                <li><i class="bi bi-check-circle-fill" style="color: {{ $themeColor }}"></i> {{ ucfirst(str_replace('_', ' ', $key)) }}: {{ $value }}</li>
                                                 @endforeach
                                             </ul>
                                             @endif
@@ -282,7 +263,7 @@
                                             <a href="https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20dengan%20produk%20{{ urlencode($product->nama_produk ?? $product->product_name) }}%20-%20{{ urlencode($product->sku ?? '') }}" 
                                             target="_blank"
                                             class="btn btn-sm w-100" 
-                                            style="background-color: {{ $brandData['color'] }}; color: white; border: none;"
+                                            style="background-color: {{ $themeColor }}; color: white; border: none;"
                                             onmouseover="this.style.opacity='0.8'" 
                                             onmouseout="this.style.opacity='1'">
                                                 <i class="bi bi-whatsapp"></i> Order Sekarang 
@@ -292,7 +273,7 @@
                                 </div>
                                 @empty
                                 <div class="col-12">
-                                    <div class="alert alert-info text-center">
+                                    <div class="alert text-center" style="background-color: {{ $themeColor }}15; border-color: {{ $themeColor }}30; color: #856404;">
                                         <i class="bi bi-info-circle"></i> 
                                         Belum ada produk di kategori {{ $label }}
                                     </div>
@@ -307,51 +288,49 @@
         </div>
     </div>
 
-    <!-- Why Choose Us Section -->
     <div class="row mb-5">
         <div class="col-12">
             <h3 class="fw-bold mb-4">
-                <i class="bi bi-star-fill text-warning"></i> Kenapa Pilih Kami?
+                <i class="bi bi-star-fill" style="color: {{ $themeColor }}"></i> Kenapa Pilih Kami?
             </h3>
         </div>
         <div class="col-md-3 col-sm-6 mb-3">
             <div class="feature-box text-center p-3">
-                <i class="bi bi-award fs-1 text-primary mb-2"></i>
+                <i class="bi bi-award fs-1 mb-2" style="color: {{ $themeColor }}"></i>
                 <h6 class="fw-bold">Produk Original</h6>
                 <p class="small text-muted mb-0">100% produk asli dengan garansi resmi</p>
             </div>
         </div>
         <div class="col-md-3 col-sm-6 mb-3">
             <div class="feature-box text-center p-3">
-                <i class="bi bi-tools fs-1 text-success mb-2"></i>
+                <i class="bi bi-tools fs-1 mb-2" style="color: {{ $themeColor }}"></i>
                 <h6 class="fw-bold">Instalasi Profesional</h6>
                 <p class="small text-muted mb-0">Tim teknisi berpengalaman</p>
             </div>
         </div>
         <div class="col-md-3 col-sm-6 mb-3">
             <div class="feature-box text-center p-3">
-                <i class="bi bi-headset fs-1 text-info mb-2"></i>
+                <i class="bi bi-headset fs-1 mb-2" style="color: {{ $themeColor }}"></i>
                 <h6 class="fw-bold">Support 24/7</h6>
                 <p class="small text-muted mb-0">Layanan pelanggan siap membantu</p>
             </div>
         </div>
         <div class="col-md-3 col-sm-6 mb-3">
             <div class="feature-box text-center p-3">
-                <i class="bi bi-truck fs-1 text-warning mb-2"></i>
+                <i class="bi bi-truck fs-1 mb-2" style="color: {{ $themeColor }}"></i>
                 <h6 class="fw-bold">Pengiriman Cepat</h6>
                 <p class="small text-muted mb-0">Pengiriman ke seluruh Indonesia</p>
             </div>
         </div>
     </div>
 
-    <!-- CTA Section -->
     <div class="row">
         <div class="col-12">
-            <div class="cta-box p-5 rounded-3 text-center" style="background: linear-gradient(135deg, {{ $brandData['color'] }} 0%, {{ $brandData['color'] }}dd 100%); color: white;">
+            <div class="cta-box p-5 rounded-3 text-center" style="background: linear-gradient(135deg, {{ $themeColor }} 0%, #D97706 100%); color: white;">
                 <h3 class="fw-bold mb-3">Tertarik dengan Produk {{ $brandName }}?</h3>
                 <p class="lead mb-4">Konsultasikan kebutuhan keamanan Anda dengan tim ahli kami</p>
                 <div class="d-flex gap-3 justify-content-center flex-wrap">
-                    <a href="{{ url('/contact') }}" class="btn btn-light btn-lg">
+                    <a href="{{ url('/contact') }}" class="btn btn-light btn-lg" style="color: {{ $themeColor }};">
                         <i class="bi bi-envelope"></i> Hubungi Kami
                     </a>
                     <a href="https://wa.me/6281234567890" target="_blank" class="btn btn-success btn-lg">
@@ -389,13 +368,13 @@
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     opacity: 0.85;
-    color: white; /* Pastikan teks tetap putih saat di-hover */
+    color: white; 
 }
 
 .brand-filter-btn.active {
     font-weight: 600;
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    transform: scale(1.05); /* Sedikit membesar untuk menandakan aktif */
+    transform: scale(1.05); 
 }
 .brand-filter-btn.active:hover {
     opacity: 0.9;
@@ -530,6 +509,7 @@
     box-shadow: 0 1rem 3rem rgba(0,0,0,.175);
 }
 
+/* CSS TABS DIRUBAH JADI KUNING */
 .nav-tabs .nav-link {
     color: #6c757d;
     font-weight: 500;
@@ -539,14 +519,14 @@
 }
 
 .nav-tabs .nav-link:hover {
-    border-color: transparent transparent #0d6efd;
-    color: #0d6efd;
+    border-color: transparent transparent #EAB308;
+    color: #EAB308;
 }
 
 .nav-tabs .nav-link.active {
-    color: #0d6efd;
+    color: #EAB308;
     background-color: transparent;
-    border-color: transparent transparent #0d6efd;
+    border-color: transparent transparent #EAB308;
     font-weight: 600;
 }
 

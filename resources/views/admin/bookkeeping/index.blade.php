@@ -434,7 +434,15 @@
     }
 }
 </style>
-
+@php
+    $adminRoleName = session('admin_role');
+    $currentRole = \Spatie\Permission\Models\Role::where('name', $adminRoleName)->first();
+    
+    // Fungsi ngecek izin murni HANYA dari centangan di database
+    $canAccess = function($permissionName) use ($currentRole) {
+        return $currentRole ? $currentRole->hasPermissionTo($permissionName) : false;
+    };
+@endphp
 <div class="bookkeeping-container">
     <!-- Page Header -->
     <div class="page-header-bookkeeping">

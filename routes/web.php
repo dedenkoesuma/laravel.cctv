@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\Admin\AdminUserController;
 use App\Http\Controllers\WiFiCameraController;
 use App\Http\Controllers\AccessControlController;
 use App\Http\Controllers\Admin\AdminWiFiCameraController;
@@ -104,22 +105,30 @@ Route::get('/login', function () {
 Route::post('/login', function (Request $request) {
     $credentials = $request->only('username', 'password');
     
+    // Cari user berdasarkan username
     $admin = \DB::table('admins')
         ->where('username', $credentials['username'])
         ->first();
     
-    if ($admin && \Hash::check($credentials['password'], $admin->password)) {
+    // DEBUG: Cek apakah user ketemu
+    if (!$admin) {
+        return back()->withErrors(['login' => 'User tidak ditemukan di database!']);
+    }
+
+    // DEBUG: Cek kecocokan password
+    if (\Hash::check($credentials['password'], $admin->password)) {
         session([
             'admin_logged_in' => true,
             'admin_id' => $admin->id,
             'admin_name' => $admin->name,
-            'admin_email' => $admin->email
+            'admin_email' => $admin->email,
+            'admin_role' => strtolower($admin->role),
         ]);
-        
         return redirect('/admin/dashboard');
+    } else {
+        // Jika gagal, tampilkan pesan error yang lebih spesifik
+        return back()->withErrors(['login' => 'Password salah! Pastikan tidak ada spasi atau salah ketik.']);
     }
-    
-    return back()->withErrors(['login' => 'Invalid credentials']);
 })->name('login.post');
 
 Route::post('/logout', function () {
@@ -798,4 +807,24 @@ Route::fallback(function () {
         'message' => 'Page Not Found',
         'description' => 'The page you are looking for does not exist.',
     ], 404);
+});
+// =====================================
+// FINAL OVERRIDE: USER MANAGEMENT
+// =====================================
+
+Route::group(['prefix' => 'manage-users'], function() {
+    Route::get('/', [AdminUserController::class, 'index'])->name('admin.users.index');
+    Route::post('/', [AdminUserController::class, 'store'])->name('admin.users.store');
+    Route::put('/{id}', [AdminUserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/{id}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+});
+
+// =====================================
+// ROLES & PERMISSIONS MANAGEMENT
+// =====================================
+Route::group(['prefix' => 'admin/roles', 'as' => 'admin.roles.'], function() {
+    Route::get('/', [App\Http\Controllers\Admin\RoleController::class, 'index'])->name('index');
+    Route::post('/', [App\Http\Controllers\Admin\RoleController::class, 'store'])->name('store'); // INI ROUTE BARUNYA
+    Route::get('/{id}/edit', [App\Http\Controllers\Admin\RoleController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [App\Http\Controllers\Admin\RoleController::class, 'update'])->name('update');
 });

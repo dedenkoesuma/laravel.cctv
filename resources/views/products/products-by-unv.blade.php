@@ -145,7 +145,7 @@
                                 'dahua' => ['name' => 'Dahua', 'color' => '#0066B3'],
                                 
                                 
-                                'hiview' => ['name' => 'Hiview', 'color' => '#8B0000'],
+                                'hiview' => ['name' => 'Hiview', 'color' => '#deb01f'],
                                 'unv' => ['name' => 'UNV', 'color' => '#9C27B0'],
                             ];
                             

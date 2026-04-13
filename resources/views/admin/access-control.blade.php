@@ -3,6 +3,15 @@
 @section('title', 'Access Control Management - Admin')
 
 @section('content')
+@php
+    $adminRoleName = session('admin_role');
+    $currentRole = \Spatie\Permission\Models\Role::where('name', $adminRoleName)->first();
+    
+    // Fungsi ngecek izin murni HANYA dari centangan di database
+    $canAccess = function($permissionName) use ($currentRole) {
+        return $currentRole ? $currentRole->hasPermissionTo($permissionName) : false;
+    };
+@endphp
 <div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col-12">
