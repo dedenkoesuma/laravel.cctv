@@ -135,7 +135,7 @@
                         @php
                             $brands = [
                                 'hikvision' => ['name' => 'Hikvision', 'color' => '#E62B2E'],
-                                'hilook'    => ['name' => 'HiLook',    'color' => '#8B4513'],
+                                'hilook'    => ['name' => 'HiLook',    'color' => '#00A7E1'],
                                 'dahua'     => ['name' => 'Dahua',     'color' => '#0066B3'],
                                 'hiview'    => ['name' => 'Hiview',    'color' => '#deb01f'],
                                 'unv'       => ['name' => 'UNV',       'color' => '#9C27B0'],
