@@ -125,9 +125,7 @@
         return $currentRole ? $currentRole->hasPermissionTo($permissionName) : false;
     };
 @endphp
-<!-- Main Content -->
 <div id="dashboardContent">
-    <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url('/') }}">
@@ -142,13 +140,11 @@
     </nav>
 
     <div class="container py-4">
-        <!-- Page Header -->
         <div class="dashboard-header">
             <h1 class="dashboard-title">Manage WiFi Camera</h1>
             <p class="dashboard-subtitle">Kelola produk WiFi Camera: tambah, edit, hapus, dan upload gambar</p>
         </div>
 
-        <!-- Action Buttons -->
         <div class="mb-4 d-flex justify-content-between align-items-center">
             <h2 class="section-title mb-0">Daftar WiFi Camera</h2>
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCameraModal">
@@ -156,7 +152,6 @@
             </button>
         </div>
 
-        <!-- Filter & Search -->
         <div class="table-card mb-4">
             <div class="row g-3">
                 <div class="col-md-4">
@@ -164,12 +159,10 @@
                 </div>
                 <div class="col-md-3">
                     <select class="form-select" id="filterBrand" onchange="loadCameras()">
-                        <option value="">Semua Brand</option>
+                        <option value="DAHUA">DAHUA</option>
                         <option value="EZVIZ">EZVIZ</option>
                         <option value="IMOU">IMOU</option>
-                        <option value="HIKVISION">HIKVISION</option>
                         <option value="TP-LINK">TP-LINK</option>
-                        <option value="DAHUA">DAHUA</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -187,7 +180,6 @@
             </div>
         </div>
 
-        <!-- Cameras Table -->
         <div class="table-card">
             <div id="loadingSpinner" class="loading-spinner">
                 <div class="spinner-border text-primary" role="status">
@@ -212,8 +204,7 @@
                             </tr>
                         </thead>
                         <tbody id="cameraTableBody">
-                            <!-- Data loaded via AJAX -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -221,7 +212,6 @@
     </div>
 </div>
 
-<!-- Add Camera Modal -->
 <div class="modal fade" id="addCameraModal" tabindex="-1">
     <div class="modal-dialog modal-lg-custom modal-dialog-scrollable">
         <div class="modal-content">
@@ -231,7 +221,6 @@
             </div>
             <div class="modal-body">
                 <form id="addCameraForm" enctype="multipart/form-data">
-                    <!-- Basic Info -->
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Nama Produk *</label>
@@ -241,11 +230,10 @@
                             <label class="form-label">Brand *</label>
                             <select class="form-select" name="brand" required>
                                 <option value="">Pilih Brand</option>
+                                <option value="DAHUA">DAHUA</option>
                                 <option value="EZVIZ">EZVIZ</option>
                                 <option value="IMOU">IMOU</option>
-                                <option value="HIKVISION">HIKVISION</option>
                                 <option value="TP-LINK">TP-LINK</option>
-                                <option value="DAHUA">DAHUA</option>
                             </select>
                         </div>
                     </div>
@@ -256,7 +244,6 @@
                                placeholder="Contoh: Smart Pan & Tilt Indoor WiFi Camera" required>
                     </div>
 
-                    <!-- Pricing -->
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Harga Jual (Rp) *</label>
@@ -269,7 +256,6 @@
                         </div>
                     </div>
 
-                    <!-- Stock & SKU -->
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Stok</label>
@@ -281,7 +267,6 @@
                         </div>
                     </div>
 
-                    <!-- Images -->
                     <div class="mb-3">
                         <label class="form-label">Gambar Utama *</label>
                         <input type="file" class="form-control" name="main_image" accept="image/*" 
@@ -296,7 +281,6 @@
                         <div id="addGalleryPreview" class="image-preview-container"></div>
                     </div>
 
-                    <!-- Specifications -->
                     <div class="mb-3">
                         <label class="form-label">Spesifikasi</label>
                         <div id="specificationsContainer">
@@ -313,7 +297,6 @@
                         </button>
                     </div>
 
-                    <!-- Package Includes -->
                     <div class="mb-3">
                         <label class="form-label">Paket Termasuk</label>
                         <div id="packageContainer">
@@ -330,7 +313,6 @@
                         </button>
                     </div>
 
-                    <!-- Status -->
                     <div class="mb-3">
                         <label class="form-label">Status</label>
                         <select class="form-select" name="status">
@@ -359,7 +341,6 @@
     </div>
 </div>
 
-<!-- Edit Camera Modal -->
 <div class="modal fade" id="editCameraModal" tabindex="-1">
     <div class="modal-dialog modal-lg-custom modal-dialog-scrollable">
         <div class="modal-content">
@@ -379,11 +360,10 @@
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Brand</label>
                             <select class="form-select" id="editBrand">
+                                <option value="DAHUA">DAHUA</option>
                                 <option value="EZVIZ">EZVIZ</option>
                                 <option value="IMOU">IMOU</option>
-                                <option value="HIKVISION">HIKVISION</option>
                                 <option value="TP-LINK">TP-LINK</option>
-                                <option value="DAHUA">DAHUA</option>
                             </select>
                         </div>
                     </div>

@@ -100,40 +100,16 @@
 }
 
 /* Brand specific colors */
-.filter-btn[data-brand="HIKVISION"]:hover,
-.filter-btn[data-brand="HIKVISION"].active {
-    background: #DC143C;
-    border-color: #DC143C;
-}
-
 .filter-btn[data-brand="Dahua"]:hover,
 .filter-btn[data-brand="Dahua"].active {
     background: #003D7A;
     border-color: #003D7A;
 }
 
-.filter-btn[data-brand="HiLook"]:hover,
-.filter-btn[data-brand="HiLook"].active {
-    background: #8B4513;
-    border-color: #8B4513;
-}
-
 .filter-btn[data-brand="EZVIZ"]:hover,
 .filter-btn[data-brand="EZVIZ"].active {
     background: #4A90E2;
     border-color: #4A90E2;
-}
-
-.filter-btn[data-brand="UNV"]:hover,
-.filter-btn[data-brand="UNV"].active {
-    background: #6A0DAD;
-    border-color: #6A0DAD;
-}
-
-.filter-btn[data-brand="RUIJIE"]:hover,
-.filter-btn[data-brand="RUIJIE"].active {
-    background: #00A7E1;
-    border-color: #00A7E1;
 }
 
 .filter-btn[data-brand="HIVIEW"]:hover,
@@ -404,7 +380,6 @@
 }
 </style>
 
-<!-- Page Header -->
 <div class="page-header">
     <div class="container">
         <nav aria-label="breadcrumb">
@@ -422,30 +397,14 @@
 </div>
 
 <div class="container">
-    <!-- Filter Section -->
     <div class="filter-section">
         <h3 class="filter-title">Filter by Brand</h3>
         <div class="filter-buttons" id="brandFilters">
-            <button class="filter-btn active" data-brand="" onclick="filterByBrand('', event)">
-                Semua Brand
-            </button>
-            <button class="filter-btn" data-brand="HIKVISION" onclick="filterByBrand('HIKVISION', event)">
-                HIKVISION
-            </button>
-            <button class="filter-btn" data-brand="Dahua" onclick="filterByBrand('Dahua', event)">
+            <button class="filter-btn active" data-brand="Dahua" onclick="filterByBrand('Dahua', event)">
                 Dahua
-            </button>
-            <button class="filter-btn" data-brand="HiLook" onclick="filterByBrand('HiLook', event)">
-                HiLook
             </button>
             <button class="filter-btn" data-brand="EZVIZ" onclick="filterByBrand('EZVIZ', event)">
                 EZVIZ
-            </button>
-            <button class="filter-btn" data-brand="UNV" onclick="filterByBrand('UNV', event)">
-                UNV
-            </button>
-            <button class="filter-btn" data-brand="RUIJIE" onclick="filterByBrand('RUIJIE', event)">
-                RUIJIE
             </button>
             <button class="filter-btn" data-brand="HIVIEW" onclick="filterByBrand('HIVIEW', event)">
                 HIVIEW
@@ -459,7 +418,6 @@
         </div>
     </div>
 
-    <!-- Loading State -->
     <div id="loadingState" class="loading-state">
         <div class="spinner-border text-primary" role="status">
             <span class="visually-hidden">Loading...</span>
@@ -467,12 +425,9 @@
         <p class="mt-3 text-muted">Loading products...</p>
     </div>
 
-    <!-- Products Grid -->
     <div class="row g-4 mb-5" id="productsGrid" style="display: none;">
-        <!-- Products will be loaded here via JavaScript -->
-    </div>
+        </div>
 
-    <!-- Features Section -->
     <div class="features-section">
         <div class="container">
             <h2 class="text-center mb-5" style="font-size: 2rem; font-weight: 700;">Keunggulan WiFi Camera</h2>
@@ -516,7 +471,8 @@
 
 <script>
 let allCameras = [];
-let currentBrand = '';
+// Ubah default brand ke Dahua karena tombol "Semua Brand" dihapus
+let currentBrand = 'Dahua'; 
 
 // Load cameras on page load
 document.addEventListener('DOMContentLoaded', function() {
