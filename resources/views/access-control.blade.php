@@ -346,8 +346,6 @@
     }
 }
 </style>
-
-<!-- Page Header -->
 <div class="page-header">
     <div class="container">
         <nav aria-label="breadcrumb">
@@ -366,29 +364,18 @@
     </div>
 </div>
 
-<!-- Main Content -->
 <div class="container">
     
-    <!-- Filter Section -->
     <div class="filter-section">
         <h3 class="filter-title">
             <i class="bi bi-funnel"></i> Filter by Brand
         </h3>
         <div class="filter-buttons" id="brandFilters">
-            <button class="filter-btn active" data-brand="">
-                All Brands
-            </button>
-            <button class="filter-btn" data-brand="HIKVISION">
+            <button class="filter-btn active" data-brand="HIKVISION">
                 HIKVISION
             </button>
             <button class="filter-btn" data-brand="Dahua">
                 Dahua
-            </button>
-            <button class="filter-btn" data-brand="EZVIZ">
-                EZVIZ
-            </button>
-            <button class="filter-btn" data-brand="UNV">
-                UNV
             </button>
             <button class="filter-btn" data-brand="ZKTeco">
                 ZKTeco
@@ -396,7 +383,6 @@
         </div>
     </div>
 
-    <!-- Products Grid -->
     <div id="productsContainer">
         <div class="loading-spinner">
             <div class="spinner"></div>
@@ -405,7 +391,6 @@
     </div>
 
 </div>
-
 <script>
 let currentBrand = '';
 

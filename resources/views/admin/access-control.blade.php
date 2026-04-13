@@ -34,7 +34,6 @@
         </div>
     </div>
 
-    <!-- Statistics Cards -->
     <div class="row mb-4" id="statisticsCards">
         <div class="col-md-3">
             <div class="card border-0 shadow-sm">
@@ -106,15 +105,11 @@
         </div>
     </div>
 
-    <!-- Filters -->
     <div class="row mb-4">
         <div class="col-md-3">
             <select class="form-select" id="filterBrand">
-                <option value="">All Brands</option>
                 <option value="hikvision">HIKVISION</option>
                 <option value="dahua">Dahua</option>
-                <option value="ezviz">EZVIZ</option>
-                <option value="unv">UNV</option>
                 <option value="zkteco">ZKTeco</option>
             </select>
         </div>
@@ -136,7 +131,6 @@
         </div>
     </div>
 
-    <!-- Products Table -->
     <div class="card border-0 shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
@@ -169,7 +163,6 @@
     </div>
 </div>
 
-<!-- Add/Edit Modal -->
 <div class="modal fade" id="productModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -192,8 +185,6 @@
                                 <option value="">Select Brand</option>
                                 <option value="hikvision">HIKVISION</option>
                                 <option value="dahua">Dahua</option>
-                                <option value="ezviz">EZVIZ</option>
-                                <option value="unv">UNV</option>
                                 <option value="zkteco">ZKTeco</option>
                             </select>
                         </div>
