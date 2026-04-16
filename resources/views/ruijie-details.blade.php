@@ -312,9 +312,6 @@
                         </div>
 
                         <h1 class="product-title">{{ $product->name }}</h1>
-                        @if(!empty($product->slug))
-                            <p class="product-subtitle">Slug: {{ $product->slug }}</p>
-                        @endif
                         
                        @if(!empty($product->description))
                         <div class="product-desc">

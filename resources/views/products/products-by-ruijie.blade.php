@@ -1212,8 +1212,26 @@ function showDetail(id) {
 }
 
 function buyProduct(id) {
-    alert('Untuk pembelian produk, silakan hubungi kami via WhatsApp!');
-    contactWhatsApp();
+    // Asumsi nama array datamu adalah ruijieProducts atau products atau allProducts
+    let product = null;
+    if (typeof ruijieProducts !== 'undefined') product = ruijieProducts.find(p => p.id === id);
+    else if (typeof products !== 'undefined') product = products.find(p => p.id === id);
+    else if (typeof allProducts !== 'undefined') product = allProducts.find(p => p.id === id);
+
+    if (product) {
+        const waNumber = "6281234567890"; // GANTI DENGAN NOMOR WA KAMU
+        const price = parseInt(product.price).toLocaleString('id-ID');
+        
+        const message = `Halo Admin TechStore, saya tertarik untuk membeli produk Ruijie:\n\n*${product.name}*\nHarga: Rp ${price}\n\nApakah stoknya masih tersedia?`;
+        
+        const encodedMessage = encodeURIComponent(message);
+        const waUrl = `https://wa.me/${waNumber}?text=${encodedMessage}`;
+        
+        window.open(waUrl, '_blank');
+    } else {
+        // Jika data gagal ditemukan di halaman depan, tetap arahkan ke WA
+        window.open('https://wa.me/6281234567890?text=Halo%20Admin,%20saya%20tertarik%20membeli%20produk%20Ruijie.', '_blank');
+    }
 }
 
 function contactWhatsApp() {
