@@ -34,12 +34,52 @@ class WiFiCameraController extends Controller
         // Decode JSON fields
         $product->specifications = json_decode($product->specifications, true) ?? [];
         $product->package_includes = json_decode($product->package_includes, true) ?? [];
-        $product->gallery_images = json_decode($product->gallery_images, true) ?? [];
+        
+        // --- KODE LAMA: Menggunakan gallery_images, padahal Blade pakai 'images' ---
+        // $product->gallery_images = json_decode($product->gallery_images, true) ?? []; 
+        
+        // --- KODE BARU: Sesuaikan dengan pemanggilan 'images' di Blade ---
+        $gallery = json_decode($product->gallery_images, true) ?? [];
+        // Gabungkan main_image dan gallery_images ke dalam array 'images'
+        $allImages = [];
+        if ($product->main_image) {
+            $allImages[] = '/storage/' . $product->main_image;
+        }
+        foreach ($gallery as $img) {
+            $allImages[] = '/storage/' . $img;
+        }
         
         // Convert to array for compatibility with view
         $productArray = (array) $product;
+        // Set 'images' agar tidak error saat foreach di Blade
+        $productArray['images'] = $allImages; 
         
-        return view('wifi-cam-detail', ['product' => $productArray]);
+        // ==========================================
+        // TAMBAHKAN KODE INI UNTUK PRODUK SERUPA
+        // ==========================================
+        $similarProducts = DB::table('wifi_cameras')
+            ->where('brand', $product->brand) // Ambil brand yang sama
+            ->where('id', '!=', $product->id) // Jangan tampilkan produk yang sedang dilihat
+            ->where('status', 'active')
+            ->limit(4) // Batasi 4 produk
+            ->get();
+            
+        // Jika tidak ada produk dari brand yang sama, ambil produk wifi camera random
+        if ($similarProducts->isEmpty()) {
+            $similarProducts = DB::table('wifi_cameras')
+                ->where('id', '!=', $product->id)
+                ->where('status', 'active')
+                ->inRandomOrder()
+                ->limit(4)
+                ->get();
+        }
+        // ==========================================
+        
+        // Kirim $productArray DAN $similarProducts ke view
+        return view('wifi-cam-detail', [
+            'product' => $productArray,
+            'similarProducts' => $similarProducts
+        ]);
     }
     
     /**

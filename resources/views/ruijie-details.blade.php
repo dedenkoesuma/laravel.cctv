@@ -316,40 +316,65 @@
                             <p class="product-subtitle">Slug: {{ $product->slug }}</p>
                         @endif
                         
-                        @if(!empty($product->description))
+                       @if(!empty($product->description))
                         <div class="product-desc">
-                            {{ $product->description }}
+                            {!! nl2br(e($product->description)) !!}
                         </div>
                         @endif
-
-                        @php
-                            $specs = is_string($product->specifications ?? '') ? json_decode($product->specifications, true) : ($product->specifications ?? []);
+                            @php
+                            $specs = [];
+                            if (!empty($product->specifications)) {
+                                // Coba decode sebagai JSON terlebih dahulu
+                                $decodedSpecs = is_string($product->specifications) ? json_decode($product->specifications, true) : $product->specifications;
+                                
+                                if (is_array($decodedSpecs) && json_last_error() === JSON_ERROR_NONE) {
+                                    $specs = $decodedSpecs; // Jika valid JSON, gunakan hasilnya
+                                } else {
+                                    // Jika BUKAN JSON (teks biasa dari textarea), pisahkan berdasarkan enter (baris baru)
+                                    $specs = array_filter(explode("\n", str_replace("\r", "", $product->specifications)));
+                                }
+                            }
                         @endphp
-                        
-                        @if(!empty($specs))
+                        @if(!empty($specs) && count($specs) > 0)
                         <h2 class="section-title">Spesifikasi</h2>
                         <div class="specs-grid">
                             @foreach($specs as $spec)
-                            <div class="spec-item">
-                                <i class="bi bi-check-circle-fill"></i>
-                                <span class="spec-text">{{ $spec }}</span>
-                            </div>
+                                @if(trim($spec) !== '' && trim($spec) !== '[]') {{-- Hindari menampilkan array kosong dari placeholder form --}}
+                                <div class="spec-item">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span class="spec-text">{{ trim($spec) }}</span>
+                                </div>
+                                @endif
                             @endforeach
                         </div>
                         @endif
 
+                        {{-- ===== FEATURES ===== --}}
                         @php
-                            $features = is_string($product->features ?? '') ? json_decode($product->features, true) : ($product->features ?? []);
+                            $features = [];
+                            if (!empty($product->features)) {
+                                // Coba decode sebagai JSON terlebih dahulu
+                                $decodedFeatures = is_string($product->features) ? json_decode($product->features, true) : $product->features;
+                                
+                                if (is_array($decodedFeatures) && json_last_error() === JSON_ERROR_NONE) {
+                                    $features = $decodedFeatures; // Jika valid JSON, gunakan hasilnya
+                                } else {
+                                    // Jika BUKAN JSON (teks biasa dari textarea), pisahkan berdasarkan enter (baris baru)
+                                    $features = array_filter(explode("\n", str_replace("\r", "", $product->features)));
+                                }
+                            }
                         @endphp
                         
-                        @if(!empty($features))
+                        @if(!empty($features) && count($features) > 0)
                         <h2 class="section-title">Fitur Utama</h2>
                         <div class="package-list">
                             @foreach($features as $item)
-                            <div class="package-item">
-                                <i class="bi bi-box-seam"></i>
-                                <span class="package-text">{{ $item }}</span>
-                            </div>
+                                @if(trim($item) !== '' && trim($item) !== '[]') {{-- Hindari menampilkan array kosong dari placeholder form --}}
+                                <div class="package-item">
+                                    <i class="bi bi-star-fill text-warning"></i> {{-- Ubah icon agar beda dengan spek --}}
+                                    <span class="package-text">{{ trim($item) }}</span>
+                                </div>
+                                @endif
                             @endforeach
                         </div>
                         @endif

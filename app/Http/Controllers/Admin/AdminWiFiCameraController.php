@@ -110,8 +110,8 @@ class AdminWiFiCameraController extends Controller
             'sku' => 'nullable|string|max:100',
             'status' => 'nullable|in:active,inactive',
             'is_featured' => 'nullable|boolean',
-            'main_image' => 'required|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'main_image' => 'required|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
             'specifications' => 'nullable|array',
             'package_includes' => 'nullable|array'
         ]);
@@ -187,8 +187,8 @@ class AdminWiFiCameraController extends Controller
             'sku' => 'nullable|string|max:100',
             'status' => 'nullable|in:active,inactive',
             'is_featured' => 'nullable|boolean',
-            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'specifications' => 'nullable|array',
             'package_includes' => 'nullable|array'
         ]);

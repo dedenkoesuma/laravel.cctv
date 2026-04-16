@@ -234,6 +234,101 @@
     box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
 
+/* ===== SIMILAR PRODUCTS ===== */
+.similar-products-section {
+    margin-top: 50px;
+}
+
+.similar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.similar-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+.btn-view-all {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.btn-view-all:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+.similar-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #eee;
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.similar-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transform: translateY(-5px);
+}
+
+.similar-img {
+    height: 150px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.similar-img img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.similar-name {
+    font-weight: 700;
+    color: #333;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.similar-subtitle {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 15px;
+    min-height: 40px; 
+}
+
+.similar-price {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #333;
+    margin-top: auto;
+    margin-bottom: 15px;
+}
+
+.btn-detail-similar {
+    color: #667eea;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.btn-detail-similar:hover {
+    color: #764ba2;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 767px) {
     .product-images {
@@ -260,29 +355,24 @@
 
 <div class="detail-container">
     <div class="container">
-        <!-- Back Button -->
         <a href="{{ url('/wifi-cam') }}" class="back-button">
             <i class="bi bi-arrow-left"></i>
             Kembali ke WiFi Camera
         </a>
 
-        <!-- Product Detail Card -->
         <div class="product-detail-card">
             <div class="row g-0">
-                <!-- Left: Product Images -->
                 <div class="col-lg-5">
                     <div class="product-images">
-                        <!-- Brand Logo -->
                         @if(isset($product['brand_logo']))
                         <img src="{{ $product['brand_logo'] }}" alt="{{ $product['brand'] }}" class="brand-logo">
                         @endif
 
-                        <!-- Main Image -->
                         <div class="main-image">
-                            <img src="{{ $product['main_image'] }}" alt="{{ $product['name'] }}" id="mainImage">
+                            <img src="{{ $product['images'][0] ?? ($product['main_image'] ?? 'https://via.placeholder.com/400') }}" alt="{{ $product['name'] }}" id="mainImage">
                         </div>
 
-                        <!-- Thumbnail Images -->
+                        @if(isset($product['images']) && count($product['images']) > 0)
                         <div class="thumbnail-images">
                             @foreach($product['images'] as $index => $image)
                             <div class="thumbnail {{ $index === 0 ? 'active' : '' }}" onclick="changeImage('{{ $image }}', this)">
@@ -290,13 +380,12 @@
                             </div>
                             @endforeach
                         </div>
+                        @endif
                     </div>
                 </div>
 
-                <!-- Right: Product Info -->
                 <div class="col-lg-7">
                     <div class="product-info">
-                        <!-- Resolution Badges (if multiple) -->
                         @if(isset($product['resolutions']))
                         <div class="resolution-badges">
                             @foreach($product['resolutions'] as $res)
@@ -307,33 +396,37 @@
                         </div>
                         @endif
 
-                        <!-- Product Title -->
                         <h1 class="product-title">{{ $product['name'] }}</h1>
                         <p class="product-subtitle">{{ $product['subtitle'] }}</p>
 
-                        <!-- Specifications -->
                         <h2 class="section-title">Spesifikasi</h2>
                         <div class="specs-grid">
-                            @foreach($product['specifications'] as $spec)
-                            <div class="spec-item">
-                                <i class="bi bi-check-circle-fill"></i>
-                                <span class="spec-text">{{ $spec }}</span>
-                            </div>
-                            @endforeach
+                            @if(isset($product['specifications']) && count($product['specifications']) > 0)
+                                @foreach($product['specifications'] as $spec)
+                                <div class="spec-item">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span class="spec-text">{{ $spec }}</span>
+                                </div>
+                                @endforeach
+                            @else
+                                <p class="text-muted">Tidak ada spesifikasi khusus.</p>
+                            @endif
                         </div>
 
-                        <!-- Package Includes -->
                         <h2 class="section-title">Sudah Termasuk</h2>
                         <div class="package-list">
-                            @foreach($product['package_includes'] as $item)
-                            <div class="package-item">
-                                <i class="bi bi-box-seam"></i>
-                                <span class="package-text">{{ $item }}</span>
-                            </div>
-                            @endforeach
+                            @if(isset($product['package_includes']) && count($product['package_includes']) > 0)
+                                @foreach($product['package_includes'] as $item)
+                                <div class="package-item">
+                                    <i class="bi bi-box-seam"></i>
+                                    <span class="package-text">{{ $item }}</span>
+                                </div>
+                                @endforeach
+                            @else
+                                <p class="text-muted">Kamera, Kabel Power, Adaptor (Standar Pabrik)</p>
+                            @endif
                         </div>
 
-                        <!-- Price & Order -->
                         <div class="price-section">
                             <div class="price-label">Harga/Unit:</div>
                             <div class="price-value">IDR. {{ number_format($product['price'], 0, ',', '.') }}</div>
@@ -347,6 +440,34 @@
                 </div>
             </div>
         </div>
+        
+        @if(isset($similarProducts) && $similarProducts->count() > 0)
+        <div class="similar-products-section">
+            <div class="similar-header">
+                <h3 class="similar-title">Produk Serupa</h3>
+                <a href="{{ url('/wifi-cam') }}" class="btn-view-all">Produk Lainnya &rarr;</a>
+            </div>
+            
+            <div class="row g-3">
+                @foreach($similarProducts as $similar)
+                <div class="col-6 col-md-3">
+                    <a href="{{ url('/wifi-cam/' . $similar->slug) }}" style="text-decoration: none;">
+                        <div class="similar-card">
+                            <div class="similar-img">
+                                <img src="{{ $similar->main_image ? '/storage/' . $similar->main_image : 'https://via.placeholder.com/150' }}" alt="{{ $similar->name }}">
+                            </div>
+                            <div class="similar-name">{{ $similar->name }}</div>
+                            <div class="similar-subtitle">{{ Str::limit($similar->subtitle, 50) }}</div>
+                            <div class="similar-price">Rp. {{ number_format($similar->price, 0, ',', '.') }}</div>
+                            <div class="btn-detail-similar">Lihat Detail &rarr;</div>
+                        </div>
+                    </a>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
     </div>
 </div>
 
@@ -362,13 +483,15 @@ function changeImage(imageSrc, thumbnail) {
 
 // Order now function
 function orderNow() {
-    // TODO: Implement order functionality
-    alert('Terima kasih! Fitur order akan segera tersedia.\n\nAnda akan dihubungi oleh tim kami untuk proses pemesanan.');
+    const waNumber = "6281234567890"; // Ganti dengan nomor WA admin
+    const productName = "{{ $product['name'] }}";
+    const productPrice = "Rp {{ number_format($product['price'], 0, ',', '.') }}";
     
-    // Optional: WhatsApp integration
-    // const phone = '6281234567890';
-    // const message = 'Halo, saya tertarik dengan produk {{ $product['name'] }}';
-    // window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+    const message = `Halo Admin TechStore, saya tertarik dengan produk:\n\n*${productName}*\nHarga: ${productPrice}\n\nApakah stoknya masih tersedia?`;
+    const encodedMessage = encodeURIComponent(message);
+    
+    const waUrl = `https://wa.me/${waNumber}?text=${encodedMessage}`;
+    window.open(waUrl, '_blank');
 }
 </script>
 @endsection

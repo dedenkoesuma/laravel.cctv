@@ -519,9 +519,9 @@ function renderProducts() {
     grid.innerHTML = '';
     
     // Filter products by brand only
-    let filteredCameras = currentBrand 
-        ? allCameras.filter(c => c.brand === currentBrand)
-        : allCameras;
+   let filteredCameras = currentBrand 
+    ? allCameras.filter(c => c.brand.toUpperCase() === currentBrand.toUpperCase())
+    : allCameras;
     
     if (filteredCameras.length === 0) {
         grid.innerHTML = `
@@ -582,7 +582,7 @@ function renderProducts() {
                 </div>
                 
                 <div class="camera-footer">
-                    <button class="btn btn-detail" onclick="showDetail(${camera.id})">
+                    <button class="btn btn-detail" onclick="showDetail('${camera.slug}')">
                         <i class="bi bi-eye me-1"></i> Detail
                     </button>
                     <button class="btn btn-buy" ${camera.stock === 0 ? 'disabled' : ''} onclick="buyProduct(${camera.id})">
@@ -616,10 +616,10 @@ function filterByBrand(brand, event) {
 function formatPrice(price) {
     return parseInt(price).toLocaleString('id-ID');
 }
-
-function showDetail(id) {
-    // Redirect to detail page with ID
-    window.location.href = `/wifi-cam/detail/${id}`;
+// KODE YANG BENAR:
+function showDetail(slug) {
+    // Redirect to detail page with Slug
+    window.location.href = `/wifi-cam/${slug}`;
 }
 
 function buyProduct(id) {
