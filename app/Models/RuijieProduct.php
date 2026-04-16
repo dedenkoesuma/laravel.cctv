@@ -17,6 +17,7 @@ class RuijieProduct extends Model
         'specifications',
         'features',
         'image',
+        'stock',
         'price',
         'order',
         'is_featured',
@@ -30,6 +31,7 @@ class RuijieProduct extends Model
         'is_featured' => 'boolean',
         'is_active' => 'boolean',
         'price' => 'decimal:2',
+        'stock' => 'integer',
         'order' => 'integer'
     ];
 

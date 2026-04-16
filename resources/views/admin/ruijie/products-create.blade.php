@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-50">
-    <!-- Header -->
     <header class="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex items-center justify-between">
@@ -24,15 +23,12 @@
         </div>
     </header>
 
-    <!-- Main Content -->
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Page Header -->
         <div class="mb-8">
             <h1 class="text-3xl font-bold text-gray-900">Add New Product</h1>
             <p class="text-gray-600 mt-1">Create a new Ruijie network product</p>
         </div>
 
-        <!-- Error Messages -->
         @if ($errors->any())
             <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
                 <div class="flex items-start">
@@ -49,12 +45,12 @@
             </div>
         @endif
 
-        <!-- Create Form -->
         <form action="{{ route('admin.ruijie.products.store') }}" method="POST" enctype="multipart/form-data" class="bg-white rounded-lg shadow-md">
             @csrf
+            
+            <input type="hidden" name="redirect_to" value="admin">
 
             <div class="p-6 space-y-6">
-                <!-- Product Name -->
                 <div>
                     <label for="name" class="block text-sm font-semibold text-gray-700 mb-2">
                         Product Name <span class="text-red-500">*</span>
@@ -64,7 +60,6 @@
                            placeholder="e.g., Ruijie RG-S2910-24GT4XS-E">
                 </div>
 
-                <!-- Model -->
                 <div>
                     <label for="model" class="block text-sm font-semibold text-gray-700 mb-2">
                         Model Number
@@ -74,7 +69,6 @@
                            placeholder="e.g., RG-S2910-24GT4XS-E">
                 </div>
 
-                <!-- Slug -->
                 <div>
                     <label for="slug" class="block text-sm font-semibold text-gray-700 mb-2">
                         URL Slug <span class="text-red-500">*</span>
@@ -85,7 +79,6 @@
                     <p class="text-xs text-gray-500 mt-1">URL-friendly version (lowercase, no spaces, auto-generated)</p>
                 </div>
 
-                <!-- Category -->
                 <div>
                     <label for="category_id" class="block text-sm font-semibold text-gray-700 mb-2">
                         Category <span class="text-red-500">*</span>
@@ -101,17 +94,27 @@
                     </select>
                 </div>
 
-                <!-- Price -->
-                <div>
-                    <label for="price" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Price (Rp)
-                    </label>
-                    <input type="number" id="price" name="price" value="{{ old('price') }}" min="0" step="1000"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                           placeholder="e.g., 2000000">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="price" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Price (Rp)
+                        </label>
+                        <input type="number" id="price" name="price" value="{{ old('price') }}" min="0" step="1000"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="e.g., 2000000">
+                    </div>
+
+                    <div>
+                        <label for="stock" class="block text-sm font-semibold text-gray-700 mb-2">
+                            Stok Barang <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="stock" name="stock" value="{{ old('stock', 10) }}" min="0" required
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                               placeholder="Masukkan jumlah stok">
+                        <p class="text-xs text-gray-500 mt-1">Jumlah produk yang tersedia saat ini</p>
+                    </div>
                 </div>
 
-                <!-- Description -->
                 <div>
                     <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">
                         Description
@@ -121,62 +124,36 @@
                               placeholder="Enter product description...">{{ old('description') }}</textarea>
                 </div>
 
-                <!-- Features (JSON) -->
                 <div>
                     <label for="features" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Features (One per line)
+                        Features (Satu per baris)
                     </label>
                     <textarea id="features" name="features" rows="5"
                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              placeholder="24x Gigabit Ethernet ports&#10;4x 10GE SFP+ uplink ports&#10;Advanced Layer 3 routing&#10;Dual power supply support&#10;Lifetime warranty">{{ old('features') }}</textarea>
-                    <p class="text-xs text-gray-500 mt-1">Each line will be a bullet point</p>
+                              placeholder="24x Gigabit Ethernet ports&#10;4x 10GE SFP+ uplink ports&#10;Advanced Layer 3 routing">{{ old('features') }}</textarea>
+                    <p class="text-xs text-gray-500 mt-1">Setiap baris yang dipisah Enter akan otomatis menjadi list (bullet point).</p>
                 </div>
 
-                <!-- Specifications (JSON) -->
                 <div>
                     <label for="specifications" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Specifications (Format: Key: Value)
+                        Specifications (Satu per baris)
                     </label>
                     <textarea id="specifications" name="specifications" rows="6"
                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              placeholder="Ports: 24x GE + 4x 10GE&#10;Switching Capacity: 128 Gbps&#10;Forwarding Rate: 95.2 Mpps&#10;Power: 100-240V AC&#10;Dimensions: 440 x 220 x 44mm&#10;Weight: 3.5 kg">{{ old('specifications') }}</textarea>
-                    <p class="text-xs text-gray-500 mt-1">Format: Key: Value (one per line)</p>
+                              placeholder="Ports: 24x GE + 4x 10GE&#10;Switching Capacity: 128 Gbps&#10;Power: 100-240V AC">{{ old('specifications') }}</textarea>
+                    <p class="text-xs text-gray-500 mt-1">Format: Key: Value (Satu per baris dengan Enter)</p>
                 </div>
 
-                <!-- Image Upload -->
                 <div>
                     <label for="image" class="block text-sm font-semibold text-gray-700 mb-2">
                         Product Image
                     </label>
                     <input type="file" id="image" name="image" accept="image/*"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <p class="text-xs text-gray-500 mt-1">Recommended: 800x600px, max 2MB</p>
+                    <p class="text-xs text-gray-500 mt-1">Recommended: 800x600px, Max 5MB</p>
                 </div>
 
-                <!-- Image URL (Alternative) -->
-                <div>
-                    <label for="image_url" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Or Enter Image URL
-                    </label>
-                    <input type="url" id="image_url" name="image_url" value="{{ old('image_url') }}"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                           placeholder="https://example.com/image.jpg">
-                </div>
-
-                <!-- Order -->
-                <div>
-                    <label for="order" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Display Order
-                    </label>
-                    <input type="number" id="order" name="order" value="{{ old('order', 0) }}" min="0"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                           placeholder="0">
-                    <p class="text-xs text-gray-500 mt-1">Lower numbers appear first</p>
-                </div>
-
-                <!-- Status Toggles -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Is Active -->
                     <div class="flex items-center justify-between p-4 border border-gray-300 rounded-lg">
                         <div>
                             <label for="is_active" class="font-semibold text-gray-700">Active Status</label>
@@ -189,7 +166,6 @@
                         </label>
                     </div>
 
-                    <!-- Is Featured -->
                     <div class="flex items-center justify-between p-4 border border-gray-300 rounded-lg">
                         <div>
                             <label for="is_featured" class="font-semibold text-gray-700">Featured</label>
@@ -204,7 +180,6 @@
                 </div>
             </div>
 
-            <!-- Form Actions -->
             <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-between items-center rounded-b-lg">
                 <a href="{{ route('admin.ruijie.products') }}" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
                     <i class="fas fa-times mr-2"></i>Cancel

@@ -173,7 +173,6 @@ class RuijieController extends Controller
     public function products()
     {
         $products = RuijieProduct::with('category')
-            ->orderBy('order')
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
@@ -197,44 +196,58 @@ class RuijieController extends Controller
     }
 
     /**
-     * Store new product - WITH REDIRECT OPTIONS
+     * Store new product
      */
     public function storeProduct(Request $request)
     {
-        // Validate input
+        // 1. Validasi Input (Menambahkan validasi stock)
         $validated = $request->validate([
             'category_id' => 'required|exists:ruijie_categories,id',
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:5120', // Max 5MB
             'price' => 'nullable|numeric',
-            'order' => 'nullable|integer',
+            'stock' => 'nullable|integer|min:0', // Validasi stok
+            'features' => 'nullable|string',     
+            'specifications' => 'nullable|string',
         ]);
 
-        // Generate unique slug
+        // 2. Generate unique slug
         $baseSlug = !empty($validated['slug']) ? $validated['slug'] : Str::slug($validated['name']);
         $slug = $baseSlug;
         $counter = 1;
         
-        // Check if slug exists and increment until unique
         while (RuijieProduct::where('slug', $slug)->exists()) {
             $slug = $baseSlug . '-' . $counter;
             $counter++;
         }
 
-        // Prepare data for insert
+        // 3. Konversi Textarea menjadi Array (karena Model nge-cast jadi array/json)
+        $featuresArray = [];
+        if (!empty($validated['features'])) {
+            // Pecah berdasarkan Enter, hapus spasi berlebih, hilangkan baris kosong
+            $featuresArray = array_values(array_filter(array_map('trim', explode("\n", $validated['features']))));
+        }
+
+        $specsArray = [];
+        if (!empty($validated['specifications'])) {
+            $specsArray = array_values(array_filter(array_map('trim', explode("\n", $validated['specifications']))));
+        }
+
+        // 4. Siapkan Data untuk disimpan
         $data = [
             'category_id' => $validated['category_id'],
             'name' => $validated['name'],
-            'slug' => $slug,  // Use unique slug
+            'slug' => $slug,
             'description' => $validated['description'] ?? null,
             'price' => $validated['price'] ?? null,
-            'order' => $validated['order'] ?? 0,
+            'stock' => $validated['stock'] ?? 0, // Ambil dari input stock
+            'order' => 0, // Set default 0 karena kita hapus dari form
             'is_featured' => $request->has('is_featured') ? 1 : 0,
             'is_active' => $request->has('is_active') ? 1 : 0,
-            'specifications' => json_encode([]),  // Empty JSON array
-            'features' => json_encode([]),        // Empty JSON array
+            'specifications' => $specsArray, 
+            'features' => $featuresArray,
             'image' => null
         ];
 
@@ -246,15 +259,12 @@ class RuijieController extends Controller
         // Create product
         $product = RuijieProduct::create($data);
 
-        // Check redirect preference
-        $redirectTo = $request->input('redirect_to', 'public'); // default to public
+        $redirectTo = $request->input('redirect_to', 'admin');
         
         if ($redirectTo === 'admin') {
-            // Redirect to admin products list
             return redirect()->route('admin.ruijie.products')
                 ->with('success', 'Product "' . $product->name . '" created successfully!');
         } else {
-            // Redirect to public Ruijie products page
             return redirect()->route('products.ruijie')
                 ->with('success', 'Product "' . $product->name . '" created successfully!');
         }
@@ -286,18 +296,32 @@ class RuijieController extends Controller
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|unique:ruijie_products,slug,' . $id,
             'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|max:5120',
             'price' => 'nullable|numeric',
-            'order' => 'nullable|integer',
+            'stock' => 'nullable|integer|min:0',
+            'features' => 'nullable|string',
+            'specifications' => 'nullable|string',
         ]);
 
-        // Convert checkboxes to boolean
         $validated['is_featured'] = $request->has('is_featured') ? true : false;
         $validated['is_active'] = $request->has('is_active') ? true : false;
+        $validated['stock'] = $validated['stock'] ?? 0;
+
+        // Konversi text area ke array saat update
+        if (!empty($validated['features'])) {
+            $validated['features'] = array_values(array_filter(array_map('trim', explode("\n", $validated['features']))));
+        } else {
+            $validated['features'] = [];
+        }
+
+        if (!empty($validated['specifications'])) {
+            $validated['specifications'] = array_values(array_filter(array_map('trim', explode("\n", $validated['specifications']))));
+        } else {
+            $validated['specifications'] = [];
+        }
 
         // Handle image upload
         if ($request->hasFile('image')) {
-            // Delete old image
             if ($product->image) {
                 Storage::disk('public')->delete($product->image);
             }
@@ -306,7 +330,7 @@ class RuijieController extends Controller
 
         $product->update($validated);
 
-        return redirect()->route('products.ruijie')
+        return redirect()->route('admin.ruijie.products')
             ->with('success', 'Product "' . $product->name . '" updated successfully!');
     }
 
