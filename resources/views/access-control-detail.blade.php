@@ -90,11 +90,6 @@
     padding: 40px;
 }
 
-.brand-logo {
-    max-width: 120px;
-    margin-bottom: 20px;
-}
-
 .resolution-badges {
     display: flex;
     gap: 10px;
@@ -123,24 +118,17 @@
     font-size: 2rem;
     font-weight: 700;
     color: #333;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 .product-subtitle {
     font-size: 1rem;
     color: #6c757d;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     font-family: monospace;
 }
 
-.product-desc {
-    color: #555;
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin-bottom: 30px;
-}
-
-/* ===== SPECIFICATIONS ===== */
+/* ===== SPECIFICATIONS (Deskripsi Berpoin) ===== */
 .section-title {
     font-size: 1.3rem;
     font-weight: 700;
@@ -164,7 +152,7 @@
 }
 
 .spec-item i {
-    color: #667eea;
+    color: #667eea; /* Warna biru untuk centang */
     font-size: 1.2rem;
     margin-top: 2px;
 }
@@ -173,33 +161,6 @@
     color: #333;
     font-size: 0.95rem;
     line-height: 1.5;
-}
-
-/* ===== PACKAGE INCLUDES ===== */
-.package-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-bottom: 30px;
-}
-
-.package-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px;
-    background: #f8f9fa;
-    border-radius: 8px;
-}
-
-.package-item i {
-    color: #28a745;
-    font-size: 1.2rem;
-}
-
-.package-text {
-    color: #333;
-    font-size: 0.95rem;
 }
 
 /* ===== PRICE & ORDER ===== */
@@ -244,6 +205,94 @@
     box-shadow: 0 8px 20px rgba(0,0,0,0.2);
 }
 
+/* ===== SIMILAR PRODUCTS ===== */
+.similar-products-section {
+    margin-top: 50px;
+}
+
+.similar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.similar-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin: 0;
+}
+
+.btn-view-all {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.btn-view-all:hover {
+    color: #764ba2;
+    text-decoration: underline;
+}
+
+.similar-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #eee;
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.similar-card:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transform: translateY(-5px);
+}
+
+.similar-img {
+    height: 150px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.similar-img img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+.similar-name {
+    font-weight: 700;
+    color: #333;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
+}
+
+.similar-price {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #333;
+    margin-top: auto;
+    margin-bottom: 15px;
+}
+
+.btn-detail-similar {
+    color: #667eea;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.btn-detail-similar:hover {
+    color: #764ba2;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 767px) {
     .product-images {
@@ -280,12 +329,19 @@
                 <div class="col-lg-5">
                     <div class="product-images">
                         <div class="main-image">
-                            <img src="{{ $product['main_image'] ? asset('storage/' . $product['main_image']) : 'https://via.placeholder.com/400x400/ffffff/cccccc?text=No+Image' }}" alt="{{ $product['name'] }}" id="mainImage">
+                            <img src="{{ !empty($product['main_image']) ? asset('storage/' . $product['main_image']) : 'https://via.placeholder.com/400x400/ffffff/cccccc?text=No+Image' }}" alt="{{ $product['name'] }}" id="mainImage">
                         </div>
 
-                        @if(!empty($product['gallery_images']))
+                        @php
+                            $gallery = [];
+                            if (!empty($product['gallery_images'])) {
+                                $gallery = is_string($product['gallery_images']) ? json_decode($product['gallery_images'], true) : $product['gallery_images'];
+                            }
+                        @endphp
+
+                        @if(!empty($gallery) && is_array($gallery))
                         <div class="thumbnail-images">
-                            @foreach($product['gallery_images'] as $index => $image)
+                            @foreach($gallery as $index => $image)
                             <div class="thumbnail {{ $index === 0 ? 'active' : '' }}" onclick="changeImage('{{ asset('storage/' . $image) }}', this)">
                                 <img src="{{ asset('storage/' . $image) }}" alt="{{ $product['name'] }} view {{ $index + 1 }}">
                             </div>
@@ -312,41 +368,38 @@
                         </div>
 
                         <h1 class="product-title">{{ $product['name'] }}</h1>
-                        <p class="product-subtitle">SKU: {{ $product['sku'] }}</p>
-                        
-                        @if(!empty($product['description']))
-                        <div class="product-desc">
-                            {{ $product['description'] }}
-                        </div>
-                        @endif
-
-                        @if(!empty($product['specifications']))
                         <h2 class="section-title">Spesifikasi</h2>
+                        
                         <div class="specs-grid">
-                            @foreach($product['specifications'] as $spec)
-                            <div class="spec-item">
-                                <i class="bi bi-check-circle-fill"></i>
-                                <span class="spec-text">{{ $spec }}</span>
-                            </div>
-                            @endforeach
-                        </div>
-                        @endif
+                            @php
+                                $descLines = [];
+                                if (!empty($product['description'])) {
+                                    // Memecah deskripsi menjadi array berdasarkan baris baru (Enter)
+                                    $parts = explode("\n", $product['description']);
+                                    foreach($parts as $part) {
+                                        // Membersihkan spasi di awal/akhir dan memastikan baris tidak kosong
+                                        if(trim($part) !== '') {
+                                            $descLines[] = trim($part);
+                                        }
+                                    }
+                                }
+                            @endphp
 
-                        @if(!empty($product['features']))
-                        <h2 class="section-title">Fitur / Kelengkapan</h2>
-                        <div class="package-list">
-                            @foreach($product['features'] as $item)
-                            <div class="package-item">
-                                <i class="bi bi-box-seam"></i>
-                                <span class="package-text">{{ $item }}</span>
-                            </div>
-                            @endforeach
+                            @if(count($descLines) > 0)
+                                @foreach($descLines as $line)
+                                <div class="spec-item">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span class="spec-text">{{ $line }}</span>
+                                </div>
+                                @endforeach
+                            @else
+                                <p class="text-muted">Tidak ada deskripsi/spesifikasi yang tercantum.</p>
+                            @endif
                         </div>
-                        @endif
 
                         <div class="price-section">
                             <div class="price-label">Harga/Unit:</div>
-                            <div class="price-value">IDR. {{ number_format($product['sell_price'], 0, ',', '.') }}</div>
+                            <div class="price-value">IDR. {{ number_format($product['sell_price'] ?? 0, 0, ',', '.') }}</div>
                             
                             <button class="btn btn-order" onclick="orderNow()">
                                 <i class="bi bi-cart-check"></i>
@@ -357,6 +410,33 @@
                 </div>
             </div>
         </div>
+        
+        @if(isset($similarProducts) && $similarProducts->count() > 0)
+        <div class="similar-products-section">
+            <div class="similar-header">
+                <h3 class="similar-title">Produk Serupa</h3>
+                <a href="{{ url('/access-control') }}" class="btn-view-all">Produk Lainnya &rarr;</a>
+            </div>
+            
+            <div class="row g-3">
+                @foreach($similarProducts as $similar)
+                <div class="col-6 col-md-3">
+                    <a href="{{ url('/access-control/' . $similar->id) }}" style="text-decoration: none;">
+                        <div class="similar-card">
+                            <div class="similar-img">
+                                <img src="{{ !empty($similar->main_image) ? asset('storage/' . $similar->main_image) : 'https://via.placeholder.com/150' }}" alt="{{ $similar->name }}">
+                            </div>
+                            <div class="similar-name">{{ $similar->name }}</div>
+                            <div class="similar-price">Rp. {{ number_format($similar->sell_price ?? 0, 0, ',', '.') }}</div>
+                            <div class="btn-detail-similar">Lihat Detail &rarr;</div>
+                        </div>
+                    </a>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
     </div>
 </div>
 
@@ -370,15 +450,19 @@ function changeImage(imageSrc, thumbnail) {
     thumbnail.classList.add('active');
 }
 
-// Order now function
+// Order now function to WhatsApp
 function orderNow() {
-    const productName = '{{ addslashes($product['name']) }}';
-    const sku = '{{ addslashes($product['sku']) }}';
-    const price = 'IDR. {{ number_format($product['sell_price'], 0, ',', '.') }}';
+    const waNumber = "6281234567890"; // Ganti dengan nomor WA admin
+    const productName = "{{ addslashes($product['name'] ?? '') }}";
+    const sku = "{{ addslashes($product['sku'] ?? '') }}";
+    // Sesuaikan link WA ke sell_price
+    const productPrice = "Rp {{ number_format($product['sell_price'] ?? 0, 0, ',', '.') }}";
     
-    const message = `Halo, saya tertarik dengan produk Access Control:\n*${productName}*\nSKU: ${sku}\nHarga: ${price}\n\nMohon informasi lebih lanjut.`;
+    const message = `Halo Admin TechStore, saya tertarik dengan produk Access Control:\n\n*${productName}*\nSKU: ${sku}\nHarga: ${productPrice}\n\nApakah stoknya masih tersedia?`;
+    const encodedMessage = encodeURIComponent(message);
     
-    window.open('https://wa.me/6281234567890?text=' + encodeURIComponent(message), '_blank');
+    const waUrl = `https://wa.me/${waNumber}?text=${encodedMessage}`;
+    window.open(waUrl, '_blank');
 }
 </script>
 @endsection

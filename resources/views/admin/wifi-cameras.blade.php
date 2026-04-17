@@ -159,10 +159,11 @@
                 </div>
                 <div class="col-md-3">
                     <select class="form-select" id="filterBrand" onchange="loadCameras()">
-                        <option value="DAHUA">DAHUA</option>
-                        <option value="EZVIZ">EZVIZ</option>
-                        <option value="IMOU">IMOU</option>
-                        <option value="TP-LINK">TP-LINK</option>
+                                <option value="DAHUA">DAHUA</option>
+                                <option value="HIVIEW">HIVIEW</option>
+                                <option value="EZVIZ">EZVIZ</option>
+                                <option value="IMOU">IMOU</option>
+                                <option value="TP-LINK">TP-LINK</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -231,6 +232,7 @@
                             <select class="form-select" name="brand" required>
                                 <option value="">Pilih Brand</option>
                                 <option value="DAHUA">DAHUA</option>
+                                <option value="HIVIEW">HIVIEW</option>
                                 <option value="EZVIZ">EZVIZ</option>
                                 <option value="IMOU">IMOU</option>
                                 <option value="TP-LINK">TP-LINK</option>
@@ -247,11 +249,11 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Harga Jual (Rp) *</label>
-                            <input type="number" class="form-control" name="price" min="0" step="1000" required>
+                            <input type="number" class="form-control" name="price" min="0" step="1" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Harga Asli/Coret (Rp)</label>
-                            <input type="number" class="form-control" name="original_price" min="0" step="1000">
+                            <input type="number" class="form-control" name="original_price" min="0" step="1">
                             <small class="text-muted">Kosongkan jika tidak ada diskon</small>
                         </div>
                     </div>
@@ -376,11 +378,11 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Harga Jual (Rp)</label>
-                            <input type="number" class="form-control" id="editPrice" min="0" step="1000">
+                            <input type="number" class="form-control" id="editPrice" min="0" step="1">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Harga Asli (Rp)</label>
-                            <input type="number" class="form-control" id="editOriginalPrice" min="0" step="1000">
+                            <input type="number" class="form-control" id="editOriginalPrice" min="0" step="1">
                         </div>
                     </div>
 

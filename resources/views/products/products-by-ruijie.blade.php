@@ -34,7 +34,7 @@ body {
 /* ===== HERO SECTION ===== */
 .hero-section {
     position: relative;
-    background: var(--gradient-primary);
+    background-image: url("{{ asset('gambar/ruijie.jpeg') }}");
     color: white;
     padding: 80px 0 120px;
     overflow: hidden;
