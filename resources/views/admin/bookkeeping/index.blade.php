@@ -675,4 +675,6 @@ function printPdf() {
     window.open(url, '_blank');
 }
 </script>
+{{-- ⭐ AI Assistant Component --}}
+<x-ai-assistant />
 @endsection

@@ -29,7 +29,7 @@ use App\Http\Controllers\InventoryController;
 // ============================================
 use App\Http\Controllers\BrandProductController;
 use App\Http\Controllers\Admin\AdminProductController;
-
+use App\Http\Controllers\AiAssistantController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes - Complete Version with Access Control & Ruijie
@@ -794,6 +794,12 @@ Route::prefix('products')->group(function () {
     Route::post('/{id}/update', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/{id}/delete', [ProductController::class, 'destroy'])->name('products.destroy');
 });
+
+// =====================================
+// AI ASSISTANT ROUTES
+// =====================================
+Route::post('/ai/chat',      [AiAssistantController::class, 'chat']     )->name('ai.chat');
+Route::post('/ai/recommend', [AiAssistantController::class, 'recommend'])->name('ai.recommend');
 
 // =====================================
 // FALLBACK (404)

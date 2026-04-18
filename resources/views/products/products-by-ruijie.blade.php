@@ -167,6 +167,118 @@ body {
     font-weight: 700;
 }
 
+/* ===== SEARCH BAR ===== */
+.search-wrapper {
+    margin-bottom: 20px;
+}
+
+.search-input-group {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 4px 16px;
+    gap: 10px;
+    transition: var(--transition);
+}
+
+.search-input-group:focus-within {
+    border-color: var(--ruijie-primary);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(0, 167, 225, 0.1);
+}
+
+.search-input-group > i {
+    color: #94a3b8;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    transition: color 0.2s;
+}
+
+.search-input-group:focus-within > i {
+    color: var(--ruijie-primary);
+}
+
+.search-input-group input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 10px 0;
+    font-size: 0.9375rem;
+    color: #0f172a;
+    outline: none;
+    font-family: inherit;
+}
+
+.search-input-group input::placeholder {
+    color: #94a3b8;
+}
+
+.search-clear-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #94a3b8;
+    padding: 4px;
+    border-radius: 6px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.search-clear-btn:hover {
+    color: #ef4444;
+    background: #fee2e2;
+}
+
+.no-results-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.no-results-state i {
+    font-size: 3.5rem;
+    color: #cbd5e1;
+    margin-bottom: 16px;
+    display: block;
+}
+
+.no-results-state h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.no-results-state p {
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+.btn-reset-search {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: var(--ruijie-primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-reset-search:hover {
+    background: var(--ruijie-dark);
+    transform: translateY(-2px);
+}
+
 .filter-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -732,25 +844,13 @@ body {
 
 /* ===== ANIMATIONS ===== */
 @keyframes fadeInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes spin {
@@ -759,67 +859,23 @@ body {
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-    .hero-section {
-        padding: 60px 20px 100px;
-    }
-    
-    .hero-stats {
-        gap: 40px;
-    }
-    
-    .stat-number {
-        font-size: 2.5rem;
-    }
-    
-    .filter-section {
-        margin-top: -50px;
-    }
-    
-    .filter-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-    
-    .filter-btn {
-        font-size: 0.8125rem;
-        padding: 12px 16px;
-    }
-    
-    .products-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .features-grid,
-    .solutions-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .cta-section {
-        padding: 40px 24px;
-        margin: 40px 16px;
-    }
-    
-    .cta-title {
-        font-size: 1.75rem;
-    }
-    
-    .cta-buttons {
-        flex-direction: column;
-    }
-    
-    .btn-cta {
-        width: 100%;
-        justify-content: center;
-    }
+    .hero-section { padding: 60px 20px 100px; }
+    .hero-stats { gap: 40px; }
+    .stat-number { font-size: 2.5rem; }
+    .filter-section { margin-top: -50px; }
+    .filter-grid { grid-template-columns: 1fr 1fr; }
+    .filter-btn { font-size: 0.8125rem; padding: 12px 16px; }
+    .products-grid { grid-template-columns: 1fr; }
+    .features-grid, .solutions-grid { grid-template-columns: 1fr; }
+    .cta-section { padding: 40px 24px; margin: 40px 16px; }
+    .cta-title { font-size: 1.75rem; }
+    .cta-buttons { flex-direction: column; }
+    .btn-cta { width: 100%; justify-content: center; }
 }
 
 @media (min-width: 769px) and (max-width: 1024px) {
-    .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    }
-    
-    .filter-grid {
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    }
+    .products-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    .filter-grid { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
 }
 </style>
 
@@ -863,6 +919,23 @@ body {
                 <h2 class="filter-title">Filter Produk</h2>
                 <div class="filter-count" id="filterCount">
                     Menampilkan <strong>0</strong> produk
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-wrapper">
+                <div class="search-input-group">
+                    <i class="bi bi-search"></i>
+                    <input
+                        type="text"
+                        id="productSearch"
+                        placeholder="Cari produk (contoh: RG-ES08G, 24 Port, PoE Switch...)"
+                        oninput="handleSearch(this.value)"
+                        autocomplete="off"
+                    >
+                    <button class="search-clear-btn" id="searchClearBtn" onclick="clearSearch()" title="Hapus pencarian">
+                        <i class="bi bi-x-circle-fill"></i>
+                    </button>
                 </div>
             </div>
             
@@ -923,33 +996,22 @@ body {
         
         <div class="features-grid">
             <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="bi bi-speedometer2"></i>
-                </div>
+                <div class="feature-icon"><i class="bi bi-speedometer2"></i></div>
                 <h3 class="feature-title">High Performance</h3>
                 <p class="feature-text">Performa tinggi dengan throughput maksimal untuk kebutuhan enterprise yang demanding</p>
             </div>
-            
             <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="bi bi-cloud-check"></i>
-                </div>
+                <div class="feature-icon"><i class="bi bi-cloud-check"></i></div>
                 <h3 class="feature-title">Cloud Management</h3>
                 <p class="feature-text">Kelola seluruh infrastruktur jaringan dari mana saja dengan platform cloud terpusat</p>
             </div>
-            
             <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="bi bi-shield-check"></i>
-                </div>
+                <div class="feature-icon"><i class="bi bi-shield-check"></i></div>
                 <h3 class="feature-title">Enterprise Security</h3>
                 <p class="feature-text">Keamanan tingkat enterprise dengan firewall, IPS/IDS, dan advanced threat protection</p>
             </div>
-            
             <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="bi bi-graph-up-arrow"></i>
-                </div>
+                <div class="feature-icon"><i class="bi bi-graph-up-arrow"></i></div>
                 <h3 class="feature-title">Scalable Solution</h3>
                 <p class="feature-text">Mudah dikembangkan sesuai dengan pertumbuhan bisnis dan kebutuhan pengguna</p>
             </div>
@@ -970,19 +1032,16 @@ body {
             <h3 class="solution-title">Enterprise Office</h3>
             <p class="solution-text">Jaringan handal untuk kantor modern dengan ratusan hingga ribuan user</p>
         </div>
-        
         <div class="solution-card">
             <span class="solution-icon">🏨</span>
             <h3 class="solution-title">Retail & Hospitality</h3>
             <p class="solution-text">WiFi berkualitas tinggi untuk toko, restoran, hotel, dan guest experience</p>
         </div>
-        
         <div class="solution-card">
             <span class="solution-icon">🎓</span>
             <h3 class="solution-title">Education</h3>
             <p class="solution-text">Infrastruktur networking stabil untuk kampus, sekolah, dan e-learning</p>
         </div>
-        
         <div class="solution-card">
             <span class="solution-icon">🏥</span>
             <h3 class="solution-title">Healthcare</h3>
@@ -1000,7 +1059,6 @@ body {
             Tim ahli kami siap membantu Anda memilih dan merancang solusi Ruijie 
             yang tepat untuk kebutuhan infrastruktur jaringan bisnis Anda
         </p>
-        
         <div class="cta-buttons">
             <button class="btn-cta btn-cta-primary" onclick="contactWhatsApp()">
                 <i class="bi bi-whatsapp"></i>
@@ -1015,130 +1073,130 @@ body {
 </div>
 
 <script>
-// Products functionality
-let allProducts = [];
+// ─── State ────────────────────────────────────────────────────────────────────
+let allProducts    = [];
 let currentCategory = '';
+let currentSearch  = '';
 
-// Initialize
-document.addEventListener('DOMContentLoaded', function() {
-    // Load products
+// ─── Init ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
     loadProducts();
 });
 
+// ─── Load from API ────────────────────────────────────────────────────────────
 function loadProducts() {
     showLoading();
-    
-    fetch('/api/ruijie-products', {
-        headers: {
-            'Accept': 'application/json'
-        }
-    })
-    .then(async response => {
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            return response.json();
-        } else {
+
+    fetch('/api/ruijie-products', { headers: { 'Accept': 'application/json' } })
+        .then(async response => {
+            const ct = response.headers.get('content-type');
+            if (ct && ct.includes('application/json')) return response.json();
             throw new Error('Server returned invalid response');
-        }
-    })
-    .then(data => {
-        hideLoading();
-        
-        if (data.success) {
-            allProducts = data.products || [];
-            renderProducts();
-            updateFilterCount();
-        } else {
-            showError('Gagal memuat produk');
-        }
-    })
-    .catch(error => {
-        hideLoading();
-        console.error('Error:', error);
-        showError('Terjadi kesalahan saat memuat produk');
-    });
+        })
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                allProducts = data.products || [];
+                renderProducts();
+                updateFilterCount();
+            } else {
+                showError('Gagal memuat produk');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            console.error('Error:', error);
+            showError('Terjadi kesalahan saat memuat produk');
+        });
 }
 
+// ─── Render ───────────────────────────────────────────────────────────────────
 function renderProducts() {
     const grid = document.getElementById('productsGrid');
     grid.innerHTML = '';
-    
-    let filteredProducts = currentCategory 
-        ? allProducts.filter(p => p.category === currentCategory)
-        : allProducts;
-    
-    filteredProducts = filteredProducts.filter(p => p.status === 'active');
-    
-    if (filteredProducts.length === 0) {
+
+    // 1. Filter aktif
+    let filtered = allProducts.filter(p => p.status === 'active');
+
+    // 2. Filter kategori
+    if (currentCategory) {
+        filtered = filtered.filter(p => p.category === currentCategory);
+    }
+
+    // 3. Filter pencarian (nama + deskripsi + kategori)
+    if (currentSearch) {
+        const q = currentSearch.toLowerCase();
+        filtered = filtered.filter(p =>
+            p.name.toLowerCase().includes(q) ||
+            (p.description && p.description.toLowerCase().includes(q)) ||
+            (p.category   && p.category.toLowerCase().includes(q))
+        );
+    }
+
+    if (filtered.length === 0) {
         showEmptyState();
         return;
     }
-    
-    filteredProducts.forEach((product) => {
+
+    filtered.forEach(product => {
         const card = document.createElement('div');
-        
-        const onSale = product.original_price && product.original_price > product.price;
+
+        const onSale   = product.original_price && product.original_price > product.price;
         const discount = onSale ? Math.round(((product.original_price - product.price) / product.original_price) * 100) : 0;
-        
-        let stockClass = 'in-stock';
-        let stockText = '✓ Tersedia';
-        
-        if (product.stock === 0) {
-            stockClass = 'out-stock';
-            stockText = '✗ Habis';
-        } else if (product.stock < 5) {
-            stockClass = 'low-stock';
-            stockText = '⚠ Terbatas';
-        }
-        
+
+        let stockClass = 'in-stock', stockText = '✓ Tersedia';
+        if      (product.stock === 0) { stockClass = 'out-stock';  stockText = '✗ Habis';    }
+        else if (product.stock < 5)   { stockClass = 'low-stock';  stockText = '⚠ Terbatas'; }
+
+        // Highlight keyword di nama & deskripsi
+        const highlight = (text) => {
+            if (!currentSearch || !text) return text;
+            return text.replace(
+                new RegExp(`(${escapeRegex(currentSearch)})`, 'gi'),
+                '<mark style="background:#E6F7FF;color:var(--ruijie-primary);border-radius:3px;padding:0 2px;">$1</mark>'
+            );
+        };
+
         let contentHtml = '';
         if (product.description) {
-            contentHtml = `<p class="product-description">${product.description}</p>`;
+            contentHtml = `<p class="product-description">${highlight(product.description)}</p>`;
         } else if (product.features) {
             try {
-                const features = typeof product.features === 'string' 
-                    ? JSON.parse(product.features) 
+                const features = typeof product.features === 'string'
+                    ? JSON.parse(product.features)
                     : product.features;
-                contentHtml = '<ul class="product-features">' + 
-                    features.slice(0, 3).map(f => 
+                contentHtml = '<ul class="product-features">' +
+                    features.slice(0, 3).map(f =>
                         `<li><i class="bi bi-check-circle-fill"></i><span>${f}</span></li>`
-                    ).join('') + 
+                    ).join('') +
                     '</ul>';
-            } catch (e) {
-                contentHtml = '';
-            }
+            } catch (e) { contentHtml = ''; }
         }
-        
+
         card.className = 'product-card';
         card.innerHTML = `
             <div class="product-image-wrapper">
                 <div class="product-badges">
-                    <div>
-                        ${onSale ? `<span class="badge-sale">-${discount}%</span>` : ''}
-                    </div>
-                    <div>
-                        ${product.is_featured ? '<span class="badge-featured">⭐ Featured</span>' : ''}
-                    </div>
+                    <div>${onSale ? `<span class="badge-sale">-${discount}%</span>` : ''}</div>
+                    <div>${product.is_featured ? '<span class="badge-featured">⭐ Featured</span>' : ''}</div>
                 </div>
-                
-                <img src="${product.main_image ? '/storage/' + product.main_image : 'https://via.placeholder.com/300x200/00A7E1/ffffff?text=Ruijie'}" 
+                <img src="${product.main_image ? '/storage/' + product.main_image : 'https://via.placeholder.com/300x200/00A7E1/ffffff?text=Ruijie'}"
                      alt="${product.name}"
                      class="product-image"
                      onerror="this.src='https://via.placeholder.com/300x200/00A7E1/ffffff?text=Ruijie'">
-                
                 <span class="badge-stock ${stockClass}">${stockText}</span>
             </div>
-            
+
             <div class="product-content">
                 <div class="product-category">
                     <i class="bi ${getCategoryIcon(product.category)}"></i>
                     <span>${product.category}</span>
                 </div>
-                
-                <h3 class="product-name">${product.name}</h3>
-                
+
+                <h3 class="product-name">${highlight(product.name)}</h3>
+
                 ${contentHtml}
-                
+
                 <div class="product-footer">
                     <div class="product-price-row">
                         <div class="product-price">
@@ -1147,11 +1205,9 @@ function renderProducts() {
                         </div>
                         ${onSale ? `<span class="discount-badge">-${discount}%</span>` : ''}
                     </div>
-                    
                     <div class="product-actions">
                         <button class="btn-detail" onclick="showDetail(${product.id})">
-                            <i class="bi bi-eye"></i>
-                            <span>Detail</span>
+                            <i class="bi bi-eye"></i><span>Detail</span>
                         </button>
                         <button class="btn-buy" ${product.stock === 0 ? 'disabled' : ''} onclick="buyProduct(${product.id})">
                             <i class="bi bi-cart-plus"></i>
@@ -1161,34 +1217,51 @@ function renderProducts() {
                 </div>
             </div>
         `;
-        
+
         grid.appendChild(card);
     });
 }
 
+// ─── Search handlers ──────────────────────────────────────────────────────────
+function handleSearch(value) {
+    currentSearch = value.trim();
+    const clearBtn = document.getElementById('searchClearBtn');
+    clearBtn.style.display = currentSearch ? 'flex' : 'none';
+    renderProducts();
+    updateFilterCount();
+}
+
+function clearSearch() {
+    currentSearch = '';
+    document.getElementById('productSearch').value = '';
+    document.getElementById('searchClearBtn').style.display = 'none';
+    renderProducts();
+    updateFilterCount();
+    document.getElementById('productSearch').focus();
+}
+
+function escapeRegex(str) {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// ─── Category filter ──────────────────────────────────────────────────────────
 function filterByCategory(category, event) {
-    const buttons = document.querySelectorAll('.filter-btn');
-    buttons.forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
     event.target.closest('.filter-btn').classList.add('active');
-    
+
     currentCategory = category;
     renderProducts();
     updateFilterCount();
-    
-    document.getElementById('productsSection').scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-    });
+
+    document.getElementById('productsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 function getCategoryIcon(category) {
     const icons = {
-        'Switch': 'bi-hdd-network',
-        'Router': 'bi-router',
-        'Access Point': 'bi-wifi',
-        'Wireless Controller': 'bi-controller',
-        'Gateway': 'bi-diagram-3',
-        'Firewall': 'bi-shield-check'
+        'Switch': 'bi-hdd-network', 'Router': 'bi-router',
+        'Access Point': 'bi-wifi',  'Wireless Controller': 'bi-controller',
+        'Gateway': 'bi-diagram-3',  'Firewall': 'bi-shield-check'
     };
     return icons[category] || 'bi-box';
 }
@@ -1198,39 +1271,39 @@ function formatPrice(price) {
 }
 
 function updateFilterCount() {
-    let count = currentCategory 
-        ? allProducts.filter(p => p.category === currentCategory && p.status === 'active').length
-        : allProducts.filter(p => p.status === 'active').length;
-    
-    const categoryText = currentCategory ? ` - ${currentCategory}` : '';
-    document.getElementById('filterCount').innerHTML = 
-        `Menampilkan <strong>${count}</strong> produk${categoryText}`;
+    let filtered = allProducts.filter(p => p.status === 'active');
+    if (currentCategory) filtered = filtered.filter(p => p.category === currentCategory);
+    if (currentSearch) {
+        const q = currentSearch.toLowerCase();
+        filtered = filtered.filter(p =>
+            p.name.toLowerCase().includes(q) ||
+            (p.description && p.description.toLowerCase().includes(q)) ||
+            (p.category    && p.category.toLowerCase().includes(q))
+        );
+    }
+
+    let label = `Menampilkan <strong>${filtered.length}</strong> produk`;
+    if (currentCategory) label += ` &nbsp;·&nbsp; <span style="color:#475569">${currentCategory}</span>`;
+    if (currentSearch)   label += ` &nbsp;·&nbsp; "<span style="color:var(--ruijie-primary)">${currentSearch}</span>"`;
+
+    document.getElementById('filterCount').innerHTML = label;
 }
 
+// ─── Actions ──────────────────────────────────────────────────────────────────
 function showDetail(id) {
     window.location.href = `/products/ruijie/${id}`;
 }
 
 function buyProduct(id) {
-    // Asumsi nama array datamu adalah ruijieProducts atau products atau allProducts
-    let product = null;
-    if (typeof ruijieProducts !== 'undefined') product = ruijieProducts.find(p => p.id === id);
-    else if (typeof products !== 'undefined') product = products.find(p => p.id === id);
-    else if (typeof allProducts !== 'undefined') product = allProducts.find(p => p.id === id);
+    const product = allProducts.find(p => p.id === id);
+    const waNumber = "6281234567890"; // GANTI DENGAN NOMOR WA KAMU
 
     if (product) {
-        const waNumber = "6281234567890"; // GANTI DENGAN NOMOR WA KAMU
-        const price = parseInt(product.price).toLocaleString('id-ID');
-        
+        const price   = parseInt(product.price).toLocaleString('id-ID');
         const message = `Halo Admin TechStore, saya tertarik untuk membeli produk Ruijie:\n\n*${product.name}*\nHarga: Rp ${price}\n\nApakah stoknya masih tersedia?`;
-        
-        const encodedMessage = encodeURIComponent(message);
-        const waUrl = `https://wa.me/${waNumber}?text=${encodedMessage}`;
-        
-        window.open(waUrl, '_blank');
+        window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, '_blank');
     } else {
-        // Jika data gagal ditemukan di halaman depan, tetap arahkan ke WA
-        window.open('https://wa.me/6281234567890?text=Halo%20Admin,%20saya%20tertarik%20membeli%20produk%20Ruijie.', '_blank');
+        window.open(`https://wa.me/${waNumber}?text=Halo%20Admin,%20saya%20tertarik%20membeli%20produk%20Ruijie.`, '_blank');
     }
 }
 
@@ -1242,42 +1315,43 @@ function contactEmail() {
     window.location.href = 'mailto:sales@techstore.com?subject=Konsultasi Ruijie Networks';
 }
 
+// ─── UI states ────────────────────────────────────────────────────────────────
 function showLoading() {
-    document.getElementById('loadingState').style.display = 'block';
+    document.getElementById('loadingState').style.display    = 'block';
     document.getElementById('productsSection').style.display = 'none';
 }
 
 function hideLoading() {
-    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('loadingState').style.display    = 'none';
     document.getElementById('productsSection').style.display = 'block';
 }
 
 function showEmptyState() {
-    const grid = document.getElementById('productsGrid');
-    grid.innerHTML = `
-        <div style="grid-column: 1 / -1;">
-            <div class="empty-state">
-                <i class="bi bi-inbox empty-icon"></i>
-                <h3 class="empty-title">Tidak ada produk</h3>
-                <p class="empty-text">Coba pilih kategori lain atau kembali ke semua produk</p>
-            </div>
+    const isSearching = currentSearch !== '';
+    document.getElementById('productsGrid').innerHTML = `
+        <div class="no-results-state">
+            <i class="bi bi-${isSearching ? 'search' : 'inbox'}"></i>
+            <h3>${isSearching ? `Produk "${currentSearch}" tidak ditemukan` : 'Tidak ada produk'}</h3>
+            <p>${isSearching
+                ? 'Coba kata kunci yang berbeda atau hapus filter kategori'
+                : 'Coba pilih kategori lain atau kembali ke semua produk'}</p>
+            ${isSearching ? `<button class="btn-reset-search" onclick="clearSearch()">
+                <i class="bi bi-arrow-counterclockwise"></i> Reset Pencarian
+            </button>` : ''}
         </div>
     `;
 }
 
 function showError(message) {
-    const section = document.getElementById('productsSection');
-    const grid = document.getElementById('productsGrid');
-    section.style.display = 'block';
-    grid.innerHTML = `
+    document.getElementById('productsSection').style.display = 'block';
+    document.getElementById('productsGrid').innerHTML = `
         <div style="grid-column: 1 / -1;">
             <div class="empty-state">
-                <i class="bi bi-exclamation-triangle empty-icon" style="color: #ef4444;"></i>
+                <i class="bi bi-exclamation-triangle empty-icon" style="color:#ef4444;"></i>
                 <h3 class="empty-title">Terjadi Kesalahan</h3>
                 <p class="empty-text">${message}</p>
-                <button class="btn-cta btn-cta-primary" onclick="loadProducts()" style="margin-top: 24px;">
-                    <i class="bi bi-arrow-clockwise"></i>
-                    <span>Coba Lagi</span>
+                <button class="btn-cta btn-cta-primary" onclick="loadProducts()" style="margin-top:24px;">
+                    <i class="bi bi-arrow-clockwise"></i><span>Coba Lagi</span>
                 </button>
             </div>
         </div>

@@ -518,11 +518,13 @@
             </div>
         </div>
     </div>
+
+    {{-- ⭐ AI Assistant Component --}}
+    <x-ai-assistant />
     
     <script>
     function editTransaction(id) {
-        alert('Edit transaksi ID: ' + id);
-        // window.location.href = `/admin/bookkeeping/${id}/edit`;
+        window.location.href = `/admin/bookkeeping/${id}/edit`;
     }
     
     function deleteTransaction(id) {
