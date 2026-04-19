@@ -1123,4 +1123,7 @@ $brands = [
         
         </div>
 </section>
+
+{{-- ⭐ AI Assistant --}}
+<x-ai-assistant />
 @endsection
