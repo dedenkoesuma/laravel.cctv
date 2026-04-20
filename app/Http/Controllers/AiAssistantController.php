@@ -10,7 +10,7 @@ class AiAssistantController extends Controller
     public function chat(Request $request)
     {
         $messages = $request->input('messages', []);
-        $reply = $this->callGemini($messages, $this->chatSystemPrompt());
+        $reply = $this->callGroq($messages, $this->chatSystemPrompt());
         return response()->json(['reply' => $reply]);
     }
 
@@ -27,7 +27,7 @@ class AiAssistantController extends Controller
 - Jumlah kamera: {$jumlahCam}
 - Fitur khusus: " . implode(', ', $fitur);
 
-        $reply = $this->callGemini(
+        $reply = $this->callGroq(
             [['role' => 'user', 'content' => $userMessage]],
             $this->recommendSystemPrompt()
         );
@@ -35,61 +35,61 @@ class AiAssistantController extends Controller
         return response()->json(['reply' => $reply]);
     }
 
-    private function callGemini(array $messages, string $systemPrompt): string
+    private function callGroq(array $messages, string $systemPrompt): string
     {
-        $apiKey = config('app.gemini_api_key') ?: env('GEMINI_API_KEY');
+        // Mengambil key Groq dari .env
+        $apiKey = env('GROQ_API_KEY');
 
         if (empty($apiKey)) {
-            return 'Konfigurasi API belum lengkap. Hubungi administrator.';
+            return 'Konfigurasi API Groq belum lengkap. Hubungi administrator.';
         }
 
-        $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={$apiKey}";
+        // Endpoint Groq yang kompatibel dengan format OpenAI
+        $url = "https://api.groq.com/openai/v1/chat/completions";
 
-        $contents = [];
+        // Susun messages: System prompt harus selalu di urutan pertama
+        $formattedMessages = [
+            ['role' => 'system', 'content' => $systemPrompt]
+        ];
+
+        // Masukkan riwayat chat dari user
         foreach ($messages as $msg) {
-            $role = $msg['role'] === 'assistant' ? 'model' : 'user';
-            $contents[] = [
-                'role'  => $role,
-                'parts' => [['text' => $msg['content']]]
+            $formattedMessages[] = [
+                'role'  => $msg['role'] === 'assistant' ? 'assistant' : 'user',
+                'content' => $msg['content']
             ];
         }
 
-        if (empty($contents)) {
-            $contents[] = [
-                'role'  => 'user',
-                'parts' => [['text' => 'halo']]
+        // Pastikan ada pesan jika kosong
+        if (count($formattedMessages) === 1) {
+            $formattedMessages[] = [
+                'role' => 'user',
+                'content' => 'halo'
             ];
         }
 
         $payload = [
-            'system_instruction' => [
-                'parts' => [['text' => $systemPrompt]]
-            ],
-            'contents'         => $contents,
-            'generationConfig' => [
-                'temperature'     => 0.7,
-                'maxOutputTokens' => 1024,
-            ],
+            'model'       => 'llama-3.1-8b-instant', // Model Llama 3 gratis dan sangat cepat dari Groq
+            'messages'    => $formattedMessages,
+            'temperature' => 0.7,
+            'max_tokens'  => 1024,
         ];
 
         try {
-            $response = Http::timeout(15)
+            $response = Http::withToken($apiKey) 
+                ->timeout(15)
                 ->withoutVerifying()
                 ->post($url, $payload);
 
             if ($response->failed()) {
                 $status = $response->status();
-                \Log::error('Gemini HTTP Error: ' . $status . ' - ' . $response->body());
+                \Log::error('Groq HTTP Error: ' . $status . ' - ' . $response->body());
 
-                // ⭐ Handle berbagai error code
                 if ($status === 429) {
-                    return 'AI sedang sibuk, silakan tunggu sebentar dan coba lagi. 🙏';
+                    return 'AI sedang memproses terlalu banyak permintaan. Silakan tunggu sebentar. 🙏';
                 }
-                if ($status === 403) {
-                    return 'API Key tidak memiliki akses. Hubungi administrator.';
-                }
-                if ($status === 400) {
-                    return 'Format request tidak valid. Silakan coba lagi.';
+                if ($status === 401) {
+                    return 'API Key Groq tidak valid.';
                 }
 
                 return 'Layanan AI sedang tidak tersedia (HTTP ' . $status . ').';
@@ -97,19 +97,15 @@ class AiAssistantController extends Controller
 
             $data = $response->json();
 
-            if (isset($data['candidates'][0]['content']['parts'][0]['text'])) {
-                return $data['candidates'][0]['content']['parts'][0]['text'];
+            // Cara mengambil teks balasan 
+            if (isset($data['choices'][0]['message']['content'])) {
+                return $data['choices'][0]['message']['content'];
             }
 
-            if (isset($data['error'])) {
-                \Log::error('Gemini API Error: ' . json_encode($data['error']));
-                return 'Error: ' . ($data['error']['message'] ?? 'Unknown error');
-            }
-
-            return 'Maaf, terjadi kesalahan. Silakan coba lagi.';
+            return 'Maaf, format balasan dari AI tidak sesuai.';
 
         } catch (\Exception $e) {
-            \Log::error('Gemini Exception: ' . $e->getMessage());
+            \Log::error('Groq Exception: ' . $e->getMessage());
             return 'Koneksi gagal: ' . $e->getMessage();
         }
     }
@@ -122,7 +118,7 @@ Tugasmu membantu customer memilih produk CCTV, akses kontrol, dan networking.
 
 Brand yang kami jual: Hikvision, Dahua, HiLook, EZVIZ, UNV, Ruijie, Foreage.
 
-Jawab dalam Bahasa Indonesia, ramah, dan informatif.
+Jawab dalam Bahasa Indonesia, ramah, singkat, dan informatif.
 Jika ada pertanyaan harga, selalu sebutkan estimasi harga dalam Rupiah.
 PROMPT;
     }
@@ -136,7 +132,7 @@ Berikan rekomendasi paket CCTV yang detail berdasarkan kebutuhan customer.
 Brand yang tersedia: Hikvision, Dahua, HiLook, EZVIZ, UNV, Foreage.
 
 Berikan 2-3 rekomendasi produk utama beserta estimasi total biaya.
-Jawab dalam Bahasa Indonesia yang ramah dan profesional.
+Jawab dalam Bahasa Indonesia yang ramah, ringkas, dan profesional.
 PROMPT;
     }
 }
