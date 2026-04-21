@@ -613,6 +613,29 @@ Route::prefix('api/admin/inventory')->name('api.admin.inventory.')->group(functi
 });
 
 // =====================================
+// ⭐ NEW: GUDANG ROUTES
+// =====================================
+
+// Halaman Gudang Admin
+Route::get('/admin/gudang', [App\Http\Controllers\Admin\GudangController::class, 'index'])
+    ->name('admin.gudang');
+
+// Gudang API Routes
+Route::prefix('admin/gudang')->group(function () {
+    // Produk & stok
+    Route::get('/products',     [App\Http\Controllers\Admin\GudangController::class, 'getProducts']);
+    Route::get('/categories',   [App\Http\Controllers\Admin\GudangController::class, 'getCategories']);
+    Route::get('/history/{id}', [App\Http\Controllers\Admin\GudangController::class, 'getHistory']);
+    // Barang masuk
+    Route::post('/barang-masuk',        [App\Http\Controllers\Admin\GudangController::class, 'storeBarangMasuk']);
+    Route::patch('/barang-masuk/{id}',  [App\Http\Controllers\Admin\GudangController::class, 'updateStatus']);
+    Route::delete('/barang-masuk/{id}', [App\Http\Controllers\Admin\GudangController::class, 'destroyBarangMasuk']);
+    // ⭐ NEW: Barang keluar
+    Route::post('/barang-keluar',        [App\Http\Controllers\Admin\GudangController::class, 'storeBarangKeluar']);
+    Route::delete('/barang-keluar/{id}', [App\Http\Controllers\Admin\GudangController::class, 'destroyBarangKeluar']);
+});
+
+// =====================================
 // ⭐ NEW: SALES DOCUMENTS ROUTES (Surat Order & Penawaran)
 // =====================================
 
@@ -647,6 +670,7 @@ Route::get('/api/brand-products/{id}', function($id) {
         ], 404);
     }
 })->name('api.brand.product.detail');
+
 // Route untuk Detail Produk Foreage (Mengambil data dari static_products)
 Route::get('/foreages/{id}', function($id) {
     // Ambil data produk berdasarkan ID dari tabel static_products
@@ -667,6 +691,7 @@ Route::get('/foreages/{id}', function($id) {
     // Return view ke file yang baru kita buat (sesuaikan nama file blade-nya jika berbeda)
     return view('foreages-detail', ['product' => $productArray]);
 })->name('foreages-detail');
+
 // ⭐ NEW: API for /products/{brand} route - Updated ProductController endpoints
 Route::prefix('api')->group(function () {
     // Get all brands configuration
@@ -814,6 +839,7 @@ Route::fallback(function () {
         'description' => 'The page you are looking for does not exist.',
     ], 404);
 });
+
 // =====================================
 // FINAL OVERRIDE: USER MANAGEMENT
 // =====================================
@@ -830,7 +856,7 @@ Route::group(['prefix' => 'manage-users'], function() {
 // =====================================
 Route::group(['prefix' => 'admin/roles', 'as' => 'admin.roles.'], function() {
     Route::get('/', [App\Http\Controllers\Admin\RoleController::class, 'index'])->name('index');
-    Route::post('/', [App\Http\Controllers\Admin\RoleController::class, 'store'])->name('store'); // INI ROUTE BARUNYA
+    Route::post('/', [App\Http\Controllers\Admin\RoleController::class, 'store'])->name('store');
     Route::get('/{id}/edit', [App\Http\Controllers\Admin\RoleController::class, 'edit'])->name('edit');
     Route::put('/{id}', [App\Http\Controllers\Admin\RoleController::class, 'update'])->name('update');
 });
