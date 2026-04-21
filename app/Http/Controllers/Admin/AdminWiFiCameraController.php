@@ -101,19 +101,23 @@ class AdminWiFiCameraController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'brand' => 'required|string|max:255',
-            'subtitle' => 'required|string|max:500',
-            'price' => 'required|numeric|min:0',
-            'original_price' => 'nullable|numeric|min:0',
-            'stock' => 'nullable|integer|min:0',
-            'sku' => 'nullable|string|max:100',
-            'status' => 'nullable|in:active,inactive',
-            'is_featured' => 'nullable|boolean',
-            'main_image' => 'required|image|mimes:jpeg,png,jpg,webp|max:10240',
-            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
-            'specifications' => 'nullable|array',
-            'package_includes' => 'nullable|array'
+            'name'                  => 'required|string|max:255',
+            'brand'                 => 'required|string|max:255',
+            'subtitle'              => 'required|string|max:500',
+            'price'                 => 'required|numeric|min:0',
+            'original_price'        => 'nullable|numeric|min:0',
+            'stock'                 => 'nullable|integer|min:0',
+            'sku'                   => 'nullable|string|max:100',
+            'status'                => 'nullable|in:active,inactive',
+            'is_featured'           => 'nullable|boolean',
+            'main_image'            => 'required|image|mimes:jpeg,png,jpg,webp|max:10240',
+            'gallery_images.*'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
+            // ===== TAMBAHAN =====
+            'features'              => 'nullable|array',
+            'features.*'            => 'nullable|string|max:500',
+            // ====================
+            'specifications'        => 'nullable|array',
+            'package_includes'      => 'nullable|array'
         ]);
         
         // Generate slug
@@ -136,22 +140,25 @@ class AdminWiFiCameraController extends Controller
         
         // Prepare data
         $data = [
-            'name' => $validated['name'],
-            'slug' => $slug,
-            'brand' => $validated['brand'],
-            'subtitle' => $validated['subtitle'],
-            'price' => $validated['price'],
-            'original_price' => $validated['original_price'] ?? null,
-            'stock' => $validated['stock'] ?? 0,
-            'sku' => $validated['sku'] ?? null,
-            'status' => $validated['status'] ?? 'active',
-            'is_featured' => $request->has('is_featured') ? 1 : 0,
-            'main_image' => $mainImagePath,
-            'gallery_images' => !empty($galleryImages) ? json_encode($galleryImages) : null,
-            'specifications' => !empty($validated['specifications']) ? json_encode(array_filter($validated['specifications'])) : null,
-            'package_includes' => !empty($validated['package_includes']) ? json_encode(array_filter($validated['package_includes'])) : null,
-            'created_at' => now(),
-            'updated_at' => now()
+            'name'            => $validated['name'],
+            'slug'            => $slug,
+            'brand'           => $validated['brand'],
+            'subtitle'        => $validated['subtitle'],
+            'price'           => $validated['price'],
+            'original_price'  => $validated['original_price'] ?? null,
+            'stock'           => $validated['stock'] ?? 0,
+            'sku'             => $validated['sku'] ?? null,
+            'status'          => $validated['status'] ?? 'active',
+            'is_featured'     => $request->has('is_featured') ? 1 : 0,
+            'main_image'      => $mainImagePath,
+            'gallery_images'  => !empty($galleryImages) ? json_encode($galleryImages) : null,
+            // ===== TAMBAHAN =====
+            'features'        => !empty($validated['features']) ? json_encode(array_values(array_filter($validated['features']))) : null,
+            // ====================
+            'specifications'  => !empty($validated['specifications']) ? json_encode(array_filter($validated['specifications'])) : null,
+            'package_includes'=> !empty($validated['package_includes']) ? json_encode(array_filter($validated['package_includes'])) : null,
+            'created_at'      => now(),
+            'updated_at'      => now()
         ];
         
         $cameraId = DB::table('wifi_cameras')->insertGetId($data);
@@ -178,35 +185,42 @@ class AdminWiFiCameraController extends Controller
         }
         
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'brand' => 'required|string|max:255',
-            'subtitle' => 'required|string|max:500',
-            'price' => 'required|numeric|min:0',
-            'original_price' => 'nullable|numeric|min:0',
-            'stock' => 'nullable|integer|min:0',
-            'sku' => 'nullable|string|max:100',
-            'status' => 'nullable|in:active,inactive',
-            'is_featured' => 'nullable|boolean',
-            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-            'gallery_images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-            'specifications' => 'nullable|array',
-            'package_includes' => 'nullable|array'
+            'name'                  => 'required|string|max:255',
+            'brand'                 => 'required|string|max:255',
+            'subtitle'              => 'required|string|max:500',
+            'price'                 => 'required|numeric|min:0',
+            'original_price'        => 'nullable|numeric|min:0',
+            'stock'                 => 'nullable|integer|min:0',
+            'sku'                   => 'nullable|string|max:100',
+            'status'                => 'nullable|in:active,inactive',
+            'is_featured'           => 'nullable|boolean',
+            'main_image'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'gallery_images.*'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            // ===== TAMBAHAN =====
+            'features'              => 'nullable|array',
+            'features.*'            => 'nullable|string|max:500',
+            // ====================
+            'specifications'        => 'nullable|array',
+            'package_includes'      => 'nullable|array'
         ]);
         
         // Prepare update data
         $data = [
-            'name' => $validated['name'],
-            'brand' => $validated['brand'],
-            'subtitle' => $validated['subtitle'],
-            'price' => $validated['price'],
-            'original_price' => $validated['original_price'] ?? null,
-            'stock' => $validated['stock'] ?? 0,
-            'sku' => $validated['sku'] ?? null,
-            'status' => $validated['status'] ?? 'active',
-            'is_featured' => $request->has('is_featured') ? 1 : 0,
-            'specifications' => !empty($validated['specifications']) ? json_encode(array_filter($validated['specifications'])) : null,
-            'package_includes' => !empty($validated['package_includes']) ? json_encode(array_filter($validated['package_includes'])) : null,
-            'updated_at' => now()
+            'name'            => $validated['name'],
+            'brand'           => $validated['brand'],
+            'subtitle'        => $validated['subtitle'],
+            'price'           => $validated['price'],
+            'original_price'  => $validated['original_price'] ?? null,
+            'stock'           => $validated['stock'] ?? 0,
+            'sku'             => $validated['sku'] ?? null,
+            'status'          => $validated['status'] ?? 'active',
+            'is_featured'     => $request->has('is_featured') ? 1 : 0,
+            // ===== TAMBAHAN =====
+            'features'        => !empty($validated['features']) ? json_encode(array_values(array_filter($validated['features']))) : null,
+            // ====================
+            'specifications'  => !empty($validated['specifications']) ? json_encode(array_filter($validated['specifications'])) : null,
+            'package_includes'=> !empty($validated['package_includes']) ? json_encode(array_filter($validated['package_includes'])) : null,
+            'updated_at'      => now()
         ];
         
         // Handle main image update

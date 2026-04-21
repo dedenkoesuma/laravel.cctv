@@ -4,7 +4,6 @@
 
 @section('content')
 <style>
-/* Reuse dashboard styles */
 .dashboard-header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
@@ -34,12 +33,6 @@
     border-radius: 8px;
 }
 
-.badge-stock {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
 .action-buttons {
     display: flex;
     gap: 0.5rem;
@@ -50,9 +43,86 @@
     font-size: 0.875rem;
 }
 
-.form-control, .form-select {
+/* ===== FORM STYLES (screenshot style) ===== */
+.form-section {
+    margin-bottom: 1.25rem;
+}
+
+.form-section label.form-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.4rem;
+    display: block;
+}
+
+.form-section .form-control,
+.form-section .form-select {
     border-radius: 8px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #d1d5db;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
+    color: #111827;
+    background-color: #fff;
+    transition: border-color 0.15s ease;
+}
+
+.form-section .form-control:focus,
+.form-section .form-select:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    outline: none;
+}
+
+.form-section .form-control::placeholder {
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+.form-section .helper-text {
+    font-size: 0.775rem;
+    color: #6b7280;
+    margin-top: 0.3rem;
+}
+
+.form-section textarea.form-control {
+    resize: vertical;
+    min-height: 90px;
+}
+
+.modal-lg-custom {
+    max-width: 620px;
+}
+
+.modal-content {
+    border-radius: 14px;
+    border: none;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+}
+
+.modal-header.form-modal-header {
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 1.25rem 1.5rem 1rem;
+    border-radius: 14px 14px 0 0;
+}
+
+.modal-header.form-modal-header .modal-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.modal-body {
+    padding: 1.5rem;
+    background: #fff;
+}
+
+.modal-footer {
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    border-radius: 0 0 14px 14px;
+    padding: 1rem 1.5rem;
 }
 
 .image-preview-container {
@@ -64,8 +134,8 @@
 
 .image-preview {
     position: relative;
-    width: 100px;
-    height: 100px;
+    width: 90px;
+    height: 90px;
     border-radius: 8px;
     overflow: hidden;
     border: 2px solid #e0e0e0;
@@ -79,32 +149,19 @@
 
 .image-preview .remove-image {
     position: absolute;
-    top: 5px;
-    right: 5px;
+    top: 4px;
+    right: 4px;
     background: rgba(220, 53, 69, 0.9);
     color: white;
     border: none;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.spec-input-group {
-    margin-bottom: 10px;
-}
-
-.spec-input-wrapper {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-
-.spec-input-wrapper input {
-    flex: 1;
+    font-size: 12px;
 }
 
 .loading-spinner {
@@ -112,19 +169,21 @@
     padding: 20px;
 }
 
-.modal-lg-custom {
-    max-width: 900px;
+/* Required star */
+.req {
+    color: #ef4444;
+    margin-left: 2px;
 }
 </style>
+
 @php
     $adminRoleName = session('admin_role');
     $currentRole = \Spatie\Permission\Models\Role::where('name', $adminRoleName)->first();
-    
-    // Fungsi ngecek izin murni HANYA dari centangan di database
     $canAccess = function($permissionName) use ($currentRole) {
         return $currentRole ? $currentRole->hasPermissionTo($permissionName) : false;
     };
 @endphp
+
 <div id="dashboardContent">
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
@@ -159,11 +218,11 @@
                 </div>
                 <div class="col-md-3">
                     <select class="form-select" id="filterBrand" onchange="loadCameras()">
-                                <option value="DAHUA">DAHUA</option>
-                                <option value="HIVIEW">HIVIEW</option>
-                                <option value="EZVIZ">EZVIZ</option>
-                                <option value="IMOU">IMOU</option>
-                                <option value="TP-LINK">TP-LINK</option>
+                        <option value="DAHUA">DAHUA</option>
+                        <option value="HIVIEW">HIVIEW</option>
+                        <option value="EZVIZ">EZVIZ</option>
+                        <option value="IMOU">IMOU</option>
+                        <option value="TP-LINK">TP-LINK</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -188,7 +247,7 @@
                 </div>
                 <p class="mt-2">Memuat data...</p>
             </div>
-            
+
             <div id="tableContainer" style="display: none;">
                 <div class="table-responsive">
                     <table class="table table-hover">
@@ -204,8 +263,7 @@
                                 <th>Aksi</th>
                             </tr>
                         </thead>
-                        <tbody id="cameraTableBody">
-                            </tbody>
+                        <tbody id="cameraTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -213,126 +271,147 @@
     </div>
 </div>
 
+<!-- ===== MODAL TAMBAH CAMERA ===== -->
 <div class="modal fade" id="addCameraModal" tabindex="-1">
     <div class="modal-dialog modal-lg-custom modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Tambah WiFi Camera Baru</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <div class="modal-header form-modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-camera-video me-2 text-primary"></i>Tambah WiFi Camera Baru
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
+
             <div class="modal-body">
                 <form id="addCameraForm" enctype="multipart/form-data">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Nama Produk *</label>
-                            <input type="text" class="form-control" name="name" required>
+
+                    <div class="form-section">
+                        <label class="form-label">Product Name <span class="req">*</span></label>
+                        <input type="text" class="form-control" name="name"
+                               placeholder="e.g., EZVIZ C6N 2MP WiFi Camera" required>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">Model Number</label>
+                        <input type="text" class="form-control" name="sku"
+                               placeholder="e.g., CS-C6N-A0-1C2WFR">
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">URL Slug <span class="req">*</span></label>
+                        <input type="text" class="form-control" name="slug" id="addSlug"
+                               placeholder="e.g., ezviz-c6n-2mp-wifi-camera" required>
+                        <div class="helper-text">URL friendly version (lowercase, no spaces, auto generated)</div>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">Brand <span class="req">*</span></label>
+                        <select class="form-select" name="brand" required>
+                            <option value="">Select Brand</option>
+                            <option value="DAHUA">DAHUA</option>
+                            <option value="HIVIEW">HIVIEW</option>
+                            <option value="EZVIZ">EZVIZ</option>
+                            <option value="IMOU">IMOU</option>
+                            <option value="TP-LINK">TP-LINK</option>
+                        </select>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-section mb-0">
+                                <label class="form-label">Price (Rp)</label>
+                                <input type="number" class="form-control" name="price"
+                                       placeholder="e.g., 350000" min="0" step="1" required>
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Brand *</label>
-                            <select class="form-select" name="brand" required>
-                                <option value="">Pilih Brand</option>
-                                <option value="DAHUA">DAHUA</option>
-                                <option value="HIVIEW">HIVIEW</option>
-                                <option value="EZVIZ">EZVIZ</option>
-                                <option value="IMOU">IMOU</option>
-                                <option value="TP-LINK">TP-LINK</option>
-                            </select>
+                        <div class="col-md-6">
+                            <div class="form-section mb-0">
+                                <label class="form-label">Stok Barang <span class="req">*</span></label>
+                                <input type="number" class="form-control" name="stock"
+                                       value="10" min="0" required>
+                                <div class="helper-text">Jumlah produk yang tersedia saat ini</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Subtitle/Deskripsi Singkat *</label>
-                        <input type="text" class="form-control" name="subtitle" 
-                               placeholder="Contoh: Smart Pan & Tilt Indoor WiFi Camera" required>
+                    <div class="form-section mt-3">
+                        <label class="form-label">Harga Asli / Coret (Rp)</label>
+                        <input type="number" class="form-control" name="original_price"
+                               placeholder="Kosongkan jika tidak ada diskon" min="0" step="1">
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Harga Jual (Rp) *</label>
-                            <input type="number" class="form-control" name="price" min="0" step="1" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Harga Asli/Coret (Rp)</label>
-                            <input type="number" class="form-control" name="original_price" min="0" step="1">
-                            <small class="text-muted">Kosongkan jika tidak ada diskon</small>
-                        </div>
+                    <div class="form-section">
+                        <label class="form-label">Subtitle / Tagline</label>
+                        <input type="text" class="form-control" name="subtitle"
+                               placeholder="e.g., Smart Pan & Tilt Indoor WiFi Camera 1080P">
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Stok</label>
-                            <input type="number" class="form-control" name="stock" value="0" min="0">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">SKU</label>
-                            <input type="text" class="form-control" name="sku" placeholder="WIFI-001">
-                        </div>
+                    <div class="form-section">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="3"
+                                  placeholder="Enter product description..."></textarea>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Gambar Utama *</label>
-                        <input type="file" class="form-control" name="main_image" accept="image/*" 
+                    <!-- Features -->
+                    <div class="form-section">
+                        <label class="form-label">Features <span class="helper-text d-inline">(Satu per baris)</span></label>
+                        <textarea class="form-control" name="features_text" rows="4"
+                                  placeholder="2MP 1080P Full HD&#10;Pan 340° / Tilt 90°&#10;Two-Way Audio&#10;Night Vision 10m"></textarea>
+                        <div class="helper-text">Setiap baris yang dipisah Enter akan otomatis menjadi list (bullet point).</div>
+                    </div>
+
+                    <!-- Specifications -->
+                    <div class="form-section">
+                        <label class="form-label">Specifications <span class="helper-text d-inline">(Satu per baris)</span></label>
+                        <textarea class="form-control" name="specifications_text" rows="4"
+                                  placeholder="Resolution: 2MP 1080P&#10;Compression: H.265+&#10;Night Vision: 10m&#10;Power: DC 5V/1A"></textarea>
+                        <div class="helper-text">Format: Key: Value (Satu per baris dengan Enter)</div>
+                    </div>
+
+                    <!-- Paket Termasuk -->
+                    <div class="form-section">
+                        <label class="form-label">Paket Termasuk <span class="helper-text d-inline">(Satu per baris)</span></label>
+                        <textarea class="form-control" name="package_text" rows="3"
+                                  placeholder="1x Kamera WiFi&#10;1x Adaptor DC 5V&#10;1x Baut &amp; Fisher&#10;1x Panduan Cepat"></textarea>
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">Gambar Utama <span class="req">*</span></label>
+                        <input type="file" class="form-control" name="main_image" accept="image/*"
                                onchange="previewMainImage(this, 'addMainPreview')" required>
                         <div id="addMainPreview" class="image-preview-container"></div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Galeri Gambar (Maksimal 5)</label>
-                        <input type="file" class="form-control" name="gallery_images[]" accept="image/*" 
+                    <div class="form-section">
+                        <label class="form-label">Galeri Gambar <span class="helper-text d-inline">(Maks. 5)</span></label>
+                        <input type="file" class="form-control" name="gallery_images[]" accept="image/*"
                                multiple onchange="previewGalleryImages(this, 'addGalleryPreview')">
                         <div id="addGalleryPreview" class="image-preview-container"></div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Spesifikasi</label>
-                        <div id="specificationsContainer">
-                            <div class="spec-input-wrapper">
-                                <input type="text" class="form-control" name="specifications[]" 
-                                       placeholder="Contoh: 2MP 1080P Resolution">
-                                <button type="button" class="btn btn-sm btn-danger" onclick="removeSpec(this)">
-                                    <i class="bi bi-x"></i>
-                                </button>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-section mb-0">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" name="status">
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-sm btn-secondary" onclick="addSpecField()">
-                            <i class="bi bi-plus"></i> Tambah Spesifikasi
-                        </button>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Paket Termasuk</label>
-                        <div id="packageContainer">
-                            <div class="spec-input-wrapper">
-                                <input type="text" class="form-control" name="package_includes[]" 
-                                       placeholder="Contoh: 1 Kamera C6N 2MP">
-                                <button type="button" class="btn btn-sm btn-danger" onclick="removePackage(this)">
-                                    <i class="bi bi-x"></i>
-                                </button>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" name="is_featured" id="isFeatured">
+                                <label class="form-check-label" for="isFeatured">
+                                    Produk Unggulan
+                                </label>
                             </div>
                         </div>
-                        <button type="button" class="btn btn-sm btn-secondary" onclick="addPackageField()">
-                            <i class="bi bi-plus"></i> Tambah Item
-                        </button>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select class="form-select" name="status">
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="is_featured" id="isFeatured">
-                            <label class="form-check-label" for="isFeatured">
-                                Tampilkan sebagai produk unggulan
-                            </label>
-                        </div>
-                    </div>
                 </form>
             </div>
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                 <button type="button" class="btn btn-primary" onclick="saveCamera()">
@@ -343,61 +422,91 @@
     </div>
 </div>
 
+<!-- ===== MODAL EDIT CAMERA ===== -->
 <div class="modal fade" id="editCameraModal" tabindex="-1">
     <div class="modal-dialog modal-lg-custom modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">Edit WiFi Camera</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <div class="modal-header form-modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-pencil-square me-2 text-primary"></i>Edit WiFi Camera
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="editCameraForm" enctype="multipart/form-data">
                     <input type="hidden" id="editId">
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Nama Produk</label>
-                            <input type="text" class="form-control" id="editName">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Brand</label>
-                            <select class="form-select" id="editBrand">
-                                <option value="DAHUA">DAHUA</option>
-                                <option value="EZVIZ">EZVIZ</option>
-                                <option value="IMOU">IMOU</option>
-                                <option value="TP-LINK">TP-LINK</option>
-                            </select>
-                        </div>
+
+                    <div class="form-section">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" class="form-control" id="editName" placeholder="e.g., EZVIZ C6N 2MP">
                     </div>
 
-                    <div class="mb-3">
+                    <div class="form-section">
+                        <label class="form-label">Model Number (SKU)</label>
+                        <input type="text" class="form-control" id="editSku" placeholder="e.g., CS-C6N-A0-1C2WFR">
+                    </div>
+
+                    <div class="form-section">
+                        <label class="form-label">Brand</label>
+                        <select class="form-select" id="editBrand">
+                            <option value="DAHUA">DAHUA</option>
+                            <option value="HIVIEW">HIVIEW</option>
+                            <option value="EZVIZ">EZVIZ</option>
+                            <option value="IMOU">IMOU</option>
+                            <option value="TP-LINK">TP-LINK</option>
+                        </select>
+                    </div>
+
+                    <div class="form-section">
                         <label class="form-label">Subtitle</label>
                         <input type="text" class="form-control" id="editSubtitle">
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Harga Jual (Rp)</label>
-                            <input type="number" class="form-control" id="editPrice" min="0" step="1">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-section mb-0">
+                                <label class="form-label">Price (Rp)</label>
+                                <input type="number" class="form-control" id="editPrice" min="0" step="1">
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Harga Asli (Rp)</label>
-                            <input type="number" class="form-control" id="editOriginalPrice" min="0" step="1">
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Stok</label>
-                            <input type="number" class="form-control" id="editStock" min="0">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">SKU</label>
-                            <input type="text" class="form-control" id="editSku">
+                        <div class="col-md-6">
+                            <div class="form-section mb-0">
+                                <label class="form-label">Stok Barang</label>
+                                <input type="number" class="form-control" id="editStock" min="0">
+                                <div class="helper-text">Jumlah produk yang tersedia saat ini</div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="mb-3">
+                    <div class="form-section mt-3">
+                        <label class="form-label">Harga Asli (Rp)</label>
+                        <input type="number" class="form-control" id="editOriginalPrice" min="0" step="1">
+                    </div>
+
+                    <!-- ===== TAMBAHAN: Features ===== -->
+                    <div class="form-section">
+                        <label class="form-label">Features <span class="helper-text d-inline">(Satu per baris)</span></label>
+                        <textarea class="form-control" id="editFeaturesText" rows="4"
+                                  placeholder="2MP 1080P Full HD&#10;Pan 340° / Tilt 90°&#10;Two-Way Audio&#10;Night Vision 10m"></textarea>
+                        <div class="helper-text">Setiap baris akan otomatis menjadi bullet point.</div>
+                    </div>
+
+                    <!-- ===== TAMBAHAN: Specifications ===== -->
+                    <div class="form-section">
+                        <label class="form-label">Specifications <span class="helper-text d-inline">(Satu per baris)</span></label>
+                        <textarea class="form-control" id="editSpecificationsText" rows="4"
+                                  placeholder="Resolution: 2MP 1080P&#10;Compression: H.265+&#10;Night Vision: 10m&#10;Power: DC 5V/1A"></textarea>
+                        <div class="helper-text">Format: Key: Value (Satu per baris)</div>
+                    </div>
+
+                    <!-- ===== TAMBAHAN: Paket Termasuk ===== -->
+                    <div class="form-section">
+                        <label class="form-label">Paket Termasuk <span class="helper-text d-inline">(Satu per baris)</span></label>
+                        <textarea class="form-control" id="editPackageText" rows="3"
+                                  placeholder="1x Kamera WiFi&#10;1x Adaptor DC 5V&#10;1x Baut &amp; Fisher&#10;1x Panduan Cepat"></textarea>
+                    </div>
+
+                    <div class="form-section">
                         <label class="form-label">Upload Gambar Baru</label>
                         <input type="file" class="form-control" id="editMainImage" accept="image/*"
                                onchange="previewMainImage(this, 'editMainPreview')">
@@ -405,20 +514,20 @@
                         <div id="editMainPreview" class="image-preview-container"></div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Status</label>
-                            <select class="form-select" id="editStatus">
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-section mb-0">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" id="editStatus">
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="form-check form-switch mt-4">
+                        <div class="col-md-6 d-flex align-items-end">
+                            <div class="form-check form-switch mb-2">
                                 <input class="form-check-input" type="checkbox" id="editIsFeatured">
-                                <label class="form-check-label" for="editIsFeatured">
-                                    Produk Unggulan
-                                </label>
+                                <label class="form-check-label" for="editIsFeatured">Produk Unggulan</label>
                             </div>
                         </div>
                     </div>
@@ -427,7 +536,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                 <button type="button" class="btn btn-primary" onclick="updateCamera()">
-                    <i class="bi bi-save"></i> Simpan Perubahan
+                    <i class="bi bi-save me-2"></i>Simpan Perubahan
                 </button>
             </div>
         </div>
@@ -437,36 +546,69 @@
 <script>
 let cameras = [];
 
-// Load cameras on page load
+// ===== HELPER: Parse JSON field dari API (bisa string atau array) =====
+function parseJsonField(value) {
+    if (!value) return [];
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') {
+        try {
+            const parsed = JSON.parse(value);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+            return [];
+        }
+    }
+    return [];
+}
+
+// ===== HELPER: Parse specifications (bisa object atau array of strings) =====
+function parseSpecsToText(value) {
+    const arr = parseJsonField(value);
+    if (arr.length === 0) return '';
+
+    // Kalau isinya object {key: value}, convert ke "key: value"
+    return arr.map(item => {
+        if (typeof item === 'object' && item !== null) {
+            return Object.entries(item).map(([k, v]) => `${k}: ${v}`).join('\n');
+        }
+        return item;
+    }).join('\n');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     loadCameras();
+
+    // Auto-generate slug from product name
+    const nameInput = document.querySelector('#addCameraForm input[name="name"]');
+    if (nameInput) {
+        nameInput.addEventListener('input', function() {
+            const slug = this.value
+                .toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .trim()
+                .replace(/\s+/g, '-');
+            document.getElementById('addSlug').value = slug;
+        });
+    }
 });
 
 function loadCameras() {
     document.getElementById('loadingSpinner').style.display = 'block';
     document.getElementById('tableContainer').style.display = 'none';
-    
+
     const brand = document.getElementById('filterBrand').value;
     const status = document.getElementById('filterStatus').value;
-    
+
     let url = '/api/admin/wifi-cameras?';
     if (brand) url += `brand=${brand}&`;
     if (status) url += `status=${status}`;
-    
-    fetch(url, {
-        headers: {
-            'Accept': 'application/json'
-        }
-    })
+
+    fetch(url, { headers: { 'Accept': 'application/json' } })
     .then(async response => {
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            return response.json();
-        } else {
-            const text = await response.text();
-            console.error('Got HTML instead of JSON:', text.substring(0, 500));
-            throw new Error('API returned HTML instead of JSON');
-        }
+        const ct = response.headers.get('content-type');
+        if (ct && ct.includes('application/json')) return response.json();
+        const text = await response.text();
+        throw new Error('API returned HTML instead of JSON');
     })
     .then(data => {
         if (data.success) {
@@ -477,49 +619,41 @@ function loadCameras() {
         }
     })
     .catch(error => {
-        console.error('Error:', error);
         document.getElementById('loadingSpinner').style.display = 'none';
         document.getElementById('tableContainer').style.display = 'block';
         document.getElementById('cameraTableBody').innerHTML = `
-            <tr>
-                <td colspan="8" class="text-center py-5 text-danger">
-                    <i class="bi bi-exclamation-triangle fs-1"></i>
-                    <p class="mt-3">Error loading cameras: ${error.message}</p>
-                    <button class="btn btn-primary" onclick="loadCameras()">Try Again</button>
-                </td>
-            </tr>
-        `;
+            <tr><td colspan="8" class="text-center py-5 text-danger">
+                <i class="bi bi-exclamation-triangle fs-1"></i>
+                <p class="mt-3">Error: ${error.message}</p>
+                <button class="btn btn-primary" onclick="loadCameras()">Try Again</button>
+            </td></tr>`;
     });
 }
 
 function renderTable() {
     const tbody = document.getElementById('cameraTableBody');
     tbody.innerHTML = '';
-    
+
     if (cameras.length === 0) {
         tbody.innerHTML = `
-            <tr>
-                <td colspan="8" class="text-center py-5">
-                    <i class="bi bi-camera-video" style="font-size: 3rem; color: #ccc;"></i>
-                    <p class="mt-3 mb-2"><strong>Belum ada produk WiFi Camera</strong></p>
-                    <p class="text-muted">Klik tombol "Tambah WiFi Camera" untuk menambah produk pertama</p>
-                </td>
-            </tr>
-        `;
+            <tr><td colspan="8" class="text-center py-5">
+                <i class="bi bi-camera-video" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="mt-3 mb-2"><strong>Belum ada produk WiFi Camera</strong></p>
+                <p class="text-muted">Klik tombol "Tambah WiFi Camera" untuk menambah produk pertama</p>
+            </td></tr>`;
         return;
     }
-    
-    cameras.forEach((camera, index) => {
-        const row = `
+
+    cameras.forEach(camera => {
+        tbody.innerHTML += `
             <tr>
                 <td>${camera.id}</td>
                 <td>
-                    ${camera.main_image ? 
-                        `<img src="/storage/${camera.main_image}" class="product-img-thumb" alt="">` : 
-                        `<div class="bg-light d-flex align-items-center justify-content-center product-img-thumb">
-                            <i class="bi bi-image text-muted"></i>
-                        </div>`
-                    }
+                    ${camera.main_image
+                        ? `<img src="/storage/${camera.main_image}" class="product-img-thumb" alt="">`
+                        : `<div class="bg-light d-flex align-items-center justify-content-center product-img-thumb">
+                                <i class="bi bi-image text-muted"></i>
+                           </div>`}
                 </td>
                 <td>
                     <strong>${camera.name}</strong><br>
@@ -528,11 +662,7 @@ function renderTable() {
                 <td><span class="badge bg-primary">${camera.brand}</span></td>
                 <td>Rp ${formatNumber(camera.price)}</td>
                 <td><span class="badge ${camera.stock > 0 ? 'bg-success' : 'bg-danger'}">${camera.stock}</span></td>
-                <td>
-                    <span class="badge ${camera.status === 'active' ? 'bg-success' : 'bg-secondary'}">
-                        ${camera.status}
-                    </span>
-                </td>
+                <td><span class="badge ${camera.status === 'active' ? 'bg-success' : 'bg-secondary'}">${camera.status}</span></td>
                 <td class="action-buttons">
                     <button class="btn btn-sm btn-primary btn-action" onclick="editCamera(${camera.id})">
                         <i class="bi bi-pencil"></i> Edit
@@ -541,34 +671,24 @@ function renderTable() {
                         <i class="bi bi-trash"></i>
                     </button>
                 </td>
-            </tr>
-        `;
-        tbody.innerHTML += row;
+            </tr>`;
     });
 }
 
 function filterTable() {
     const search = document.getElementById('searchCamera').value.toLowerCase();
-    const rows = document.querySelectorAll('#cameraTableBody tr');
-    
-    rows.forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.style.display = text.includes(search) ? '' : 'none';
+    document.querySelectorAll('#cameraTableBody tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(search) ? '' : 'none';
     });
 }
 
 function previewMainImage(input, previewId) {
     const preview = document.getElementById(previewId);
     preview.innerHTML = '';
-    
     if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.innerHTML = `
-                <div class="image-preview">
-                    <img src="${e.target.result}" alt="Preview">
-                </div>
-            `;
+        reader.onload = e => {
+            preview.innerHTML = `<div class="image-preview"><img src="${e.target.result}" alt="Preview"></div>`;
         };
         reader.readAsDataURL(input.files[0]);
     }
@@ -577,19 +697,17 @@ function previewMainImage(input, previewId) {
 function previewGalleryImages(input, previewId) {
     const preview = document.getElementById(previewId);
     preview.innerHTML = '';
-    
     if (input.files) {
-        Array.from(input.files).slice(0, 5).forEach((file, index) => {
+        Array.from(input.files).slice(0, 5).forEach((file, i) => {
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = e => {
                 const div = document.createElement('div');
                 div.className = 'image-preview';
                 div.innerHTML = `
-                    <img src="${e.target.result}" alt="Gallery ${index + 1}">
-                    <button type="button" class="remove-image" onclick="removeGalleryImage(this)">
+                    <img src="${e.target.result}" alt="Gallery ${i+1}">
+                    <button type="button" class="remove-image" onclick="this.closest('.image-preview').remove()">
                         <i class="bi bi-x"></i>
-                    </button>
-                `;
+                    </button>`;
                 preview.appendChild(div);
             };
             reader.readAsDataURL(file);
@@ -597,69 +715,31 @@ function previewGalleryImages(input, previewId) {
     }
 }
 
-function removeGalleryImage(button) {
-    button.closest('.image-preview').remove();
-}
-
-function addSpecField() {
-    const container = document.getElementById('specificationsContainer');
-    const wrapper = document.createElement('div');
-    wrapper.className = 'spec-input-wrapper';
-    wrapper.innerHTML = `
-        <input type="text" class="form-control" name="specifications[]" placeholder="Masukkan spesifikasi">
-        <button type="button" class="btn btn-sm btn-danger" onclick="removeSpec(this)">
-            <i class="bi bi-x"></i>
-        </button>
-    `;
-    container.appendChild(wrapper);
-}
-
-function removeSpec(button) {
-    const container = document.getElementById('specificationsContainer');
-    if (container.children.length > 1) {
-        button.closest('.spec-input-wrapper').remove();
-    } else {
-        alert('Minimal harus ada 1 spesifikasi');
-    }
-}
-
-function addPackageField() {
-    const container = document.getElementById('packageContainer');
-    const wrapper = document.createElement('div');
-    wrapper.className = 'spec-input-wrapper';
-    wrapper.innerHTML = `
-        <input type="text" class="form-control" name="package_includes[]" placeholder="Masukkan item paket">
-        <button type="button" class="btn btn-sm btn-danger" onclick="removePackage(this)">
-            <i class="bi bi-x"></i>
-        </button>
-    `;
-    container.appendChild(wrapper);
-}
-
-function removePackage(button) {
-    const container = document.getElementById('packageContainer');
-    if (container.children.length > 1) {
-        button.closest('.spec-input-wrapper').remove();
-    } else {
-        alert('Minimal harus ada 1 item paket');
-    }
-}
-
 function saveCamera() {
     const form = document.getElementById('addCameraForm');
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+
     const formData = new FormData(form);
-    
-    if (!form.checkValidity()) {
-        form.reportValidity();
-        return;
-    }
-    
+
+    // Convert textarea lines to arrays for backend
+    const featuresText = formData.get('features_text') || '';
+    const specsText = formData.get('specifications_text') || '';
+    const packageText = formData.get('package_text') || '';
+
+    formData.delete('features_text');
+    formData.delete('specifications_text');
+    formData.delete('package_text');
+
+    featuresText.split('\n').filter(l => l.trim()).forEach(l => formData.append('features[]', l.trim()));
+    specsText.split('\n').filter(l => l.trim()).forEach(l => formData.append('specifications[]', l.trim()));
+    packageText.split('\n').filter(l => l.trim()).forEach(l => formData.append('package_includes[]', l.trim()));
+
     const csrfToken = document.querySelector('meta[name="csrf-token"]');
     const saveBtn = document.querySelector('#addCameraModal .btn-primary');
     const originalText = saveBtn.innerHTML;
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
-    
+
     fetch('/api/admin/wifi-cameras', {
         method: 'POST',
         body: formData,
@@ -669,14 +749,9 @@ function saveCamera() {
         }
     })
     .then(async response => {
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            return response.json();
-        } else {
-            const text = await response.text();
-            console.error('Got HTML:', text.substring(0, 500));
-            throw new Error('Server returned HTML instead of JSON');
-        }
+        const ct = response.headers.get('content-type');
+        if (ct && ct.includes('application/json')) return response.json();
+        throw new Error('Server returned HTML instead of JSON');
     })
     .then(data => {
         if (data.success) {
@@ -690,20 +765,14 @@ function saveCamera() {
             alert('❌ Error: ' + (data.message || 'Gagal menambahkan camera'));
         }
     })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('❌ Error: ' + error.message);
-    })
-    .finally(() => {
-        saveBtn.disabled = false;
-        saveBtn.innerHTML = originalText;
-    });
+    .catch(error => { alert('❌ Error: ' + error.message); })
+    .finally(() => { saveBtn.disabled = false; saveBtn.innerHTML = originalText; });
 }
 
 function editCamera(id) {
     const camera = cameras.find(c => c.id === id);
     if (!camera) return;
-    
+
     document.getElementById('editId').value = camera.id;
     document.getElementById('editName').value = camera.name;
     document.getElementById('editBrand').value = camera.brand;
@@ -713,29 +782,32 @@ function editCamera(id) {
     document.getElementById('editStock').value = camera.stock;
     document.getElementById('editSku').value = camera.sku || '';
     document.getElementById('editStatus').value = camera.status;
-    document.getElementById('editIsFeatured').checked = camera.is_featured;
-    
+    document.getElementById('editIsFeatured').checked = camera.is_featured == 1;
+
+    // ===== TAMBAHAN: Parse JSON string dari DB ke textarea =====
+    const features = parseJsonField(camera.features);
+    const specs    = parseJsonField(camera.specifications);
+    const pkg      = parseJsonField(camera.package_includes);
+
+    document.getElementById('editFeaturesText').value      = features.join('\n');
+    document.getElementById('editSpecificationsText').value = parseSpecsToText(camera.specifications);
+    document.getElementById('editPackageText').value       = pkg.join('\n');
+    // ==========================================================
+
     const currentImageDiv = document.getElementById('editCurrentImage');
-    if (camera.main_image) {
-        currentImageDiv.innerHTML = `
-            <div class="alert alert-info">
-                <strong>Current Image:</strong><br>
-                <img src="/storage/${camera.main_image}" class="img-thumbnail" style="max-width: 200px;">
-            </div>
-        `;
-    } else {
-        currentImageDiv.innerHTML = '<div class="alert alert-secondary">No image</div>';
-    }
-    
+    currentImageDiv.innerHTML = camera.main_image
+        ? `<div class="alert alert-info py-2"><strong>Current Image:</strong><br>
+               <img src="/storage/${camera.main_image}" class="img-thumbnail mt-1" style="max-width: 160px;"></div>`
+        : '<div class="alert alert-secondary py-2">No image</div>';
+
     document.getElementById('editMainPreview').innerHTML = '';
-    
     new bootstrap.Modal(document.getElementById('editCameraModal')).show();
 }
 
 function updateCamera() {
     const id = document.getElementById('editId').value;
     const formData = new FormData();
-    
+
     formData.append('name', document.getElementById('editName').value);
     formData.append('brand', document.getElementById('editBrand').value);
     formData.append('subtitle', document.getElementById('editSubtitle').value);
@@ -745,18 +817,26 @@ function updateCamera() {
     formData.append('sku', document.getElementById('editSku').value);
     formData.append('status', document.getElementById('editStatus').value);
     formData.append('is_featured', document.getElementById('editIsFeatured').checked ? 1 : 0);
-    
+
+    // ===== TAMBAHAN: Kirim features, specs, package =====
+    const featuresText = document.getElementById('editFeaturesText').value || '';
+    const specsText    = document.getElementById('editSpecificationsText').value || '';
+    const packageText  = document.getElementById('editPackageText').value || '';
+
+    featuresText.split('\n').filter(l => l.trim()).forEach(l => formData.append('features[]', l.trim()));
+    specsText.split('\n').filter(l => l.trim()).forEach(l => formData.append('specifications[]', l.trim()));
+    packageText.split('\n').filter(l => l.trim()).forEach(l => formData.append('package_includes[]', l.trim()));
+    // ====================================================
+
     const fileInput = document.getElementById('editMainImage');
-    if (fileInput.files.length > 0) {
-        formData.append('main_image', fileInput.files[0]);
-    }
-    
+    if (fileInput.files.length > 0) formData.append('main_image', fileInput.files[0]);
+
     const csrfToken = document.querySelector('meta[name="csrf-token"]');
     const saveBtn = document.querySelector('#editCameraModal .btn-primary');
     const originalText = saveBtn.innerHTML;
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
-    
+
     fetch(`/api/admin/wifi-cameras/${id}`, {
         method: 'POST',
         body: formData,
@@ -766,14 +846,9 @@ function updateCamera() {
         }
     })
     .then(async response => {
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            return response.json();
-        } else {
-            const text = await response.text();
-            console.error('Got HTML:', text.substring(0, 500));
-            throw new Error('Server returned HTML instead of JSON');
-        }
+        const ct = response.headers.get('content-type');
+        if (ct && ct.includes('application/json')) return response.json();
+        throw new Error('Server returned HTML instead of JSON');
     })
     .then(data => {
         if (data.success) {
@@ -784,21 +859,14 @@ function updateCamera() {
             alert('❌ Error: ' + (data.message || 'Gagal update camera'));
         }
     })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('❌ Error: ' + error.message);
-    })
-    .finally(() => {
-        saveBtn.disabled = false;
-        saveBtn.innerHTML = originalText;
-    });
+    .catch(error => { alert('❌ Error: ' + error.message); })
+    .finally(() => { saveBtn.disabled = false; saveBtn.innerHTML = originalText; });
 }
 
 function deleteCamera(id) {
     if (!confirm('Apakah Anda yakin ingin menghapus camera ini?')) return;
-    
+
     const csrfToken = document.querySelector('meta[name="csrf-token"]');
-    
     fetch(`/api/admin/wifi-cameras/${id}`, {
         method: 'DELETE',
         headers: {
@@ -808,17 +876,10 @@ function deleteCamera(id) {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
-            alert('✅ Camera berhasil dihapus!');
-            loadCameras();
-        } else {
-            alert('❌ Error: ' + (data.message || 'Gagal hapus camera'));
-        }
+        if (data.success) { alert('✅ Camera berhasil dihapus!'); loadCameras(); }
+        else alert('❌ Error: ' + (data.message || 'Gagal hapus camera'));
     })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('❌ Error: ' + error.message);
-    });
+    .catch(error => { alert('❌ Error: ' + error.message); });
 }
 
 function formatNumber(num) {

@@ -8,13 +8,43 @@ use Illuminate\Support\Facades\DB;
 class WiFiCameraController extends Controller
 {
     /**
+     * Helper: decode JSON yang tahan emoji/surrogate pairs
+     */
+    private function safeJsonDecode($value)
+    {
+        if (empty($value)) return [];
+
+        // Coba decode langsung dulu
+        $result = json_decode($value, true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            return is_array($result) ? $result : [];
+        }
+
+        // Bersihkan surrogate pairs yang tidak valid lalu coba lagi
+        $cleaned = preg_replace('/\\\\ud[89ab][0-9a-f]{2}\\\\ud[c-f][0-9a-f]{2}/i', '', $value);
+        $result = json_decode($cleaned, true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            return is_array($result) ? $result : [];
+        }
+
+        // Kalau masih gagal, hapus semua escape sequence unicode lalu coba lagi
+        $cleaned = preg_replace('/\\\\u[0-9a-fA-F]{4}/', '', $value);
+        $result = json_decode($cleaned, true);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            return is_array($result) ? $result : [];
+        }
+
+        return [];
+    }
+
+    /**
      * Display listing of WiFi Cameras
      */
     public function index()
     {
         return view('wifi-cam');
     }
-    
+
     /**
      * Display specific WiFi Camera detail
      */
@@ -25,46 +55,40 @@ class WiFiCameraController extends Controller
             ->where('slug', $slug)
             ->where('status', 'active')
             ->first();
-        
+
         // Check if product exists
         if (!$product) {
             abort(404, 'Produk tidak ditemukan');
         }
-        
-        // Decode JSON fields
-        $product->specifications = json_decode($product->specifications, true) ?? [];
-        $product->package_includes = json_decode($product->package_includes, true) ?? [];
-        
-        // --- KODE LAMA: Menggunakan gallery_images, padahal Blade pakai 'images' ---
-        // $product->gallery_images = json_decode($product->gallery_images, true) ?? []; 
-        
-        // --- KODE BARU: Sesuaikan dengan pemanggilan 'images' di Blade ---
-        $gallery = json_decode($product->gallery_images, true) ?? [];
-        // Gabungkan main_image dan gallery_images ke dalam array 'images'
+
+        // Decode semua JSON fields (pakai safeJsonDecode agar tahan emoji)
+        $product->specifications   = $this->safeJsonDecode($product->specifications);
+        $product->package_includes = $this->safeJsonDecode($product->package_includes);
+        $product->gallery_images   = $this->safeJsonDecode($product->gallery_images);
+        $product->features         = $this->safeJsonDecode($product->features);
+
+        // Build images array (main + gallery) untuk blade yang pakai $product['images']
         $allImages = [];
         if ($product->main_image) {
             $allImages[] = '/storage/' . $product->main_image;
         }
-        foreach ($gallery as $img) {
+        foreach ($product->gallery_images as $img) {
             $allImages[] = '/storage/' . $img;
         }
-        
-        // Convert to array for compatibility with view
+
+        // Convert ke array untuk blade yang pakai $product['key']
         $productArray = (array) $product;
-        // Set 'images' agar tidak error saat foreach di Blade
-        $productArray['images'] = $allImages; 
-        
-        // ==========================================
-        // TAMBAHKAN KODE INI UNTUK PRODUK SERUPA
-        // ==========================================
+        $productArray['images'] = $allImages;
+
+        // Produk serupa dari brand yang sama
         $similarProducts = DB::table('wifi_cameras')
-            ->where('brand', $product->brand) // Ambil brand yang sama
-            ->where('id', '!=', $product->id) // Jangan tampilkan produk yang sedang dilihat
+            ->where('brand', $product->brand)
+            ->where('id', '!=', $product->id)
             ->where('status', 'active')
-            ->limit(4) // Batasi 4 produk
+            ->limit(4)
             ->get();
-            
-        // Jika tidak ada produk dari brand yang sama, ambil produk wifi camera random
+
+        // Jika tidak ada produk dari brand yang sama, ambil produk random
         if ($similarProducts->isEmpty()) {
             $similarProducts = DB::table('wifi_cameras')
                 ->where('id', '!=', $product->id)
@@ -73,45 +97,42 @@ class WiFiCameraController extends Controller
                 ->limit(4)
                 ->get();
         }
-        // ==========================================
-        
-        // Kirim $productArray DAN $similarProducts ke view
+
         return view('wifi-cam-detail', [
-            'product' => $productArray,
+            'wifi_cam'        => $product,       // object -> $wifi_cam->features
+            'product'         => $productArray,  // array  -> $product['images']
             'similarProducts' => $similarProducts
         ]);
     }
-    
+
     /**
      * API endpoint untuk WiFi Cameras (digunakan oleh frontend)
      * Endpoint: /api/wifi-cameras
      */
     public function apiIndex()
     {
-        // Get cameras from database
         $cameras = DB::table('wifi_cameras')
             ->where('status', 'active')
             ->orderBy('is_featured', 'desc')
             ->orderBy('created_at', 'desc')
             ->get();
-        
-        // Transform data to format expected by frontend
+
         $transformedCameras = $cameras->map(function($camera) {
             return [
-                'id' => $camera->id,
-                'name' => $camera->name,
-                'brand' => $camera->brand,
-                'subtitle' => $camera->subtitle,
-                'price' => $camera->price,
+                'id'             => $camera->id,
+                'name'           => $camera->name,
+                'brand'          => $camera->brand,
+                'subtitle'       => $camera->subtitle,
+                'price'          => $camera->price,
                 'original_price' => $camera->original_price,
-                'main_image' => $camera->main_image,
-                'stock' => $camera->stock ?? 100,
-                'is_featured' => $camera->is_featured ? true : false,
+                'main_image'     => $camera->main_image,
+                'stock'          => $camera->stock ?? 100,
+                'is_featured'    => $camera->is_featured ? true : false,
                 'specifications' => $camera->specifications,
-                'slug' => $camera->slug,
+                'slug'           => $camera->slug,
             ];
         });
-        
+
         return response()->json([
             'success' => true,
             'cameras' => $transformedCameras,

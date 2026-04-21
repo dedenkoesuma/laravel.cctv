@@ -1,583 +1,554 @@
 @extends('layouts.simple')
 
-@section('title', 'Detail Produk WiFi Cam - TechStore')
+@section('title', 'Detail Produk - TechStore')
 
 @section('content')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #f5f5f5;
-    color: #333;
-}
-
+/* ===== DETAIL PAGE STYLES ===== */
 .detail-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 40px 20px;
+    padding: 40px 0;
+    background: #f8f9fa;
+    min-height: calc(100vh - 100px);
 }
 
 .back-button {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #666;
+    color: #667eea;
     text-decoration: none;
-    font-weight: 500;
+    font-weight: 600;
     margin-bottom: 30px;
-    transition: color 0.3s;
+    transition: all 0.3s ease;
 }
 
 .back-button:hover {
-    color: #333;
+    color: #764ba2;
+    transform: translateX(-5px);
 }
 
-.back-button i {
-    font-size: 1.2rem;
-}
-
-.product-main {
-    display: grid;
-    grid-template-columns: 1fr 1.5fr;
-    gap: 40px;
+.product-detail-card {
     background: white;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    margin-bottom: 40px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
 }
 
-/* Image Gallery */
-.product-gallery {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+/* ===== PRODUCT IMAGES ===== */
+.product-images {
+    padding: 40px;
+    background: #f8f9fa;
 }
 
 .main-image {
-    width: 100%;
-    border: 1px solid #e5e5e5;
-    border-radius: 8px;
+    background: white;
+    border-radius: 12px;
     padding: 40px;
-    background: #fafafa;
+    margin-bottom: 20px;
     text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .main-image img {
-    width: 100%;
-    max-width: 350px;
-    height: auto;
+    max-width: 100%;
+    max-height: 400px;
     object-fit: contain;
 }
 
-.thumbnail-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+.thumbnail-images {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
 }
 
 .thumbnail {
-    border: 2px solid #e5e5e5;
+    width: 80px;
+    height: 80px;
     border-radius: 8px;
-    padding: 12px;
+    border: 2px solid #e0e0e0;
     cursor: pointer;
-    transition: all 0.3s;
+    overflow: hidden;
+    transition: all 0.3s ease;
     background: white;
-    text-align: center;
 }
 
-.thumbnail:hover,
-.thumbnail.active {
+.thumbnail:hover, .thumbnail.active {
     border-color: #667eea;
+    transform: scale(1.05);
 }
 
 .thumbnail img {
     width: 100%;
-    height: auto;
+    height: 100%;
     object-fit: contain;
+    padding: 10px;
 }
 
-/* Product Info */
+/* ===== PRODUCT INFO ===== */
 .product-info {
-    display: flex;
-    flex-direction: column;
-}
-
-.product-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: start;
-    margin-bottom: 20px;
-}
-
-.product-badges {
-    display: flex;
-    gap: 8px;
-}
-
-.badge {
-    padding: 6px 16px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-}
-
-.badge-sale {
-    background: #ef4444;
-    color: white;
-}
-
-.badge-spec {
-    background: #f3f4f6;
-    color: #374151;
+    padding: 40px;
 }
 
 .brand-logo {
-    width: 100px;
-    height: auto;
+    max-width: 120px;
+    margin-bottom: 20px;
 }
 
-.product-title-section {
-    margin-bottom: 30px;
+.resolution-badges {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.badge-resolution {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.badge-resolution.active {
+    background: #dc3545;
+    color: white;
+}
+
+.badge-resolution.inactive {
+    background: #e9ecef;
+    color: #6c757d;
 }
 
 .product-title {
     font-size: 2rem;
-    font-weight: 800;
-    color: #1f2937;
-    margin-bottom: 8px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 15px;
 }
 
 .product-subtitle {
-    font-size: 1rem;
-    color: #6b7280;
-    font-weight: 400;
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin-bottom: 30px;
 }
 
+/* ===== SPECIFICATIONS ===== */
 .section-title {
-    font-size: 1rem;
+    font-size: 1.3rem;
     font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #f3f4f6;
+    color: #333;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #667eea;
 }
 
 .specs-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px 32px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
     margin-bottom: 30px;
 }
 
 .spec-item {
     display: flex;
-    align-items: start;
-    gap: 8px;
-    font-size: 0.875rem;
+    align-items: flex-start;
+    gap: 10px;
 }
 
 .spec-item i {
-    color: #10b981;
-    margin-top: 3px;
-    flex-shrink: 0;
+    color: #667eea;
+    font-size: 1.2rem;
+    margin-top: 2px;
 }
 
-.included-section {
-    background: #f9fafb;
-    padding: 20px;
-    border-radius: 8px;
-    margin-bottom: 30px;
+.spec-text {
+    color: #333;
+    font-size: 0.95rem;
+    line-height: 1.5;
 }
 
-.included-grid {
+/* ===== FEATURES ===== */
+.features-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
 }
 
-.included-item {
+.feature-item {
     display: flex;
-    align-items: start;
-    gap: 8px;
-    font-size: 0.875rem;
+    align-items: flex-start;
+    gap: 10px;
 }
 
-.included-item i {
-    color: #3b82f6;
-    margin-top: 3px;
+.feature-item i {
+    color: #10b981;
+    font-size: 1.2rem;
+    margin-top: 2px;
     flex-shrink: 0;
 }
 
-.price-section {
+.feature-text {
+    color: #333;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* ===== PACKAGE INCLUDES ===== */
+.package-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
     margin-bottom: 30px;
+}
+
+.package-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.package-item i {
+    color: #28a745;
+    font-size: 1.2rem;
+}
+
+.package-text {
+    color: #333;
+    font-size: 0.95rem;
+}
+
+/* ===== PRICE & ORDER ===== */
+.price-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 30px;
+    border-radius: 12px;
+    color: white;
+    margin-top: 30px;
 }
 
 .price-label {
-    font-size: 0.875rem;
-    color: #6b7280;
-    margin-bottom: 8px;
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-bottom: 5px;
 }
 
-.price {
+.price-value {
     font-size: 2.5rem;
-    font-weight: 800;
-    color: #1f2937;
-}
-
-.order-button {
-    width: 100%;
-    padding: 16px;
-    background: #ef4444;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
     font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s;
+    margin-bottom: 20px;
 }
 
-.order-button:hover {
-    background: #dc2626;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+.price-original {
+    font-size: 1rem;
+    opacity: 0.7;
+    text-decoration: line-through;
+    margin-bottom: 4px;
 }
 
-/* Similar Products */
-.similar-section {
+.btn-order {
     background: white;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    margin-bottom: 40px;
+    color: #667eea;
+    border: none;
+    padding: 15px 40px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    width: 100%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-order:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+}
+
+/* ===== SIMILAR PRODUCTS ===== */
+.similar-products-section {
+    margin-top: 50px;
 }
 
 .similar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .similar-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1f2937;
+    color: #333;
+    margin: 0;
 }
 
-.view-all {
+.btn-view-all {
     color: #667eea;
     text-decoration: none;
     font-weight: 600;
-    font-size: 0.875rem;
+    font-size: 0.9rem;
 }
 
-.view-all:hover {
+.btn-view-all:hover {
+    color: #764ba2;
     text-decoration: underline;
 }
 
-.similar-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-}
-
 .similar-card {
-    border: 1px solid #e5e5e5;
-    border-radius: 12px;
-    padding: 16px;
-    text-align: center;
-    transition: all 0.3s;
-    cursor: pointer;
     background: white;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #eee;
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .similar-card:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transform: translateY(-4px);
+    border-color: #667eea;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    transform: translateY(-5px);
 }
 
-.similar-card img {
-    width: 100%;
+.similar-img {
     height: 150px;
-    object-fit: contain;
-    margin-bottom: 12px;
-}
-
-.similar-card-title {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: #1f2937;
-    margin-bottom: 8px;
-}
-
-.similar-card-desc {
-    font-size: 0.75rem;
-    color: #6b7280;
-    margin-bottom: 8px;
-    line-height: 1.4;
-}
-
-.similar-card-price {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #1f2937;
-}
-
-.similar-card-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    color: #667eea;
-    text-decoration: none;
-    font-size: 0.75rem;
-    font-weight: 600;
-    margin-top: 8px;
-}
-
-/* Terms Section */
-.terms-section {
-    background: white;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.terms-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 20px;
-}
-
-.terms-list {
-    list-style: none;
-    padding: 0;
-}
-
-.terms-list li {
-    padding: 12px 0;
-    border-bottom: 1px solid #f3f4f6;
+    margin-bottom: 15px;
     display: flex;
-    align-items: start;
-    gap: 12px;
+    align-items: center;
+    justify-content: center;
 }
 
-.terms-list li:last-child {
-    border-bottom: none;
+.similar-img img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
 }
 
-.terms-list li i {
-    color: #10b981;
-    margin-top: 3px;
-    flex-shrink: 0;
+.similar-name {
+    font-weight: 700;
+    color: #333;
+    font-size: 1.1rem;
+    margin-bottom: 5px;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-    .product-main {
-        grid-template-columns: 1fr;
+.similar-subtitle {
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-bottom: 15px;
+    min-height: 40px;
+}
+
+.similar-price {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #333;
+    margin-top: auto;
+    margin-bottom: 15px;
+}
+
+.btn-detail-similar {
+    color: #667eea;
+    font-size: 0.9rem;
+    text-decoration: none;
+}
+
+.btn-detail-similar:hover {
+    color: #764ba2;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 767px) {
+    .product-images {
         padding: 20px;
     }
-    
-    .specs-grid,
-    .included-grid {
-        grid-template-columns: 1fr;
+
+    .product-info {
+        padding: 20px;
     }
-    
-    .similar-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
+
     .product-title {
         font-size: 1.5rem;
     }
-    
-    .price {
+
+    .specs-grid,
+    .features-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .price-value {
         font-size: 2rem;
     }
 }
 </style>
 
 <div class="detail-container">
-    <a href="{{ url('/wifi-cam') }}" class="back-button">
-        <i class="bi bi-chevron-left"></i>
-        <span>C6N</span>
-    </a>
-    
-    <div class="product-gallery">
-            <div class="main-image" id="mainImage">
-                {{-- Menampilkan gambar utama --}}
-                <img id="currentMainImage" src="{{ asset('storage/' . $wifi_cam->main_image) }}" alt="{{ $wifi_cam->name }}">
-            </div>
-            
-           @php
-                // Cek apakah data sudah otomatis menjadi array dari Model, jika belum baru di-decode
-                $gallery = is_string($wifi_cam->gallery_images) 
-                            ? json_decode($wifi_cam->gallery_images, true) 
-                            : $wifi_cam->gallery_images;
-            @endphp
+    <div class="container">
+        <a href="{{ url('/wifi-cam') }}" class="back-button">
+            <i class="bi bi-arrow-left"></i>
+            Kembali ke WiFi Camera
+        </a>
 
-            @if(!empty($gallery))
-            <div class="thumbnail-grid">
-                @foreach($gallery as $index => $imagePath)
-                    <div class="thumbnail {{ $index === 0 ? 'active' : '' }}" onclick="changeMainImage('{{ asset('storage/' . str_replace('\\', '/', $imagePath)) }}', this)">
-                        <img src="{{ asset('storage/' . str_replace('\\', '/', $imagePath)) }}" alt="View {{ $index + 1 }}">
+        <div class="product-detail-card">
+            <div class="row g-0">
+                {{-- ===== GAMBAR ===== --}}
+                <div class="col-lg-5">
+                    <div class="product-images">
+                        @if(isset($product['brand_logo']))
+                        <img src="{{ $product['brand_logo'] }}" alt="{{ $product['brand'] }}" class="brand-logo">
+                        @endif
+
+                        <div class="main-image">
+                            <img src="{{ $product['images'][0] ?? ($product['main_image'] ?? 'https://via.placeholder.com/400') }}"
+                                 alt="{{ $product['name'] }}" id="mainImage">
+                        </div>
+
+                        @if(isset($product['images']) && count($product['images']) > 0)
+                        <div class="thumbnail-images">
+                            @foreach($product['images'] as $index => $image)
+                            <div class="thumbnail {{ $index === 0 ? 'active' : '' }}" onclick="changeImage('{{ $image }}', this)">
+                                <img src="{{ $image }}" alt="{{ $product['name'] }} view {{ $index + 1 }}">
+                            </div>
+                            @endforeach
+                        </div>
+                        @endif
                     </div>
+                </div>
+
+                {{-- ===== INFO PRODUK ===== --}}
+                <div class="col-lg-7">
+                    <div class="product-info">
+
+                        @if(isset($product['resolutions']))
+                        <div class="resolution-badges">
+                            @foreach($product['resolutions'] as $res)
+                            <span class="badge-resolution {{ $res['active'] ? 'active' : 'inactive' }}">
+                                {{ $res['label'] }}
+                            </span>
+                            @endforeach
+                        </div>
+                        @endif
+
+                        <h1 class="product-title">{{ $product['name'] }}</h1>
+                        <p class="product-subtitle">{{ $product['subtitle'] }}</p>
+
+                        {{-- ===== FITUR UNGGULAN (BARU DITAMBAHKAN) ===== --}}
+                        @if(!empty($product['features']) && is_array($product['features']))
+                        <h2 class="section-title">Fitur Unggulan</h2>
+                        <div class="features-grid">
+                            @foreach($product['features'] as $feature)
+                                @if(trim($feature))
+                                <div class="feature-item">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span class="feature-text">{{ $feature }}</span>
+                                </div>
+                                @endif
+                            @endforeach
+                        </div>
+                        @endif
+                        {{-- ===== END FITUR ===== --}}
+
+                        {{-- Spesifikasi --}}
+                        <h2 class="section-title">Spesifikasi</h2>
+                        <div class="specs-grid">
+                            @if(isset($product['specifications']) && count($product['specifications']) > 0)
+                                @foreach($product['specifications'] as $spec)
+                                <div class="spec-item">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span class="spec-text">{{ $spec }}</span>
+                                </div>
+                                @endforeach
+                            @else
+                                <p class="text-muted">Tidak ada spesifikasi khusus.</p>
+                            @endif
+                        </div>
+
+                        {{-- Sudah Termasuk --}}
+                        <h2 class="section-title">Sudah Termasuk</h2>
+                        <div class="package-list">
+                            @if(isset($product['package_includes']) && count($product['package_includes']) > 0)
+                                @foreach($product['package_includes'] as $item)
+                                <div class="package-item">
+                                    <i class="bi bi-box-seam"></i>
+                                    <span class="package-text">{{ $item }}</span>
+                                </div>
+                                @endforeach
+                            @else
+                                <p class="text-muted">Kamera, Kabel Power, Adaptor (Standar Pabrik)</p>
+                            @endif
+                        </div>
+
+                        {{-- Harga --}}
+                        <div class="price-section">
+                            <div class="price-label">Harga/Unit:</div>
+                            @if(!empty($product['original_price']) && $product['original_price'] > $product['price'])
+                                <div class="price-original">IDR. {{ number_format($product['original_price'], 0, ',', '.') }}</div>
+                            @endif
+                            <div class="price-value">IDR. {{ number_format($product['price'], 0, ',', '.') }}</div>
+
+                            <button class="btn btn-order" onclick="orderNow()">
+                                <i class="bi bi-cart-check"></i>
+                                Order Sekarang
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ===== PRODUK SERUPA ===== --}}
+        @if(isset($similarProducts) && $similarProducts->count() > 0)
+        <div class="similar-products-section">
+            <div class="similar-header">
+                <h3 class="similar-title">Produk Serupa</h3>
+                <a href="{{ url('/wifi-cam') }}" class="btn-view-all">Produk Lainnya &rarr;</a>
+            </div>
+
+            <div class="row g-3">
+                @foreach($similarProducts as $similar)
+                <div class="col-6 col-md-3">
+                    <a href="{{ url('/wifi-cam/' . $similar->slug) }}" style="text-decoration: none;">
+                        <div class="similar-card">
+                            <div class="similar-img">
+                                <img src="{{ $similar->main_image ? '/storage/' . $similar->main_image : 'https://via.placeholder.com/150' }}"
+                                     alt="{{ $similar->name }}">
+                            </div>
+                            <div class="similar-name">{{ $similar->name }}</div>
+                            <div class="similar-subtitle">{{ Str::limit($similar->subtitle, 50) }}</div>
+                            <div class="similar-price">Rp. {{ number_format($similar->price, 0, ',', '.') }}</div>
+                            <div class="btn-detail-similar">Lihat Detail &rarr;</div>
+                        </div>
+                    </a>
+                </div>
                 @endforeach
             </div>
-            @endif
         </div>
-        
-        <div class="product-info">
-            <div class="product-header">
-                <div class="product-badges">
-                    <span class="badge badge-sale">2MP</span>
-                </div>
-                <img src="https://via.placeholder.com/100x40/ffffff/667eea?text=EZVIZ" alt="EZVIZ" class="brand-logo">
-            </div>
-            
-            <div class="product-title-section">
-                <h1 class="product-title">C6N</h1>
-                <p class="product-subtitle">Smart Pan & Tilt Indoor WiFi Camera</p>
-            </div>
-            <div class="specs-section">
-                <h3 class="section-title">Spesifikasi</h3>
-                <div class="specs-grid">
-                    @php
-                        // Menggunakan nama kolom 'specifications' dari database
-                        $specs = is_string($wifi_cam->specifications) 
-                                    ? json_decode($wifi_cam->specifications, true) 
-                                    : $wifi_cam->specifications;
-                    @endphp
+        @endif
 
-                    @if(!empty($specs) && is_array($specs))
-                        @foreach($specs as $spec)
-                            <div class="spec-item">
-                                <i class="bi bi-check-circle-fill"></i>
-                                <span>{{ $spec }}</span>
-                            </div>
-                        @endforeach
-                    @else
-                        <div class="spec-item">
-                            <span>Spesifikasi belum tersedia.</span>
-                        </div>
-                    @endif
-                </div>
-            </div>
-            
-            <div class="included-section">
-                <h3 class="section-title">Sudah Termasuk</h3>
-                <div class="included-grid">
-                    @php
-                        // Menggunakan nama kolom 'package_includes' dari database
-                        $includes = is_string($wifi_cam->package_includes) 
-                                        ? json_decode($wifi_cam->package_includes, true) 
-                                        : $wifi_cam->package_includes;
-                    @endphp
-
-                    @if(!empty($includes) && is_array($includes))
-                        @foreach($includes as $item)
-                            <div class="included-item">
-                                <i class="bi bi-box-seam"></i>
-                                <span>{{ $item }}</span>
-                            </div>
-                        @endforeach
-                    @else
-                        <div class="included-item">
-                            <span>Informasi paket belum tersedia.</span>
-                        </div>
-                    @endif
-                </div>
-            </div>
-            
-            <div class="price-section">
-                <p class="price-label">Harga/Unit:</p>
-                <p class="price">IDR. 1.065.000</p>
-            </div>
-            
-            <button class="order-button" onclick="orderNow()">Order Sekarang</button>
-        </div>
     </div>
-    
-    <!-- Similar Products -->
-    <div class="similar-section">
-        <div class="similar-header">
-            <h2 class="similar-title">Produk Serupa</h2>
-            <a href="{{ url('/wifi-cam') }}" class="view-all">Produk Lainnya →</a>
-        </div>
-        
-        <div class="similar-grid">
-            <div class="similar-card">
-                <img src="https://via.placeholder.com/200x200/ffffff/cccccc?text=H6C+4MP" alt="H6C 4MP">
-                <h4 class="similar-card-title">H6C 4MP</h4>
-                <p class="similar-card-desc">4MP 2K 4MP WiFi Smart Pan & Tilt Indoor Camera</p>
-                <p class="similar-card-price">Rp. 1.350.000</p>
-                <a href="#" class="similar-card-link">
-                    <span>Lihat Detail</span>
-                    <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
-            
-            <div class="similar-card">
-                <img src="https://via.placeholder.com/200x200/ffffff/cccccc?text=H3C+4MP" alt="H3C 4MP">
-                <h4 class="similar-card-title">H3C 4MP</h4>
-                <p class="similar-card-desc">4MP 2K 4MP WiFi Smart Home Outdoor Camera</p>
-                <p class="similar-card-price">Rp. 1.850.000</p>
-                <a href="#" class="similar-card-link">
-                    <span>Lihat Detail</span>
-                    <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
-            
-            <div class="similar-card">
-                <img src="https://via.placeholder.com/200x200/ffffff/cccccc?text=H8C" alt="H8C">
-                <h4 class="similar-card-title">H8C</h4>
-                <p class="similar-card-desc">2MP 1080P Smart WiFi Pan & Tilt Indoor Camera</p>
-                <p class="similar-card-price">Rp. 1.688.000</p>
-                <a href="#" class="similar-card-link">
-                    <span>Lihat Detail</span>
-                    <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
-            
-            <div class="similar-card">
-                <img src="https://via.placeholder.com/200x200/ffffff/cccccc?text=H1C" alt="H1C">
-                <h4 class="similar-card-title">H1C</h4>
-                <p class="similar-card-desc">2MP 1080P Smart WiFi Pan Camera</p>
-                <p class="similar-card-price">Rp. 1.050.000</p>
-                <a href="#" class="similar-card-link">
-                    <span>Lihat Detail</span>
-                    <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
-        </div>
-    </div>
+</div>
 
 <script>
-function orderNow() {
-    const productName = 'EZVIZ C6N - Smart Pan & Tilt Indoor WiFi Camera';
-    const price = 'IDR 1.065.000';
-    const message = `Halo, saya tertarik dengan produk ${productName} dengan harga ${price}. Mohon informasi lebih lanjut.`;
-    
-    window.open('https://wa.me/6281234567890?text=' + encodeURIComponent(message), '_blank');
+function changeImage(imageSrc, thumbnail) {
+    document.getElementById('mainImage').src = imageSrc;
+    document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+    thumbnail.classList.add('active');
 }
 
-// Thumbnail click handler
-document.querySelectorAll('.thumbnail').forEach(thumb => {
-    thumb.addEventListener('click', function() {
-        document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-    });
-});
+function orderNow() {
+    const waNumber = "6281234567890";
+    const productName = "{{ addslashes($product['name']) }}";
+    const productPrice = "Rp {{ number_format($product['price'], 0, ',', '.') }}";
+
+    const message = `Halo Admin TechStore, saya tertarik dengan produk:\n\n*${productName}*\nHarga: ${productPrice}\n\nApakah stoknya masih tersedia?`;
+    window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, '_blank');
+}
 </script>
 @endsection
