@@ -32,6 +32,7 @@ class WiFiCamera extends Model
     ];
 
     protected $casts = [
+        'features' => 'array',
         'gallery_images' => 'array',
         'resolutions' => 'array',
         'specifications' => 'array',

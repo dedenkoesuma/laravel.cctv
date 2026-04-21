@@ -130,7 +130,7 @@
     margin-bottom: 30px;
 }
 
-/* ===== SPECIFICATIONS ===== */
+/* ===== SECTION TITLES ===== */
 .section-title {
     font-size: 1.3rem;
     font-weight: 700;
@@ -140,6 +140,7 @@
     border-bottom: 2px solid #667eea;
 }
 
+/* ===== SPESIFIKASI GRID ===== */
 .specs-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -165,7 +166,7 @@
     line-height: 1.5;
 }
 
-/* ===== PACKAGE INCLUDES ===== */
+/* ===== PACKAGE INCLUDES & FEATURES GRID (GAYA RUIJIE) ===== */
 .package-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -182,9 +183,31 @@
     border-radius: 8px;
 }
 
+/* KHUSUS UNTUK FITUR YANG PUNYA LABEL DAN VALUE (GAYA RUIJIE) */
+.package-item.feature-box {
+    align-items: flex-start;
+}
+
+.feature-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.feature-label {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #4b5563;
+    text-transform: uppercase;
+}
+
 .package-item i {
     color: #28a745;
     font-size: 1.2rem;
+}
+
+.package-item i.text-warning {
+    color: #ffc107 !important;
 }
 
 .package-text {
@@ -331,25 +354,11 @@
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 767px) {
-    .product-images {
-        padding: 20px;
-    }
-    
-    .product-info {
-        padding: 20px;
-    }
-    
-    .product-title {
-        font-size: 1.5rem;
-    }
-    
-    .specs-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .price-value {
-        font-size: 2rem;
-    }
+    .product-images { padding: 20px; }
+    .product-info { padding: 20px; }
+    .product-title { font-size: 1.5rem; }
+    .specs-grid { grid-template-columns: 1fr; }
+    .price-value { font-size: 2rem; }
 }
 </style>
 
@@ -365,18 +374,18 @@
                 <div class="col-lg-5">
                     <div class="product-images">
                         @if(isset($product['brand_logo']))
-                        <img src="{{ $product['brand_logo'] }}" alt="{{ $product['brand'] }}" class="brand-logo">
+                        <img src="{{ $product['brand_logo'] }}" alt="{{ $product['brand'] ?? 'Logo' }}" class="brand-logo">
                         @endif
 
                         <div class="main-image">
-                            <img src="{{ $product['images'][0] ?? ($product['main_image'] ?? 'https://via.placeholder.com/400') }}" alt="{{ $product['name'] }}" id="mainImage">
+                            <img src="{{ $product['images'][0] ?? ($product['main_image'] ?? 'https://via.placeholder.com/400') }}" alt="{{ $product['name'] ?? 'Product Image' }}" id="mainImage">
                         </div>
 
                         @if(isset($product['images']) && count($product['images']) > 0)
                         <div class="thumbnail-images">
                             @foreach($product['images'] as $index => $image)
                             <div class="thumbnail {{ $index === 0 ? 'active' : '' }}" onclick="changeImage('{{ $image }}', this)">
-                                <img src="{{ $image }}" alt="{{ $product['name'] }} view {{ $index + 1 }}">
+                                <img src="{{ $image }}" alt="{{ $product['name'] ?? 'Product' }} view {{ $index + 1 }}">
                             </div>
                             @endforeach
                         </div>
@@ -396,31 +405,110 @@
                         </div>
                         @endif
 
-                        <h1 class="product-title">{{ $product['name'] }}</h1>
-                        <p class="product-subtitle">{{ $product['subtitle'] }}</p>
+                        <h1 class="product-title">{{ $product['name'] ?? 'Nama Produk' }}</h1>
+                        <p class="product-subtitle">{{ $product['subtitle'] ?? '' }}</p>
 
                         <h2 class="section-title">Spesifikasi</h2>
                         <div class="specs-grid">
-                            @if(isset($product['specifications']) && count($product['specifications']) > 0)
-                                @foreach($product['specifications'] as $spec)
-                                <div class="spec-item">
-                                    <i class="bi bi-check-circle-fill"></i>
-                                    <span class="spec-text">{{ $spec }}</span>
-                                </div>
+                            @php
+                                $specs = $product['specifications'] ?? [];
+                                if (is_string($specs)) {
+                                    $specs = json_decode($specs, true);
+                                }
+                            @endphp
+
+                            @if(!empty($specs) && is_array($specs))
+                                @foreach($specs as $spec)
+                                    @php
+                                        if (is_array($spec)) {
+                                            $key = array_key_first($spec);
+                                            $displayText = $key . ': ' . $spec[$key];
+                                        } elseif (is_string($spec)) {
+                                            $displayText = $spec;
+                                        } else {
+                                            $displayText = json_encode($spec);
+                                        }
+                                    @endphp
+                                    <div class="spec-item">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        <span class="spec-text">{{ $displayText }}</span>
+                                    </div>
                                 @endforeach
                             @else
                                 <p class="text-muted">Tidak ada spesifikasi khusus.</p>
                             @endif
                         </div>
 
+                        <h2 class="section-title">Fitur Utama</h2>
+                        <div class="package-list">
+                            @php
+                                $features = $product['features'] ?? [];
+                                while (is_string($features)) {
+                                    $decoded = json_decode($features, true);
+                                    if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                                        $features = $decoded;
+                                    } else {
+                                        break; 
+                                    }
+                                }
+                            @endphp
+
+                            @if(!empty($features) && is_array($features))
+                                @foreach($features as $label => $value)
+                                    @php
+                                        $actualLabel = null;
+                                        $actualValue = $value;
+
+                                        // Logika membaca Filament Repeater
+                                        if (is_array($value)) {
+                                            if (isset($value['feature_name'])) {
+                                                $actualLabel = $value['feature_name'];
+                                            }
+                                            if (isset($value['feature_value'])) {
+                                                $actualValue = $value['feature_value'];
+                                            }
+                                        } else if (!is_numeric($label)) {
+                                            // Jika pakai key-value biasa, labelnya adalah key-nya
+                                            $actualLabel = $label;
+                                        }
+                                    @endphp
+                                    
+                                    <div class="package-item {{ $actualLabel ? 'feature-box' : '' }}">
+                                        <i class="bi bi-star-fill text-warning"></i>
+                                        
+                                        @if($actualLabel)
+                                        <div class="feature-content">
+                                            <span class="feature-label">{{ $actualLabel }}</span>
+                                            <span class="package-text">{{ is_array($actualValue) ? implode(', ', $actualValue) : $actualValue }}</span>
+                                        </div>
+                                        @else
+                                        <span class="package-text">{{ is_array($actualValue) ? implode(', ', $actualValue) : $actualValue }}</span>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            @else
+                                <p class="text-muted">Tidak ada fitur yang ditambahkan.</p>
+                            @endif
+                        </div>
+
                         <h2 class="section-title">Sudah Termasuk</h2>
                         <div class="package-list">
-                            @if(isset($product['package_includes']) && count($product['package_includes']) > 0)
-                                @foreach($product['package_includes'] as $item)
-                                <div class="package-item">
-                                    <i class="bi bi-box-seam"></i>
-                                    <span class="package-text">{{ $item }}</span>
-                                </div>
+                            @php
+                                $packages = $product['package_includes'] ?? [];
+                                if (is_string($packages)) {
+                                    $packages = json_decode($packages, true);
+                                }
+                            @endphp
+                            
+                            @if(!empty($packages) && is_array($packages))
+                                @foreach($packages as $item)
+                                    @php
+                                        $packageText = is_array($item) ? implode(', ', $item) : $item;
+                                    @endphp
+                                    <div class="package-item">
+                                        <i class="bi bi-box-seam"></i>
+                                        <span class="package-text">{{ $packageText }}</span>
+                                    </div>
                                 @endforeach
                             @else
                                 <p class="text-muted">Kamera, Kabel Power, Adaptor (Standar Pabrik)</p>
@@ -429,7 +517,7 @@
 
                         <div class="price-section">
                             <div class="price-label">Harga/Unit:</div>
-                            <div class="price-value">IDR. {{ number_format($product['price'], 0, ',', '.') }}</div>
+                            <div class="price-value">IDR. {{ number_format($product['price'] ?? 0, 0, ',', '.') }}</div>
                             
                             <button class="btn btn-order" onclick="orderNow()">
                                 <i class="bi bi-cart-check"></i>
@@ -472,20 +560,16 @@
 </div>
 
 <script>
-// Change main image when thumbnail clicked
 function changeImage(imageSrc, thumbnail) {
     document.getElementById('mainImage').src = imageSrc;
-    
-    // Update active thumbnail
     document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
     thumbnail.classList.add('active');
 }
 
-// Order now function
 function orderNow() {
-    const waNumber = "6281234567890"; // Ganti dengan nomor WA admin
-    const productName = "{{ $product['name'] }}";
-    const productPrice = "Rp {{ number_format($product['price'], 0, ',', '.') }}";
+    const waNumber = "6281234567890";
+    const productName = "{{ $product['name'] ?? 'Produk' }}";
+    const productPrice = "Rp {{ isset($product['price']) ? number_format($product['price'], 0, ',', '.') : '0' }}";
     
     const message = `Halo Admin TechStore, saya tertarik dengan produk:\n\n*${productName}*\nHarga: ${productPrice}\n\nApakah stoknya masih tersedia?`;
     const encodedMessage = encodeURIComponent(message);

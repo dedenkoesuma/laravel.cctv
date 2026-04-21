@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;  // ✅ PENTING: Namespace harus ada "Admin"
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -112,10 +112,10 @@ class AdminWiFiCameraController extends Controller
             'is_featured'           => 'nullable|boolean',
             'main_image'            => 'required|image|mimes:jpeg,png,jpg,webp|max:10240',
             'gallery_images.*'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
-            // ===== TAMBAHAN =====
+            // ===== SUDAH DIPERBAIKI: Hapus max:500 agar teks bisa panjang =====
             'features'              => 'nullable|array',
-            'features.*'            => 'nullable|string|max:500',
-            // ====================
+            'features.*'            => 'nullable|string', 
+            // ==================================================================
             'specifications'        => 'nullable|array',
             'package_includes'      => 'nullable|array'
         ]);
@@ -196,10 +196,10 @@ class AdminWiFiCameraController extends Controller
             'is_featured'           => 'nullable|boolean',
             'main_image'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
             'gallery_images.*'      => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-            // ===== TAMBAHAN =====
+            // ===== SUDAH DIPERBAIKI: Hapus max:500 agar teks bisa panjang =====
             'features'              => 'nullable|array',
-            'features.*'            => 'nullable|string|max:500',
-            // ====================
+            'features.*'            => 'nullable|string',
+            // ==================================================================
             'specifications'        => 'nullable|array',
             'package_includes'      => 'nullable|array'
         ]);
