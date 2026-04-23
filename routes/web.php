@@ -611,30 +611,35 @@ Route::prefix('api/admin/inventory')->name('api.admin.inventory.')->group(functi
     Route::get('/categories', [InventoryController::class, 'getCategories'])
          ->name('categories');
 });
-
 // =====================================
-// ⭐ NEW: GUDANG ROUTES
+// ⭐ NEW: GUDANG ROUTES (DENGAN FIX API)
 // =====================================
 
-// Halaman Gudang Admin
-Route::get('/admin/gudang', [App\Http\Controllers\Admin\GudangController::class, 'index'])
-    ->name('admin.gudang');
+// Halaman Frontend Admin
+Route::get('/admin/gudang', [App\Http\Controllers\Admin\GudangController::class, 'index'])->name('admin.gudang');
 
-// Gudang API Routes
-Route::prefix('admin/gudang')->group(function () {
-    // Produk & stok
+// Group API Gudang (Disesuaikan dengan URL fetch di blade)
+Route::prefix('api/admin/gudang')->group(function () {
+    // Produk & Stok Utama
     Route::get('/products',     [App\Http\Controllers\Admin\GudangController::class, 'getProducts']);
     Route::get('/categories',   [App\Http\Controllers\Admin\GudangController::class, 'getCategories']);
     Route::get('/history/{id}', [App\Http\Controllers\Admin\GudangController::class, 'getHistory']);
-    // Barang masuk
+    
+    // Barang Masuk
     Route::post('/barang-masuk',        [App\Http\Controllers\Admin\GudangController::class, 'storeBarangMasuk']);
-    Route::patch('/barang-masuk/{id}',  [App\Http\Controllers\Admin\GudangController::class, 'updateStatus']);
     Route::delete('/barang-masuk/{id}', [App\Http\Controllers\Admin\GudangController::class, 'destroyBarangMasuk']);
-    // ⭐ NEW: Barang keluar
+    
+    // Barang Keluar
     Route::post('/barang-keluar',        [App\Http\Controllers\Admin\GudangController::class, 'storeBarangKeluar']);
     Route::delete('/barang-keluar/{id}', [App\Http\Controllers\Admin\GudangController::class, 'destroyBarangKeluar']);
-});
 
+    // Manajemen Produk (Fix Delete 405)
+    Route::delete('/products/{id}', [App\Http\Controllers\Admin\GudangController::class, 'destroyProduct']);
+    
+    // Helper & Serial Number APIs
+    Route::get('/available-serials', [App\Http\Controllers\Admin\GudangController::class, 'getAvailableSerials']);
+    Route::get('/product-use-sn',    [App\Http\Controllers\Admin\GudangController::class, 'productUseSerialNumber']);
+});
 // =====================================
 // ⭐ NEW: SALES DOCUMENTS ROUTES (Surat Order & Penawaran)
 // =====================================

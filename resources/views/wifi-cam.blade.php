@@ -6,10 +6,12 @@
 <style>
 /* ===== PAGE HEADER ===== */
 .page-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-image: linear-gradient(rgba(0, 20, 40, 0.6), rgba(0, 40, 70, 0.7)), url("{{ asset('storage/gambar/wifi-cam.png') }}");
     color: white;
     padding: 80px 20px 60px;
     margin-bottom: 50px;
+    background-size:cover;
+    background-position:center;
 }
 
 .page-title {

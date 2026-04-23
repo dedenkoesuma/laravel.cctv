@@ -3,18 +3,30 @@
 @section('title', 'Access Control - TechStore')
 
 @section('content')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
 <style>
 /* ===== PAGE HEADER ===== */
 .page-header {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    background-image: linear-gradient(rgba(0, 20, 40, 0.6), rgba(0, 40, 70, 0.7)), url("{{ asset('storage/gambar/access-control.jpeg') }}");
     color: white;
-    padding: 80px 20px 60px;
+    padding: 100px 20px 80px;
     margin-bottom: 50px;
+    background-size: cover;
+    background-position: center;
+    text-align: center;
+}
+
+.page-header > .container {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 .page-title {
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 700;
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    font-weight: 800;
     margin-bottom: 1rem;
     text-align: center;
 }
@@ -22,9 +34,9 @@
 .page-description {
     font-size: clamp(1rem, 2vw, 1.2rem);
     opacity: 0.95;
-    text-align: center;
     max-width: 800px;
     margin: 0 auto;
+    text-align: center;
 }
 
 /* ===== BREADCRUMB ===== */
@@ -32,6 +44,9 @@
     background: transparent;
     padding: 0;
     margin-bottom: 2rem;
+    display: flex;
+    justify-content: center !important;
+    width: 100%;
 }
 
 .breadcrumb-custom .breadcrumb-item {
@@ -346,10 +361,12 @@
     }
 }
 </style>
+
 <div class="page-header">
     <div class="container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb breadcrumb-custom">
+        
+        <nav aria-label="breadcrumb" class="d-flex justify-content-center w-100 mb-4">
+            <ol class="breadcrumb breadcrumb-custom mb-0">
                 <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
                 <li class="breadcrumb-item active">Access Control</li>
             </ol>
@@ -391,6 +408,7 @@
     </div>
 
 </div>
+
 <script>
 let currentBrand = '';
 
@@ -562,5 +580,4 @@ function buyProduct(productName, sku) {
     window.open(whatsappUrl, '_blank');
 }
 </script>
-
 @endsection

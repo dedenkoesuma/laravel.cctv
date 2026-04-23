@@ -62,6 +62,36 @@
         border: 1px solid rgba(0,0,0,0.05);
     }
 
+    /* ===== NEW: Layout Grid Kiri-Kanan ===== */
+    .about-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.2fr; /* Kolom kanan sedikit lebih lebar */
+        gap: 50px;
+        align-items: center;
+    }
+
+    .about-image {
+        position: relative;
+    }
+
+    .about-image img {
+        width: 100%;
+        height: 100%;
+        min-height: 400px;
+        object-fit: cover;
+        border-radius: 16px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .about-image img:hover {
+        transform: translateY(-5px);
+    }
+    
+    .about-text {
+        text-align: left;
+    }
+
     .about-content-card h2 {
         font-size: 2.5rem;
         font-weight: 800;
@@ -238,6 +268,19 @@
         color: #764ba2;
     }
 
+    /* ===== Responsive Adjustments ===== */
+    @media (max-width: 992px) {
+        .about-grid {
+            grid-template-columns: 1fr; /* Menjadi atas bawah di layar HP/Tablet */
+            gap: 30px;
+        }
+
+        .about-image img {
+            min-height: 250px;
+            max-height: 400px;
+        }
+    }
+
     @media (max-width: 768px) {
         .about-content-card {
             padding: 30px 20px;
@@ -265,10 +308,18 @@
     <div class="container">
         
         <div class="about-content-card">
-            <h2>Siapa Kami</h2>
-            <p><strong>TechStore</strong> adalah perusahaan penyedia solusi keamanan CCTV dan networking terkemuka yang telah melayani ribuan klien di seluruh Indonesia. Dengan pengalaman lebih dari 10 tahun di industri keamanan, kami berkomitmen untuk memberikan produk berkualitas tinggi dan layanan terbaik kepada setiap pelanggan.</p>
-            <p>Tim profesional kami terdiri dari teknisi bersertifikat dan ahli keamanan yang berpengalaman dalam merancang, menginstal, dan memelihara sistem CCTV untuk berbagai kebutuhan, mulai dari rumah tinggal, perkantoran, hingga kompleks industri berskala besar.</p>
-            <p>Kami bangga menjadi mitra tepercaya yang tidak hanya menjual produk, tetapi juga memberikan konsultasi menyeluruh dan dukungan purna jual yang responsif untuk memastikan keamanan Anda terjaga 24/7.</p>
+            <div class="about-grid">
+                <div class="about-image">
+                    <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?q=80&w=800&auto=format&fit=crop" alt="Tim TechStore di Ruang Server">
+                </div>
+                
+                <div class="about-text">
+                    <h2>Siapa Kami</h2>
+                    <p><strong>TechStore</strong> adalah perusahaan penyedia solusi keamanan CCTV dan networking terkemuka yang telah melayani ribuan klien di seluruh Indonesia. Dengan pengalaman lebih dari 10 tahun di industri keamanan, kami berkomitmen untuk memberikan produk berkualitas tinggi dan layanan terbaik kepada setiap pelanggan.</p>
+                    <p>Tim profesional kami terdiri dari teknisi bersertifikat dan ahli keamanan yang berpengalaman dalam merancang, menginstal, dan memelihara sistem CCTV untuk berbagai kebutuhan, mulai dari rumah tinggal, perkantoran, hingga kompleks industri berskala besar.</p>
+                    <p>Kami bangga menjadi mitra tepercaya yang tidak hanya menjual produk, tetapi juga memberikan konsultasi menyeluruh dan dukungan purna jual yang responsif untuk memastikan keamanan Anda terjaga 24/7.</p>
+                </div>
+            </div>
         </div>
 
         <div class="stats-grid">
