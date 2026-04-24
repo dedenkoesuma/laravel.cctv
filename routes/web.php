@@ -30,6 +30,10 @@ use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\BrandProductController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\AiAssistantController;
+
+// ⭐ NEW: Sales Order Controller
+use App\Http\Controllers\Admin\SalesOrderController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes - Complete Version with Access Control & Ruijie
@@ -399,7 +403,7 @@ Route::prefix('api/admin/ruijie')->name('api.admin.ruijie.')->group(function () 
 });
 
 // =====================================
-// ⭐ BOOKKEEPING / PEMBUKUAN ROUTES - FIXED ORDERING
+// ⭐ NEW: BOOKKEEPING / PEMBUKUAN ROUTES - FIXED ORDERING
 // =====================================
 
 // Bookkeeping Admin - Main Dashboard
@@ -612,30 +616,76 @@ Route::prefix('api/admin/inventory')->name('api.admin.inventory.')->group(functi
          ->name('categories');
 });
 // =====================================
+<<<<<<< HEAD
 // ⭐ NEW: GUDANG ROUTES (DENGAN FIX API)
+=======
+// ⭐ GUDANG ROUTES (DENGAN FIX API)
+>>>>>>> 15ccb0e (fit gudang)
 // =====================================
 
 // Halaman Frontend Admin
 Route::get('/admin/gudang', [App\Http\Controllers\Admin\GudangController::class, 'index'])->name('admin.gudang');
 
+<<<<<<< HEAD
+=======
+// ⭐ Sales Order Routes — LENGKAP DENGAN SEMUA NAMA YANG DIBUTUHKAN
+Route::prefix('admin/gudang/sales-orders')->name('admin.sales-orders.')->group(function () {
+    Route::get('/',        [SalesOrderController::class, 'index'])->name('index');
+    Route::get('/create',  [SalesOrderController::class, 'create'])->name('create');
+    Route::post('/',       [SalesOrderController::class, 'store'])->name('store');
+
+    // Detail & Delete
+    Route::get('/{id}',    [SalesOrderController::class, 'show'])->name('show')->where('id', '[0-9]+');
+    Route::delete('/{id}', [SalesOrderController::class, 'destroy'])->name('destroy')->where('id', '[0-9]+');
+
+    // Approve
+    Route::get('/{id}/approve',  [SalesOrderController::class, 'approveForm'])->name('approve-form')->where('id', '[0-9]+');
+    Route::post('/{id}/approve', [SalesOrderController::class, 'approve'])->name('approve')->where('id', '[0-9]+');
+
+    // Deliver & Cancel
+    Route::post('/{id}/deliver', [SalesOrderController::class, 'deliver'])->name('deliver')->where('id', '[0-9]+');
+    Route::post('/{id}/cancel',  [SalesOrderController::class, 'cancel'])->name('cancel')->where('id', '[0-9]+');
+
+    // PDF & Email
+    Route::get('/{id}/pdf',        [SalesOrderController::class, 'downloadPdf'])->name('pdf')->where('id', '[0-9]+');
+    Route::get('/{id}/preview-pdf',[SalesOrderController::class, 'previewPdf'])->name('preview-pdf')->where('id', '[0-9]+');
+    Route::post('/{id}/send-email',[SalesOrderController::class, 'sendEmail'])->name('send-email')->where('id', '[0-9]+');
+});
+// ⭐ Sales Order API Route
+Route::post('/api/admin/gudang/sales-orders', [SalesOrderController::class, 'store'])
+     ->name('api.admin.gudang.sales-orders.store');
+
+>>>>>>> 15ccb0e (fit gudang)
 // Group API Gudang (Disesuaikan dengan URL fetch di blade)
 Route::prefix('api/admin/gudang')->group(function () {
     // Produk & Stok Utama
     Route::get('/products',     [App\Http\Controllers\Admin\GudangController::class, 'getProducts']);
     Route::get('/categories',   [App\Http\Controllers\Admin\GudangController::class, 'getCategories']);
     Route::get('/history/{id}', [App\Http\Controllers\Admin\GudangController::class, 'getHistory']);
+<<<<<<< HEAD
     
     // Barang Masuk
     Route::post('/barang-masuk',        [App\Http\Controllers\Admin\GudangController::class, 'storeBarangMasuk']);
     Route::delete('/barang-masuk/{id}', [App\Http\Controllers\Admin\GudangController::class, 'destroyBarangMasuk']);
     
+=======
+
+    // Barang Masuk
+    Route::post('/barang-masuk',        [App\Http\Controllers\Admin\GudangController::class, 'storeBarangMasuk']);
+    Route::delete('/barang-masuk/{id}', [App\Http\Controllers\Admin\GudangController::class, 'destroyBarangMasuk']);
+
+>>>>>>> 15ccb0e (fit gudang)
     // Barang Keluar
     Route::post('/barang-keluar',        [App\Http\Controllers\Admin\GudangController::class, 'storeBarangKeluar']);
     Route::delete('/barang-keluar/{id}', [App\Http\Controllers\Admin\GudangController::class, 'destroyBarangKeluar']);
 
     // Manajemen Produk (Fix Delete 405)
     Route::delete('/products/{id}', [App\Http\Controllers\Admin\GudangController::class, 'destroyProduct']);
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> 15ccb0e (fit gudang)
     // Helper & Serial Number APIs
     Route::get('/available-serials', [App\Http\Controllers\Admin\GudangController::class, 'getAvailableSerials']);
     Route::get('/product-use-sn',    [App\Http\Controllers\Admin\GudangController::class, 'productUseSerialNumber']);
