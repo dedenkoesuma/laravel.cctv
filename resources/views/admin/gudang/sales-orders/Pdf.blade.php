@@ -1,4 +1,3 @@
-{{-- resources/views/admin/gudang/sales-orders/pdf.blade.php --}}
 <!DOCTYPE html>
 <html>
 <head>
@@ -27,7 +26,10 @@
         .sn-item { font-family: monospace; font-size: 10px; background: #e8f0fe; padding: 1px 5px;
                    border-radius: 3px; display: inline-block; margin: 1px 2px; }
         .total-row { font-weight: bold; font-size: 13px; }
-        .total-row td { background: #f0f0f0 !important; padding: 10px 8px; }
+        .subtotal-row { font-size: 12px; color: #555; }
+        .subtotal-row td { border-bottom: none; padding-top: 10px; padding-bottom: 2px; }
+        .ppn-row td { border-bottom: none; padding-bottom: 10px; color: #d9534f; }
+        .total-row td { background: #f0f0f0 !important; padding: 10px 8px; border-top: 2px solid #ccc; }
         .footer { border-top: 1px solid #ddd; padding-top: 15px; margin-top: 20px; }
         .sign-table { width: 100%; margin-top: 30px; }
         .sign-table td { text-align: center; width: 33%; padding: 10px; }
@@ -67,12 +69,10 @@
                 <table>
                     <tr>
                         <td class="label">Tanggal SO</td>
-                        {{-- ✅ FIX: so_date adalah string, parse dulu ke Carbon --}}
                         <td>: {{ \Carbon\Carbon::parse($salesOrder->so_date)->format('d/m/Y') }}</td>
                     </tr>
                     <tr>
                         <td class="label">Dibuat oleh</td>
-                        {{-- ✅ FIX: creator_name adalah string dari controller, bukan relasi --}}
                         <td>: {{ $salesOrder->creator_name ?? '-' }}</td>
                     </tr>
                 </table>
@@ -125,17 +125,18 @@
             </tr>
         </thead>
         <tbody>
+            @php $subtotal_items = 0; @endphp
             @foreach($salesOrder->items as $index => $item)
+            @php $subtotal_items += $item->subtotal; @endphp
             <tr>
                 <td>{{ $index + 1 }}</td>
-                {{-- ✅ FIX: Akses langsung dari stdClass hasil join, bukan $item->product->... --}}
                 <td>{{ $item->nama_produk }}</td>
                 <td>{{ $item->sku ?? '-' }}</td>
                 <td>{{ $item->qty }}</td>
                 <td>Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
                 <td>Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
                 <td>
-                    @if($item->serials->isNotEmpty())
+                    @if($item->serials && $item->serials->isNotEmpty())
                         <div class="sn-list">
                             @foreach($item->serials as $serial)
                                 <span class="sn-item">{{ $serial->serial_number }}</span>
@@ -147,6 +148,21 @@
                 </td>
             </tr>
             @endforeach
+            
+            {{-- Bagian Perhitungan Akhir --}}
+            <tr class="subtotal-row">
+                <td colspan="5" style="text-align:right">Subtotal Produk</td>
+                <td>Rp {{ number_format($subtotal_items, 0, ',', '.') }}</td>
+                <td></td>
+            </tr>
+            
+            {{-- Baris PPN Selalu Muncul --}}
+            <tr class="ppn-row">
+                <td colspan="5" style="text-align:right">PPN ({{ isset($salesOrder->ppn_rate) ? floatval($salesOrder->ppn_rate) : 0 }}%)</td>
+                <td>+ Rp {{ number_format($salesOrder->ppn_nominal ?? 0, 0, ',', '.') }}</td>
+                <td></td>
+            </tr>
+
             <tr class="total-row">
                 <td colspan="5" style="text-align:right">TOTAL KESELURUHAN</td>
                 <td>Rp {{ number_format($salesOrder->total_amount, 0, ',', '.') }}</td>

@@ -1,4 +1,3 @@
-{{-- resources/views/admin/gudang/sales-orders/show.blade.php --}}
 @extends('layouts.simple')
 
 @section('title', 'Detail SO - ' . $salesOrder->so_number)
@@ -16,8 +15,6 @@
                     {{ $salesOrder->status_label }}
                 </span>
             </h4>
-            {{-- ✅ FIX 1: created_at adalah string, pakai \Carbon\Carbon::parse() --}}
-            {{-- ✅ FIX 2: creator_name sudah di-set di controller sebagai string --}}
             <small class="text-muted">
                 Dibuat {{ \Carbon\Carbon::parse($salesOrder->created_at)->format('d/m/Y H:i') }}
                 oleh {{ $salesOrder->creator_name ?? '-' }}
@@ -130,7 +127,6 @@
                         </tr>
                         <tr>
                             <td class="text-muted">Tanggal SO</td>
-                            {{-- ✅ FIX: so_date juga string, parse dulu --}}
                             <td>{{ \Carbon\Carbon::parse($salesOrder->so_date)->format('d F Y') }}</td>
                         </tr>
                         <tr>
@@ -138,7 +134,7 @@
                             <td><span class="badge bg-{{ $salesOrder->status_color }}">{{ $salesOrder->status_label }}</span></td>
                         </tr>
                         <tr>
-                            <td class="text-muted">Total</td>
+                            <td class="text-muted">Total Tagihan</td>
                             <td><strong class="text-success fs-6">Rp {{ number_format($salesOrder->total_amount, 0, ',', '.') }}</strong></td>
                         </tr>
                         @if($salesOrder->notes)
@@ -173,23 +169,23 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @php $subtotal_items = 0; @endphp
                         @foreach($salesOrder->items as $index => $item)
+                        @php $subtotal_items += $item->subtotal; @endphp
                         <tr>
                             <td class="text-center">{{ $index + 1 }}</td>
                             <td>
-                                {{-- ✅ FIX 3: Pakai $item->nama_produk langsung (hasil join di controller) --}}
                                 <div class="fw-bold">{{ $item->nama_produk }}</div>
                                 @if($item->notes)
                                     <div class="small text-muted">{{ $item->notes }}</div>
                                 @endif
                             </td>
-                            {{-- ✅ FIX 4: $item->sku langsung, bukan $item->product->sku --}}
                             <td class="font-monospace small">{{ $item->sku ?? '-' }}</td>
                             <td class="text-center fw-bold">{{ $item->qty }}</td>
                             <td>Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
                             <td class="fw-bold text-success">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</td>
                             <td>
-                                @if($item->serials->isNotEmpty())
+                                @if($item->serials && $item->serials->isNotEmpty())
                                     <div class="d-flex flex-wrap gap-1">
                                         @foreach($item->serials as $serial)
                                             <span class="badge bg-primary font-monospace">
@@ -209,6 +205,25 @@
                         @endforeach
                     </tbody>
                     <tfoot class="table-light">
+                        <tr>
+                            <td colspan="5" class="text-end text-muted">Subtotal Produk</td>
+                            <td class="fw-bold text-muted">
+                                Rp {{ number_format($subtotal_items, 0, ',', '.') }}
+                            </td>
+                            <td></td>
+                        </tr>
+                        
+                        {{-- Baris PPN Selalu Muncul --}}
+                        <tr>
+                            <td colspan="5" class="text-end text-muted">
+                                PPN ({{ isset($salesOrder->ppn_rate) ? floatval($salesOrder->ppn_rate) : 0 }}%)
+                            </td>
+                            <td class="fw-bold text-danger">
+                                + Rp {{ number_format($salesOrder->ppn_nominal ?? 0, 0, ',', '.') }}
+                            </td>
+                            <td></td>
+                        </tr>
+                        
                         <tr>
                             <td colspan="5" class="text-end fw-bold">TOTAL KESELURUHAN</td>
                             <td class="fw-bold text-success fs-6">

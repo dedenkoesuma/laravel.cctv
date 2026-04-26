@@ -1,4 +1,3 @@
-{{-- resources/views/admin/gudang/sales-orders/index.blade.php --}}
 @extends('layouts.simple')
 
 @section('title', 'Daftar Sales Order')
@@ -82,10 +81,10 @@
                 <div class="col-md-3">
                     <select name="status" class="form-select form-select-sm">
                         <option value="">Semua Status</option>
-                        <option value="draft"     {{ request('status') === 'draft'     ? 'selected' : '' }}>Draft</option>
-                        <option value="approved"  {{ request('status') === 'approved'  ? 'selected' : '' }}>Disetujui</option>
-                        <option value="delivered" {{ request('status') === 'delivered' ? 'selected' : '' }}>Terkirim</option>
-                        <option value="cancelled" {{ request('status') === 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
+                        <option value="draft"      {{ request('status') === 'draft'      ? 'selected' : '' }}>Draft</option>
+                        <option value="approved"   {{ request('status') === 'approved'   ? 'selected' : '' }}>Disetujui</option>
+                        <option value="delivered"  {{ request('status') === 'delivered'  ? 'selected' : '' }}>Terkirim</option>
+                        <option value="cancelled"  {{ request('status') === 'cancelled'  ? 'selected' : '' }}>Dibatalkan</option>
                     </select>
                 </div>
                 <div class="col-md-2">
@@ -117,7 +116,8 @@
                             <th>Customer</th>
                             <th>Tanggal</th>
                             <th>Item</th>
-                            <th>Total</th>
+                            <th>PPN</th>
+                            <th>Total Tagihan</th>
                             <th>Status</th>
                             <th>Dibuat</th>
                             <th width="260">Aksi</th>
@@ -139,7 +139,14 @@
                             </td>
                             <td>{{ \Carbon\Carbon::parse($so->so_date)->format('d/m/Y') }}</td>
                             <td>
-                                <span class="badge bg-secondary">{{ $so->items->count() }} produk</span>
+                                <span class="badge bg-secondary">{{ $so->items ? $so->items->count() : 0 }} produk</span>
+                            </td>
+                            <td>
+                                @if(isset($so->ppn_aktif) && $so->ppn_aktif)
+                                    <span class="badge bg-danger">Ya ({{ floatval($so->ppn_rate) }}%)</span>
+                                @else
+                                    <span class="badge bg-light text-dark border">Tidak</span>
+                                @endif
                             </td>
                             <td class="fw-bold text-success">
                                 Rp {{ number_format($so->total_amount, 0, ',', '.') }}
@@ -187,7 +194,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center py-5 text-muted">
+                            <td colspan="9" class="text-center py-5 text-muted">
                                 <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
                                 Belum ada Sales Order.
                                 <br>

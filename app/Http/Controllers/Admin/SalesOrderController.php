@@ -76,19 +76,20 @@ class SalesOrderController extends Controller
     }
 
     // ===== SIMPAN SO =====
+  // ===== SIMPAN SO =====
     public function store(Request $request)
     {
         // ✅ Cek session
         $adminId = session('admin_id');
         if (!$adminId) {
-            return redirect('/login')->with('error', 'Sesi expired. Silakan login ulang.');
+            return response()->json(['success' => false, 'message' => 'Sesi expired. Silakan login ulang.'], 401);
         }
 
         // ✅ Validasi admin masih ada di DB
         $adminExists = DB::table('admins')->where('id', $adminId)->exists();
         if (!$adminExists) {
             session()->flush();
-            return redirect('/login')->with('error', 'Akun tidak valid. Silakan login ulang.');
+            return response()->json(['success' => false, 'message' => 'Akun tidak valid. Silakan login ulang.'], 401);
         }
 
         $request->validate([
@@ -108,6 +109,22 @@ class SalesOrderController extends Controller
         try {
             $soNumber = $this->generateSoNumber();
 
+            // 1. Hitung Subtotal Produk dari items
+            $subtotal = 0;
+            foreach ($request->items as $item) {
+                $subtotal += ($item['qty'] * $item['harga_satuan']);
+            }
+
+            // 2. Hitung PPN
+            // Tangkap nilai dari JavaScript, pastikan formatnya benar
+            $ppn_aktif = $request->ppn_aktif ? 1 : 0;
+            $ppn_rate = $ppn_aktif ? $request->ppn_rate : 0;
+            $ppn_nominal = $ppn_aktif ? ($subtotal * ($ppn_rate / 100)) : 0;
+
+            // 3. Grand Total
+            $grand_total = $subtotal + $ppn_nominal;
+
+            // 4. Insert SO ke Database beserta data PPN-nya
             $soId = DB::table('sales_orders')->insertGetId([
                 'so_number'        => $soNumber,
                 'customer_name'    => $request->customer_name,
@@ -117,41 +134,45 @@ class SalesOrderController extends Controller
                 'so_date'          => $request->so_date,
                 'status'           => 'draft',
                 'notes'            => $request->notes,
-                'total_amount'     => 0,
+                
+                // Masukkan data PPN yang sudah dihitung
+                'ppn_aktif'        => $ppn_aktif,
+                'ppn_rate'         => $ppn_rate,
+                'ppn_nominal'      => $ppn_nominal,
+                
+                'total_amount'     => $grand_total,
                 'created_by'       => $adminId,
                 'created_at'       => now(),
                 'updated_at'       => now(),
             ]);
 
-            $total = 0;
+            // 5. Insert Items
             foreach ($request->items as $item) {
-                $subtotal = $item['qty'] * $item['harga_satuan'];
-                $total   += $subtotal;
+                $subtotal_item = $item['qty'] * $item['harga_satuan'];
 
                 DB::table('sales_order_items')->insert([
                     'sales_order_id' => $soId,
                     'product_id'     => $item['product_id'],
                     'qty'            => $item['qty'],
                     'harga_satuan'   => $item['harga_satuan'],
-                    'subtotal'       => $subtotal,
+                    'subtotal'       => $subtotal_item,
                     'notes'          => $item['notes'] ?? null,
                     'created_at'     => now(),
                     'updated_at'     => now(),
                 ]);
             }
 
-            DB::table('sales_orders')->where('id', $soId)->update([
-                'total_amount' => $total,
-                'updated_at'   => now(),
-            ]);
-
             DB::commit();
-            return redirect("/admin/gudang/sales-orders/{$soId}")
-                ->with('success', "SO {$soNumber} berhasil dibuat.");
+            
+            // Return Response JSON agar ditangkap dengan baik oleh Fetch API di Blade
+            return response()->json([
+                'success' => true, 
+                'message' => "SO {$soNumber} berhasil dibuat."
+            ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->withInput()->with('error', 'Gagal membuat SO: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Gagal membuat SO: ' . $e->getMessage()], 500);
         }
     }
 
