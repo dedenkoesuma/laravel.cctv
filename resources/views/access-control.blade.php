@@ -6,578 +6,280 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
 <style>
-/* ===== PAGE HEADER ===== */
-.page-header {
-    background-image: linear-gradient(rgba(0, 20, 40, 0.6), rgba(0, 40, 70, 0.7)), url("{{ asset('storage/gambar/access-control.jpeg') }}");
+/* ===== UI RUIJIE STYLE ADAPTATION ===== */
+:root {
+    --access-primary: #ff6b6b;
+    --access-dark: #ee5a6f;
+    --access-light: #fff5f5;
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== HERO SECTION ===== */
+.hero-section {
+    position: relative;
+    background-image: url("{{ asset('storage/gambar/access-control.jpeg') }}");
     color: white;
-    padding: 100px 20px 80px;
-    margin-bottom: 50px;
+    padding: 100px 0 140px;
     background-size: cover;
     background-position: center;
     text-align: center;
 }
 
-.page-header > .container {
-    position: relative;
-    z-index: 1;
-    max-width: 900px;
-    margin: 0 auto;
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
 }
 
-.page-title {
-    font-size: clamp(2.5rem, 5vw, 3.5rem);
+.hero-content { position: relative; z-index: 1; }
+
+.hero-title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
     font-weight: 800;
     margin-bottom: 1rem;
-    text-align: center;
+    letter-spacing: -0.02em;
 }
 
-.page-description {
-    font-size: clamp(1rem, 2vw, 1.2rem);
-    opacity: 0.95;
-    max-width: 800px;
-    margin: 0 auto;
-    text-align: center;
-}
-
-/* ===== BREADCRUMB ===== */
-.breadcrumb-custom {
-    background: transparent;
-    padding: 0;
-    margin-bottom: 2rem;
-    display: flex;
-    justify-content: center !important;
-    width: 100%;
-}
-
-.breadcrumb-custom .breadcrumb-item {
-    color: rgba(255,255,255,0.8);
-}
-
-.breadcrumb-custom .breadcrumb-item.active {
-    color: white;
-}
-
-.breadcrumb-custom .breadcrumb-item a {
-    color: white;
-    text-decoration: none;
-}
-
-/* ===== FILTER SECTION ===== */
+/* ===== FILTER SECTION (Floating Card) ===== */
 .filter-section {
+    position: relative;
+    margin-top: -70px;
+    margin-bottom: 60px;
+    z-index: 10;
+}
+
+.filter-card {
     background: white;
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    margin-bottom: 3rem;
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: var(--shadow-lg);
+    max-width: 1000px;
+    margin: 0 auto;
+    border: 1px solid rgba(0,0,0,0.05);
 }
 
-.filter-title {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 1.5rem;
-    text-align: center;
-}
-
-.filter-buttons {
+.filter-header {
     display: flex;
-    justify-content: center;
     align-items: center;
-    gap: 1rem;
+    justify-content: space-between;
+    margin-bottom: 24px;
     flex-wrap: wrap;
+    gap: 16px;
+}
+
+.filter-title { font-size: 1.25rem; font-weight: 700; color: #1e293b; }
+.filter-count { font-size: 0.875rem; color: #64748b; }
+.filter-count strong { color: var(--access-primary); }
+
+/* SEARCH BAR */
+.search-wrapper { margin-bottom: 24px; }
+.search-input-group {
+    display: flex;
+    align-items: center;
+    background: #f8fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 4px 16px;
+    gap: 10px;
+    transition: var(--transition);
+}
+
+.search-input-group:focus-within {
+    border-color: var(--access-primary);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+}
+
+.search-input-group input {
+    flex: 1; border: none; background: transparent; padding: 10px 0;
+    font-size: 0.95rem; outline: none;
+}
+
+/* FILTER GRID */
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
 }
 
 .filter-btn {
-    padding: 12px 32px;
-    border-radius: 50px;
-    border: 2px solid #ff6b6b;
-    background: white;
-    color: #ff6b6b;
-    font-weight: 600;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    min-width: 120px;
-    text-align: center;
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; padding: 14px; border-radius: 12px;
+    border: 2px solid #e2e8f0; background: white;
+    color: #475569; font-weight: 700; font-size: 0.9rem;
+    cursor: pointer; transition: var(--transition);
 }
 
-.filter-btn:hover {
-    background: #ff6b6b;
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
-}
+.filter-btn:hover { border-color: var(--access-primary); color: var(--access-primary); }
 
 .filter-btn.active {
-    background: #ff6b6b;
+    background: var(--access-primary);
+    border-color: var(--access-primary);
     color: white;
-    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);
 }
 
-/* ===== PRODUCT CARDS ===== */
+/* ===== PRODUCTS GRID ===== */
 .products-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 2rem;
-    margin-bottom: 3rem;
+    gap: 28px;
+    padding-bottom: 80px;
 }
 
 .product-card {
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    transition: all 0.3s ease;
-    position: relative;
+    background: white; border-radius: 16px; overflow: hidden;
+    border: 1px solid #e2e8f0; transition: var(--transition);
+    display: flex; flex-direction: column;
 }
 
-.product-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-}
+.product-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
 
 .product-image-wrapper {
+    height: 260px; background: #f8fafc;
+    display: flex; align-items: center; justify-content: center;
     position: relative;
-    width: 100%;
-    height: 250px;
-    overflow: hidden;
-    background: #f8f9fa;
 }
 
-.product-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-}
+.product-image { width: 100%; height: 100%; object-fit: cover; }
 
-.product-card:hover .product-image {
-    transform: scale(1.05);
-}
+.product-content { padding: 24px; flex: 1; display: flex; flex-direction: column; }
+.product-brand { font-size: 0.75rem; font-weight: 800; color: var(--access-primary); text-transform: uppercase; margin-bottom: 8px; }
+.product-name { font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 12px; min-height: 50px; }
 
-.badge-featured {
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-    color: #333;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    z-index: 2;
-}
+.price-current { font-size: 1.5rem; font-weight: 800; color: var(--access-primary); }
+.product-footer { margin-top: auto; padding-top: 15px; display: flex; gap: 10px; }
 
-.badge-sale {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    z-index: 2;
-}
-
-.product-content {
-    padding: 1.5rem;
-}
-
-.product-brand {
-    color: #ff6b6b;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    margin-bottom: 0.5rem;
-}
-
-.product-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 0.5rem;
-    line-height: 1.4;
-    min-height: 2.8em;
-}
-
-.product-sku {
-    font-size: 0.8rem;
-    color: #666;
-    margin-bottom: 1rem;
-}
-
-.product-price-wrapper {
-    margin-bottom: 1rem;
-}
-
-.product-price {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #ff6b6b;
-}
-
-.product-original-price {
-    font-size: 1rem;
-    color: #999;
-    text-decoration: line-through;
-    margin-left: 0.5rem;
-}
-
-.product-stock {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
-    margin-bottom: 1rem;
-}
-
-.stock-indicator {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-}
-
-.stock-indicator.in-stock {
-    background: #28a745;
-}
-
-.stock-indicator.low-stock {
-    background: #ffc107;
-}
-
-.stock-indicator.out-of-stock {
-    background: #dc3545;
-}
-
-.product-actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.btn-detail {
-    flex: 1;
-    padding: 12px;
-    background: white;
-    color: #ff6b6b;
-    border: 2px solid #ff6b6b;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-detail:hover {
-    background: #ff6b6b;
-    color: white;
-}
-
-.btn-buy {
-    flex: 1;
-    padding: 12px;
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.btn-buy:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
-}
-
-.btn-buy:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    transform: none;
-}
-
-/* ===== LOADING & EMPTY STATE ===== */
-.loading-spinner {
-    text-align: center;
-    padding: 3rem;
-}
-
-.spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #ff6b6b;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 1rem;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-.empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-}
-
-.empty-state-icon {
-    font-size: 4rem;
-    color: #ddd;
-    margin-bottom: 1rem;
-}
-
-.empty-state-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 0.5rem;
-}
-
-.empty-state-description {
-    color: #666;
-    margin-bottom: 1.5rem;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-    .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 1.5rem;
-    }
-    
-    .filter-buttons {
-        flex-direction: column;
-        width: 100%;
-    }
-    
-    .filter-btn {
-        width: 100%;
-    }
-    
-    .page-header {
-        padding: 60px 20px 40px;
-    }
-}
+.btn-detail { flex: 1; padding: 10px; border-radius: 10px; border: 2px solid var(--access-primary); color: var(--access-primary); background: white; font-weight: 700; }
+.btn-buy { flex: 1; padding: 10px; border-radius: 10px; background: var(--access-primary); color: white; border: none; font-weight: 700; }
 </style>
 
-<div class="page-header">
-    <div class="container">
-        
-        <nav aria-label="breadcrumb" class="d-flex justify-content-center w-100 mb-4">
-            <ol class="breadcrumb breadcrumb-custom mb-0">
-                <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                <li class="breadcrumb-item active">Access Control</li>
-            </ol>
-        </nav>
-        
-        <h1 class="page-title">
-            <i class="bi bi-fingerprint"></i> Access Control Systems
-        </h1>
-        <p class="page-description">
-            Professional access control solutions for enhanced security. Featuring fingerprint, face recognition, and card readers.
-        </p>
+<div class="hero-section">
+    <div class="hero-content container">
+        <h1 class="hero-title">Access Control Systems</h1>
+        <p class="hero-subtitle">Keamanan akses cerdas dengan teknologi biometric terdepan.</p>
+    </div>
+</div>
+
+<div class="container filter-section">
+    <div class="filter-card">
+        <div class="filter-header">
+            <h2 class="filter-title">Filter Produk</h2>
+            <div class="filter-count" id="filterCount">Menampilkan <strong>0</strong> produk</div>
+        </div>
+
+        <div class="search-wrapper">
+            <div class="search-input-group">
+                <i class="bi bi-search"></i>
+                <input type="text" id="productSearch" placeholder="Cari tipe atau nama access control..." onkeyup="handleSearch()">
+            </div>
+        </div>
+
+        <div class="filter-grid" id="brandFilters">
+            <button class="filter-btn active" data-brand="HIKVISION" onclick="filterByBrand('HIKVISION', event)">HIKVISION</button>
+            <button class="filter-btn" data-brand="Dahua" onclick="filterByBrand('Dahua', event)">Dahua</button>
+            <button class="filter-btn" data-brand="ZKTeco" onclick="filterByBrand('ZKTeco', event)">ZKTeco</button>
+        </div>
     </div>
 </div>
 
 <div class="container">
-    
-    <div class="filter-section">
-        <h3 class="filter-title">
-            <i class="bi bi-funnel"></i> Filter by Brand
-        </h3>
-        <div class="filter-buttons" id="brandFilters">
-            <button class="filter-btn active" data-brand="HIKVISION">
-                HIKVISION
-            </button>
-            <button class="filter-btn" data-brand="Dahua">
-                Dahua
-            </button>
-            <button class="filter-btn" data-brand="ZKTeco">
-                ZKTeco
-            </button>
-        </div>
+    <div id="loadingState" class="text-center py-5">
+        <div class="spinner-border text-danger" role="status"></div>
+        <p class="mt-2 text-muted">Memuat produk...</p>
     </div>
 
-    <div id="productsContainer">
-        <div class="loading-spinner">
-            <div class="spinner"></div>
-            <p>Loading products...</p>
-        </div>
-    </div>
-
+    <div class="products-grid" id="productsGrid" style="display: none;"></div>
 </div>
 
 <script>
-let currentBrand = '';
+let allProducts = [];
+let currentBrand = 'HIKVISION';
+let searchQuery = '';
 
-// Load products on page load
-document.addEventListener('DOMContentLoaded', function() {
-    loadProducts();
-    
-    // Setup brand filter buttons
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            // Remove active from all buttons
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            
-            // Add active to clicked button
-            this.classList.add('active');
-            
-            // Get brand and load products
-            currentBrand = this.dataset.brand;
-            loadProducts();
-        });
-    });
-});
+document.addEventListener('DOMContentLoaded', loadProducts);
 
 async function loadProducts() {
-    const container = document.getElementById('productsContainer');
-    
-    // Show loading
-    container.innerHTML = `
-        <div class="loading-spinner">
-            <div class="spinner"></div>
-            <p>Loading products...</p>
-        </div>
-    `;
-    
     try {
-        let url = '/api/access-control';
-        if (currentBrand) {
-            url += `?brand=${currentBrand}`;
-        }
-        
-        const response = await fetch(url);
+        const response = await fetch('/api/access-control');
         const data = await response.json();
+        document.getElementById('loadingState').style.display = 'none';
         
-        console.log('API Response:', data); // Debug
-        
-        if (data.success && data.products.length > 0) {
-            displayProducts(data.products);
-        } else {
-            showEmptyState();
+        if (data.success) {
+            allProducts = data.products || [];
+            renderProducts();
         }
     } catch (error) {
-        console.error('Error loading products:', error);
-        showErrorState();
+        console.error('Error:', error);
+        document.getElementById('loadingState').innerHTML = '<p class="text-danger">Gagal memuat data.</p>';
     }
 }
 
-function displayProducts(products) {
-    const container = document.getElementById('productsContainer');
+function handleSearch() {
+    searchQuery = document.getElementById('productSearch').value.toLowerCase();
+    renderProducts();
+}
+
+function filterByBrand(brand, event) {
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    currentBrand = brand;
+    renderProducts();
+}
+
+function renderProducts() {
+    const grid = document.getElementById('productsGrid');
+    grid.style.display = 'grid';
+    grid.innerHTML = '';
     
-    let html = '<div class="products-grid">';
-    
-    products.forEach(product => {
-        // Parse specifications if it's a JSON string
-        const specifications = product.specifications ? 
-            (typeof product.specifications === 'string' ? JSON.parse(product.specifications) : product.specifications) 
-            : [];
-        
-        const hasDiscount = product.original_price && product.original_price > product.sell_price;
-        const stockStatus = getStockStatus(product.stock);
-        
-        html += `
-            <div class="product-card">
-                ${product.is_featured ? '<div class="badge-featured">⭐ Featured</div>' : ''}
-                ${hasDiscount ? '<div class="badge-sale">💰 SALE!</div>' : ''}
-                
-                <div class="product-image-wrapper">
-                    <img src="${product.main_image ? '/storage/' + product.main_image : 'https://via.placeholder.com/300x250/f8f9fa/ff6b6b?text=Access+Control'}" 
-                         alt="${product.name}" 
-                         class="product-image"
-                         onerror="this.src='https://via.placeholder.com/300x250/f8f9fa/ff6b6b?text=No+Image'">
-                </div>
-                
-                <div class="product-content">
-                    <div class="product-brand">${product.brand}</div>
-                    <h3 class="product-title">${product.name}</h3>
-                    <div class="product-sku">SKU: ${product.sku}</div>
-                    
-                    <div class="product-price-wrapper">
-                        <span class="product-price">Rp ${parseInt(product.sell_price).toLocaleString('id-ID')}</span>
-                        ${hasDiscount ? `<span class="product-original-price">Rp ${parseInt(product.original_price).toLocaleString('id-ID')}</span>` : ''}
-                    </div>
-                    
-                    <div class="product-stock">
-                        <span class="stock-indicator ${stockStatus.class}"></span>
-                        <span>${stockStatus.text}</span>
-                    </div>
-                    
-                    <div class="product-actions">
-                        <button class="btn-detail" onclick="viewDetail(${product.id})">
-                            <i class="bi bi-eye"></i> Detail
-                        </button>
-                        <button class="btn-buy" ${product.stock === 0 ? 'disabled' : ''} onclick="buyProduct('${product.name}', '${product.sku}')">
-                            <i class="bi bi-cart-plus"></i> Beli
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
+    const filtered = allProducts.filter(p => {
+        const matchesBrand = p.brand.toUpperCase() === currentBrand.toUpperCase();
+        const matchesSearch = p.name.toLowerCase().includes(searchQuery) || 
+                             (p.sku && p.sku.toLowerCase().includes(searchQuery));
+        return matchesBrand && matchesSearch;
     });
-    
-    html += '</div>';
-    container.innerHTML = html;
-}
 
-function getStockStatus(stock) {
-    if (stock === 0) {
-        return { text: 'Out of Stock', class: 'out-of-stock' };
-    } else if (stock < 10) {
-        return { text: `Low Stock (${stock} left)`, class: 'low-stock' };
-    } else {
-        return { text: 'In Stock', class: 'in-stock' };
+    document.getElementById('filterCount').innerHTML = `Menampilkan <strong>${filtered.length}</strong> produk`;
+
+    if (filtered.length === 0) {
+        grid.innerHTML = `<div class="text-center py-5" style="grid-column: 1/-1;">
+            <i class="bi bi-search" style="font-size: 3rem; color: #ddd;"></i>
+            <h3 class="mt-3">Produk tidak ditemukan</h3>
+        </div>`;
+        return;
     }
-}
 
-function showEmptyState() {
-    const container = document.getElementById('productsContainer');
-    container.innerHTML = `
-        <div class="empty-state">
-            <div class="empty-state-icon">
-                <i class="bi bi-inbox"></i>
+    filtered.forEach(p => {
+        const hasDiscount = p.original_price && p.original_price > p.sell_price;
+        const col = document.createElement('div');
+        col.className = 'product-card';
+        col.innerHTML = `
+            <div class="product-image-wrapper">
+                <img src="${p.main_image ? '/storage/' + p.main_image : 'https://via.placeholder.com/300'}" 
+                     class="product-image" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300'">
             </div>
-            <h3 class="empty-state-title">No Products Found</h3>
-            <p class="empty-state-description">
-                ${currentBrand ? `No access control products available for ${currentBrand} at the moment.` : 'No access control products available at the moment.'}
-            </p>
-            <button class="btn-detail" onclick="currentBrand=''; document.querySelector('.filter-btn[data-brand=\'\']').click();">
-                View All Products
-            </button>
-        </div>
-    `;
+            <div class="product-content">
+                <div class="product-brand">${p.brand}</div>
+                <h3 class="product-name">${p.name}</h3>
+                <div class="product-price-wrapper">
+                    <span class="price-current">Rp ${parseInt(p.sell_price).toLocaleString('id-ID')}</span>
+                </div>
+                <div class="product-footer">
+                    <button class="btn-detail" onclick="window.location.href='/access-control/${p.id}'">Detail</button>
+                    <button class="btn-buy" ${p.stock === 0 ? 'disabled' : ''} onclick="buyProduct('${p.name}')">
+                        ${p.stock === 0 ? 'Habis' : 'Beli'}
+                    </button>
+                </div>
+            </div>`;
+        grid.appendChild(col);
+    });
 }
 
-function showErrorState() {
-    const container = document.getElementById('productsContainer');
-    container.innerHTML = `
-        <div class="empty-state">
-            <div class="empty-state-icon">
-                <i class="bi bi-exclamation-triangle text-danger"></i>
-            </div>
-            <h3 class="empty-state-title">Error Loading Products</h3>
-            <p class="empty-state-description">
-                Unable to load products. Please try again later.
-            </p>
-            <button class="btn-detail" onclick="loadProducts();">
-                <i class="bi bi-arrow-clockwise"></i> Retry
-            </button>
-        </div>
-    `;
-}
-
-function viewDetail(productId) {
-    // Redirect to detail page
-    window.location.href = `/access-control/${productId}`;
-}
-
-function buyProduct(productName, sku) {
-    const message = `Halo, saya tertarik dengan:\n*${productName}*\nSKU: ${sku}\n\nMohon info lebih lanjut untuk Access Control System ini.`;
-    const whatsappUrl = `https://wa.me/6281234567890?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+function buyProduct(name) {
+    const msg = encodeURIComponent(`Halo Admin TechStore, saya tertarik dengan produk Access Control: *${name}*`);
+    window.open(`https://wa.me/6281234567890?text=${msg}`, '_blank');
 }
 </script>
 @endsection
