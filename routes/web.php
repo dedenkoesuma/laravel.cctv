@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\SalesOrderController;
 use App\Http\Controllers\Admin\AdminAccessControlController;
 use App\Http\Controllers\Admin\RuijieController as AdminRuijieController;
 use App\Http\Controllers\UnifiedAdminController;
+use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\StaticProductController;
 use App\Http\Controllers\RuijieController;
 use App\Models\RuijieProduct;
@@ -35,6 +36,11 @@ use App\Http\Controllers\Admin\PenjualanLinkController;
 use App\Http\Controllers\BrandProductController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\AiAssistantController;
+
+// ✅ NEW: Quotation Controllers
+use App\Http\Controllers\Admin\QuotationController;
+use App\Http\Controllers\QuotationPublicController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes - Complete Version with Access Control & Ruijie
@@ -77,6 +83,9 @@ Route::get('/access-control/{id}', [AccessControlController::class, 'show'])->na
 // Ruijie Products - Frontend (Public)
 Route::get('/products/ruijie', [RuijieController::class, 'index'])->name('products.ruijie');
 Route::get('/products/ruijie/{id}', [RuijieController::class, 'show'])->name('products.ruijie.detail');
+
+// Tambahkan route ini sebelum route resource purchase-orders, atau di dalam group yang sama
+Route::get('/admin/purchase-orders/history', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'history'])->name('admin.po.history');
 
 // About Page Route
 Route::get('/about', function () {
@@ -478,7 +487,7 @@ Route::prefix('api/admin/keuangan')->group(function () {
     Route::put('/transaksi/{id}',     [KeuanganController::class, 'update']);
     Route::delete('/transaksi/{id}',  [KeuanganController::class, 'destroy']);
 
-    // ✅ Route tetap untuk link penjualan (generate-link, links, toggle, delete dihapus)
+    // ✅ Route tetap untuk link penjualan
     Route::post('/generate-link',     [PenjualanLinkController::class, 'generateLink']);
     Route::get('/links',              [PenjualanLinkController::class, 'getLinks']);
     Route::post('/links/{id}/toggle', [PenjualanLinkController::class, 'toggleLink']);
@@ -488,6 +497,51 @@ Route::prefix('api/admin/keuangan')->group(function () {
 // ✅ DIPERBAIKI: Route tetap penjualan online (tidak pakai {token} dinamis)
 Route::get('/penjualan-online/staff',   [PenjualanLinkController::class, 'showFormStaff'])->name('penjualan.link.staff');
 Route::post('/penjualan-online/simpan', [PenjualanLinkController::class, 'simpan'])->name('penjualan.link.simpan');
+
+// =====================================
+// ✅ QUOTATION / PENAWARAN ROUTES
+// =====================================
+
+// Admin - Kelola Penawaran
+Route::prefix('admin/quotation')->name('admin.quotation.')->group(function () {
+    Route::get('/',                 [QuotationController::class, 'index'])      ->name('index');
+    Route::get('/create',           [QuotationController::class, 'create'])     ->name('create');
+    Route::post('/',                [QuotationController::class, 'store'])      ->name('store');
+    Route::get('/{id}',             [QuotationController::class, 'show'])       ->name('show')      ->where('id', '[0-9]+');
+    Route::get('/{id}/edit',        [QuotationController::class, 'edit'])       ->name('edit')      ->where('id', '[0-9]+');
+    Route::put('/{id}',             [QuotationController::class, 'update'])     ->name('update')    ->where('id', '[0-9]+');
+    Route::delete('/{id}',          [QuotationController::class, 'destroy'])    ->name('destroy')   ->where('id', '[0-9]+');
+    Route::post('/{id}/send',       [QuotationController::class, 'send'])       ->name('send')      ->where('id', '[0-9]+');
+    Route::post('/{id}/convert-so', [QuotationController::class, 'convertToSO'])->name('convertSO')->where('id', '[0-9]+');
+    Route::get('/{id}/pdf',         [QuotationController::class, 'pdf'])        ->name('pdf')       ->where('id', '[0-9]+');
+});
+
+// Public - Customer lihat & respond penawaran
+Route::get('/penawaran/{token}',          [QuotationPublicController::class, 'show'])   ->name('quotation.show');
+Route::post('/penawaran/{token}/respond', [QuotationPublicController::class, 'respond'])->name('quotation.respond');
+
+// =====================================
+// ⭐ PURCHASE ORDER (PO) ROUTES
+// =====================================
+
+// Halaman
+Route::prefix('admin/purchase-orders')->name('admin.po.')->group(function () {
+    Route::get('/',           [App\Http\Controllers\Admin\PurchaseOrderController::class, 'index'])->name('index');
+    Route::get('/create',     [App\Http\Controllers\Admin\PurchaseOrderController::class, 'create'])->name('create');
+    Route::get('/{id}/edit',  [App\Http\Controllers\Admin\PurchaseOrderController::class, 'edit'])->name('edit')->where('id','[0-9]+');
+    Route::get('/{id}/print', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'printPdf'])->name('print')->where('id','[0-9]+');
+    Route::get('/{id}/pdf',   [App\Http\Controllers\Admin\PurchaseOrderController::class, 'downloadPdf'])->name('pdf')->where('id','[0-9]+');
+});
+
+// API
+Route::prefix('api/admin/purchase-orders')->group(function () {
+    Route::get('/',                      [App\Http\Controllers\Admin\PurchaseOrderController::class, 'getList']);
+    Route::post('/',                     [App\Http\Controllers\Admin\PurchaseOrderController::class, 'store']);
+    Route::get('/{id}',                  [App\Http\Controllers\Admin\PurchaseOrderController::class, 'getDetail'])->where('id','[0-9]+');
+    Route::put('/{id}',                  [App\Http\Controllers\Admin\PurchaseOrderController::class, 'update'])->where('id','[0-9]+');
+    Route::delete('/{id}',               [App\Http\Controllers\Admin\PurchaseOrderController::class, 'destroy'])->where('id','[0-9]+');
+    Route::patch('/{id}/status',         [App\Http\Controllers\Admin\PurchaseOrderController::class, 'updateStatus'])->where('id','[0-9]+');
+});
 
 // =====================================
 // ⭐ NEW: INVENTORY MANAGEMENT ROUTES - UPDATED WITH GROUPED INVENTORY
@@ -643,6 +697,7 @@ Route::prefix('api/admin/inventory')->name('api.admin.inventory.')->group(functi
     Route::get('/categories', [InventoryController::class, 'getCategories'])
          ->name('categories');
 });
+
 // =====================================
 // ⭐ NEW: GUDANG ROUTES (DENGAN FIX API)
 // =====================================
@@ -668,6 +723,7 @@ Route::prefix('admin/gudang/sales-orders')->name('admin.sales-orders.')->group(f
     Route::get('/{id}/preview-pdf',[SalesOrderController::class, 'previewPdf'])->name('preview-pdf')->where('id', '[0-9]+');
     Route::post('/{id}/send-email',[SalesOrderController::class, 'sendEmail'])->name('send-email')->where('id', '[0-9]+');
 });
+
 // Halaman Frontend Admin
 Route::get('/admin/gudang', [App\Http\Controllers\Admin\GudangController::class, 'index'])->name('admin.gudang');
 
@@ -693,6 +749,7 @@ Route::prefix('api/admin/gudang')->group(function () {
     Route::get('/available-serials', [App\Http\Controllers\Admin\GudangController::class, 'getAvailableSerials']);
     Route::get('/product-use-sn',    [App\Http\Controllers\Admin\GudangController::class, 'productUseSerialNumber']);
 });
+
 // =====================================
 // ⭐ NEW: SALES DOCUMENTS ROUTES (Surat Order & Penawaran)
 // =====================================
@@ -731,22 +788,18 @@ Route::get('/api/brand-products/{id}', function($id) {
 
 // Route untuk Detail Produk Foreage (Mengambil data dari static_products)
 Route::get('/foreages/{id}', function($id) {
-    // Ambil data produk berdasarkan ID dari tabel static_products
     $product = \Illuminate\Support\Facades\DB::table('static_products')
         ->where('id', $id)
-        ->where('brand', 'foreage') // Pastikan hanya produk foreage
+        ->where('brand', 'foreage')
         ->where('is_active', 1)
         ->first();
         
-    // Jika data tidak ditemukan, kembalikan error 404
     if (!$product) {
         abort(404, 'Produk Foreage tidak ditemukan');
     }
     
-    // Convert object stdClass ke array agar sesuai dengan struktur Blade yang baru dibuat
     $productArray = (array) $product;
     
-    // Return view ke file yang baru kita buat (sesuaikan nama file blade-nya jika berbeda)
     return view('foreages-detail', ['product' => $productArray]);
 })->name('foreages-detail');
 
