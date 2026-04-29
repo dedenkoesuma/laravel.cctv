@@ -19,51 +19,40 @@ use App\Models\RuijieProduct;
 use App\Models\RuijiePageSettings;
 use App\Models\RuijieCategory;
 use App\Models\WiFiCamera; 
-
 // ⭐ NEW: Bookkeeping Controller
 use App\Http\Controllers\BookkeepingController;
-
 // ⭐ NEW: Inventory Controller
 use App\Http\Controllers\InventoryController;
-
 // ⭐ NEW: Keuangan Controller
 use App\Http\Controllers\Admin\KeuanganController;
 use App\Http\Controllers\Admin\PenjualanLinkController;
-
 // ============================================
 // NEW: Dynamic Product System Controllers
 // ============================================
 use App\Http\Controllers\BrandProductController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\AiAssistantController;
-
 // ✅ NEW: Quotation Controllers
 use App\Http\Controllers\Admin\QuotationController;
 use App\Http\Controllers\QuotationPublicController;
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes - Complete Version with Access Control & Ruijie
 |--------------------------------------------------------------------------
 */
-
 // =====================================
 // PUBLIC ROUTES
 // =====================================
 Route::redirect('/', '/home');
 Route::get('/home', [HomeController::class, 'index'])->name('home');
-
 // Debug route
 Route::get('/debug-products/{brand?}', [ProductController::class, 'debugProducts']);
-
 // ⭐ UPDATED: Product routes - Now uses ProductController with more brands
 Route::get('/products/{brand}', [ProductController::class, 'showByBrand'])
     ->name('products.brand')
     ->where('brand', 'hikvision|dahua|hilook|ezviz|unv|ruijie|hiview|foreage|all');
-
 Route::get('/wifi-cam', [WiFiCameraController::class, 'index'])->name('wifi-cam');
 Route::get('/wifi-cam/{slug}', [WiFiCameraController::class, 'show'])->name('wifi-cam.detail');
-
 // ⭐ NEW: WiFi Cam Detail Page Route (Alternative URL with ID)
 Route::get('/wifi-cam/detail/{id}', function($id) {
     $wifi_cam = WiFiCamera::find($id); 
@@ -75,47 +64,37 @@ Route::get('/wifi-cam/detail/{id}', function($id) {
     
     return view('wifi-cam.detail', compact('wifi_cam'));
 })->name('wifi-cam.detail-by-id')->where('id', '[0-9]+');
-
 // Access Control - Frontend (Public) - UPDATED
 Route::get('/access-control', [AccessControlController::class, 'index'])->name('access-control');
 Route::get('/access-control/{id}', [AccessControlController::class, 'show'])->name('access-control.detail');
-
 // Ruijie Products - Frontend (Public)
 Route::get('/products/ruijie', [RuijieController::class, 'index'])->name('products.ruijie');
 Route::get('/products/ruijie/{id}', [RuijieController::class, 'show'])->name('products.ruijie.detail');
-
 // Tambahkan route ini sebelum route resource purchase-orders, atau di dalam group yang sama
 Route::get('/admin/purchase-orders/history', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'history'])->name('admin.po.history');
-
 // About Page Route
 Route::get('/about', function () {
     return view('about');
 })->name('about');
-
 // Tentang Kami Route (Alternative Indonesian URL)
 Route::get('/tentang-kami', function () {
     return view('about');
 })->name('tentang-kami');
-
 Route::get('/contact', function () {
     return view('contact');
 })->name('contact');
-
 // =====================================
 // ADMIN LOGIN & AUTH
 // =====================================
-
 Route::get('/admin/login', function () {
     return view('admin.login');
 })->name('admin.login');
-
 Route::get('/login', function () {
     if (view()->exists('login')) {
         return view('login');
     }
     return view('admin.login');
 })->name('login');
-
 Route::post('/login', function (Request $request) {
     $credentials = $request->only('username', 'password');
     
@@ -128,7 +107,6 @@ Route::post('/login', function (Request $request) {
     if (!$admin) {
         return back()->withErrors(['login' => 'User tidak ditemukan di database!']);
     }
-
     // DEBUG: Cek kecocokan password
     if (\Hash::check($credentials['password'], $admin->password)) {
         session([
@@ -144,38 +122,30 @@ Route::post('/login', function (Request $request) {
         return back()->withErrors(['login' => 'Password salah! Pastikan tidak ada spasi atau salah ketik.']);
     }
 })->name('login.post');
-
 Route::post('/logout', function () {
     session()->flush();
     return redirect('/login');
 })->name('logout');
-
 Route::get('/admin/logout', function () {
     session()->flush();
     return redirect('/login');
 })->name('admin.logout');
-
 // =====================================
 // ADMIN ROUTES (Protected by JavaScript in views)
 // =====================================
-
 // Unified Admin Dashboard
 Route::get('/admin/dashboard', function () {
     return view('dashboard');
 })->name('admin.dashboard');
-
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
-
 // =====================================
 // STATIC PRODUCTS ADMIN - ENHANCED & FIXED
 // =====================================
-
 // Static Products Admin - Main Index (FIXED: Removed duplicate ->name())
 Route::get('/admin/static-products', [StaticProductController::class, 'index'])
     ->name('admin.static-products.index');
-
 // Static Products CRUD Routes (Using Controller Methods - UPDATED)
 Route::prefix('admin/static-products')->name('admin.static-products.')->group(function () {
     // Create
@@ -195,7 +165,6 @@ Route::prefix('admin/static-products')->name('admin.static-products.')->group(fu
     // Toggle Active Status
     Route::post('/{id}/toggle-active', [StaticProductController::class, 'toggleStatus'])->name('toggle-active');
 });
-
 // Static Products API Routes (Admin)
 Route::prefix('api/admin/static-products')->name('api.admin.static-products.')->group(function () {
     Route::get('/', [StaticProductController::class, 'getAll'])->name('index');
@@ -206,11 +175,9 @@ Route::prefix('api/admin/static-products')->name('api.admin.static-products.')->
     Route::post('/{id}/toggle', [StaticProductController::class, 'toggleActive'])->name('toggle');
     Route::post('/bulk-update-prices', [StaticProductController::class, 'bulkUpdatePrices'])->name('bulk-update-prices');
 });
-
 // WiFi Cameras Admin
 Route::get('/admin/wifi-cameras', [AdminWiFiCameraController::class, 'index'])
     ->name('admin.wifi-cameras');
-
 Route::prefix('api/admin/wifi-cameras')->name('api.admin.wifi-cameras.')->group(function () {
     Route::get('/', [AdminWiFiCameraController::class, 'getCameras'])->name('index');
     Route::post('/', [AdminWiFiCameraController::class, 'store'])->name('store');
@@ -218,15 +185,12 @@ Route::prefix('api/admin/wifi-cameras')->name('api.admin.wifi-cameras.')->group(
     Route::post('/{id}', [AdminWiFiCameraController::class, 'update'])->name('update');
     Route::delete('/{id}', [AdminWiFiCameraController::class, 'destroy'])->name('destroy');
 });
-
 // =====================================
 // ACCESS CONTROL ADMIN
 // =====================================
-
 // Access Control Admin Page
 Route::get('/admin/access-control', [AdminAccessControlController::class, 'index'])
     ->name('admin.access-control');
-
 // Access Control API Routes (Admin)
 Route::prefix('api/admin/access-control')->name('api.admin.access-control.')->group(function () {
     Route::get('/', [AdminAccessControlController::class, 'getProducts'])->name('index');
@@ -237,11 +201,9 @@ Route::prefix('api/admin/access-control')->name('api.admin.access-control.')->gr
     Route::delete('/{id}', [AdminAccessControlController::class, 'destroy'])->name('destroy');
     Route::post('/{id}/toggle', [AdminAccessControlController::class, 'toggleStatus'])->name('toggle');
 });
-
 // =====================================
 // RUIJIE PRODUCTS ADMIN - FIXED
 // =====================================
-
 // Ruijie Admin Main Routes
 Route::prefix('admin/ruijie')->name('admin.ruijie.')->group(function () {
     // Dashboard Overview - Redirect to products page
@@ -289,7 +251,6 @@ Route::prefix('admin/ruijie')->name('admin.ruijie.')->group(function () {
     Route::delete('/{id}', [AdminRuijieController::class, 'deleteProduct'])->name('destroy');
     Route::delete('/products/{id}', [AdminRuijieController::class, 'deleteProduct'])->name('products.delete');
 });
-
 // Ruijie API Routes (Admin)
 Route::prefix('api/admin/ruijie')->name('api.admin.ruijie.')->group(function () {
     // Get all products
@@ -411,15 +372,12 @@ Route::prefix('api/admin/ruijie')->name('api.admin.ruijie.')->group(function () 
         }
     })->name('settings');
 });
-
 // =====================================
 // ⭐ BOOKKEEPING / PEMBUKUAN ROUTES - FIXED ORDERING
 // =====================================
-
 // Bookkeeping Admin - Main Dashboard
 Route::get('/admin/bookkeeping', [BookkeepingController::class, 'index'])
     ->name('admin.bookkeeping.index');
-
 // Bookkeeping CRUD Routes - FIXED: Specific routes BEFORE parameter routes
 Route::prefix('admin/bookkeeping')->name('admin.bookkeeping.')->group(function () {
     // ⭐ SPECIFIC ROUTES FIRST (Must be before /{id} routes)
@@ -458,7 +416,6 @@ Route::prefix('admin/bookkeeping')->name('admin.bookkeeping.')->group(function (
         ->name('destroy')
         ->where('id', '[0-9]+');
 });
-
 // Bookkeeping API Routes (for Dashboard Integration)
 Route::prefix('api/admin/bookkeeping')->name('api.admin.bookkeeping.')->group(function () {
     // Statistics for Dashboard Cards
@@ -470,23 +427,21 @@ Route::prefix('api/admin/bookkeeping')->name('api.admin.bookkeeping.')->group(fu
     // Filter Transactions
     Route::get('/filter', [BookkeepingController::class, 'filterTransactions'])->name('filter');
 });
-
-// =====================================
+/// =====================================
 // ⭐ KEUANGAN / FINANCE ROUTES
 // =====================================
 Route::get('/admin/keuangan', [KeuanganController::class, 'index'])
      ->name('admin.keuangan');
-
 Route::prefix('api/admin/keuangan')->group(function () {
     Route::get('/summary',            [KeuanganController::class, 'getSummary']);
     Route::get('/transaksi',          [KeuanganController::class, 'getTransaksi']);
     Route::get('/chart-data',         [KeuanganController::class, 'getChartData']);
     Route::get('/kategori-breakdown', [KeuanganController::class, 'getKategoriBreakdown']);
+    Route::get('/platform-breakdown', [KeuanganController::class, 'getPlatformBreakdown']); // ← tambah ini
     Route::post('/transaksi',         [KeuanganController::class, 'store']);
     Route::get('/transaksi/{id}',     [KeuanganController::class, 'show']);
     Route::put('/transaksi/{id}',     [KeuanganController::class, 'update']);
     Route::delete('/transaksi/{id}',  [KeuanganController::class, 'destroy']);
-
     // ✅ Route tetap untuk link penjualan
     Route::post('/generate-link',     [PenjualanLinkController::class, 'generateLink']);
     Route::get('/links',              [PenjualanLinkController::class, 'getLinks']);
@@ -494,14 +449,47 @@ Route::prefix('api/admin/keuangan')->group(function () {
     Route::delete('/links/{id}',      [PenjualanLinkController::class, 'deleteLink']);
 });
 
+// =====================================
+// ⭐ FINANCE STAFF ROUTES
+// =====================================
+use App\Http\Controllers\Admin\FinanceController;
+
+Route::get('/admin/finance', [FinanceController::class, 'index'])
+     ->name('admin.finance');
+Route::prefix('api/admin/finance')->group(function () {
+    Route::get('/summary',                 [FinanceController::class, 'getSummary']);
+    Route::get('/transaksi',               [FinanceController::class, 'getTransaksi']);
+    Route::post('/transaksi',              [FinanceController::class, 'store']);
+    Route::get('/transaksi/{id}',          [FinanceController::class, 'show']);
+    Route::put('/transaksi/{id}',          [FinanceController::class, 'update']);
+    Route::patch('/transaksi/{id}/status', [FinanceController::class, 'updateStatus']);
+    Route::delete('/transaksi/{id}',       [FinanceController::class, 'destroy']);
+    // ✅ Invoice dari SO
+    Route::get('/invoices',                [FinanceController::class, 'getInvoices']);
+    Route::get('/invoice-detail/{id}',     [FinanceController::class, 'getInvoiceDetail']);
+});
 // ✅ DIPERBAIKI: Route tetap penjualan online (tidak pakai {token} dinamis)
 Route::get('/penjualan-online/staff',   [PenjualanLinkController::class, 'showFormStaff'])->name('penjualan.link.staff');
 Route::post('/penjualan-online/simpan', [PenjualanLinkController::class, 'simpan'])->name('penjualan.link.simpan');
 
 // =====================================
+// ⭐ LAPORAN KEUANGAN ROUTES
+// =====================================
+use App\Http\Controllers\Admin\LaporanController;
+
+Route::get('/admin/finance/laporan', [LaporanController::class, 'index'])
+     ->name('admin.finance.laporan');
+Route::get('/admin/finance/laporan/pdf', [LaporanController::class, 'exportPdf'])
+     ->name('admin.finance.laporan.pdf');
+Route::prefix('api/admin/laporan')->group(function () {
+    Route::get('/laba-rugi',    [LaporanController::class, 'labaRugi']);
+    Route::get('/cash-flow',    [LaporanController::class, 'cashFlow']);
+    Route::get('/export-excel', [LaporanController::class, 'exportExcel']);
+});
+
+// =====================================
 // ✅ QUOTATION / PENAWARAN ROUTES
 // =====================================
-
 // Admin - Kelola Penawaran
 Route::prefix('admin/quotation')->name('admin.quotation.')->group(function () {
     Route::get('/',                 [QuotationController::class, 'index'])      ->name('index');
@@ -515,15 +503,12 @@ Route::prefix('admin/quotation')->name('admin.quotation.')->group(function () {
     Route::post('/{id}/convert-so', [QuotationController::class, 'convertToSO'])->name('convertSO')->where('id', '[0-9]+');
     Route::get('/{id}/pdf',         [QuotationController::class, 'pdf'])        ->name('pdf')       ->where('id', '[0-9]+');
 });
-
 // Public - Customer lihat & respond penawaran
 Route::get('/penawaran/{token}',          [QuotationPublicController::class, 'show'])   ->name('quotation.show');
 Route::post('/penawaran/{token}/respond', [QuotationPublicController::class, 'respond'])->name('quotation.respond');
-
 // =====================================
 // ⭐ PURCHASE ORDER (PO) ROUTES
 // =====================================
-
 // Halaman
 Route::prefix('admin/purchase-orders')->name('admin.po.')->group(function () {
     Route::get('/',           [App\Http\Controllers\Admin\PurchaseOrderController::class, 'index'])->name('index');
@@ -532,7 +517,6 @@ Route::prefix('admin/purchase-orders')->name('admin.po.')->group(function () {
     Route::get('/{id}/print', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'printPdf'])->name('print')->where('id','[0-9]+');
     Route::get('/{id}/pdf',   [App\Http\Controllers\Admin\PurchaseOrderController::class, 'downloadPdf'])->name('pdf')->where('id','[0-9]+');
 });
-
 // API
 Route::prefix('api/admin/purchase-orders')->group(function () {
     Route::get('/',                      [App\Http\Controllers\Admin\PurchaseOrderController::class, 'getList']);
@@ -542,11 +526,9 @@ Route::prefix('api/admin/purchase-orders')->group(function () {
     Route::delete('/{id}',               [App\Http\Controllers\Admin\PurchaseOrderController::class, 'destroy'])->where('id','[0-9]+');
     Route::patch('/{id}/status',         [App\Http\Controllers\Admin\PurchaseOrderController::class, 'updateStatus'])->where('id','[0-9]+');
 });
-
 // =====================================
 // ⭐ NEW: INVENTORY MANAGEMENT ROUTES - UPDATED WITH GROUPED INVENTORY
 // =====================================
-
 // Inventory Admin Pages
 Route::prefix('admin/inventory')->name('admin.inventory.')->group(function () {
     // Main Dashboard
@@ -584,7 +566,6 @@ Route::prefix('admin/inventory')->name('admin.inventory.')->group(function () {
     // Export
     Route::get('/export', [InventoryController::class, 'export'])->name('export');
 });
-
 // Inventory API Routes
 Route::prefix('api/admin/inventory')->name('api.admin.inventory.')->group(function () {
     // Get all items (Standard View)
@@ -638,7 +619,6 @@ Route::prefix('api/admin/inventory')->name('api.admin.inventory.')->group(functi
     // Get Stock Summary (grouped by product)
     Route::get('/stock-summary', [InventoryController::class, 'getStockSummary'])
          ->name('stock-summary');
-
     // Update Stock (Barang Masuk/Keluar Manual)
     Route::post('/items/{id}/update-stock', [InventoryController::class, 'updateStock'])
          ->name('items.update-stock');
@@ -697,7 +677,6 @@ Route::prefix('api/admin/inventory')->name('api.admin.inventory.')->group(functi
     Route::get('/categories', [InventoryController::class, 'getCategories'])
          ->name('categories');
 });
-
 // =====================================
 // ⭐ NEW: GUDANG ROUTES (DENGAN FIX API)
 // =====================================
@@ -705,28 +684,30 @@ Route::prefix('admin/gudang/sales-orders')->name('admin.sales-orders.')->group(f
     Route::get('/',        [SalesOrderController::class, 'index'])->name('index');
     Route::get('/create',  [SalesOrderController::class, 'create'])->name('create');
     Route::post('/',       [SalesOrderController::class, 'store'])->name('store');
-
     // Detail & Delete
     Route::get('/{id}',    [SalesOrderController::class, 'show'])->name('show')->where('id', '[0-9]+');
     Route::delete('/{id}', [SalesOrderController::class, 'destroy'])->name('destroy')->where('id', '[0-9]+');
-
     // Approve
     Route::get('/{id}/approve',  [SalesOrderController::class, 'approveForm'])->name('approve-form')->where('id', '[0-9]+');
     Route::post('/{id}/approve', [SalesOrderController::class, 'approve'])->name('approve')->where('id', '[0-9]+');
-
     // Deliver & Cancel
     Route::post('/{id}/deliver', [SalesOrderController::class, 'deliver'])->name('deliver')->where('id', '[0-9]+');
     Route::post('/{id}/cancel',  [SalesOrderController::class, 'cancel'])->name('cancel')->where('id', '[0-9]+');
-
     // PDF & Email
     Route::get('/{id}/pdf',        [SalesOrderController::class, 'downloadPdf'])->name('pdf')->where('id', '[0-9]+');
     Route::get('/{id}/preview-pdf',[SalesOrderController::class, 'previewPdf'])->name('preview-pdf')->where('id', '[0-9]+');
     Route::post('/{id}/send-email',[SalesOrderController::class, 'sendEmail'])->name('send-email')->where('id', '[0-9]+');
-});
-
+    
+    // ✅ INVOICE - nama cukup suffix, prefix sudah dari group 'admin.sales-orders.'
+Route::get('/{id}/create-invoice',      [SalesOrderController::class, 'createInvoiceForm'])->name('create-invoice')->where('id', '[0-9]+');
+Route::post('/{id}/store-invoice',      [SalesOrderController::class, 'storeInvoice'])->name('store-invoice')->where('id', '[0-9]+');
+Route::post('/{id}/mark-lunas',         [SalesOrderController::class, 'markLunas'])->name('mark-lunas')->where('id', '[0-9]+');
+Route::get('/{id}/invoice/download',    [SalesOrderController::class, 'downloadInvoicePdf'])->name('invoice-download')->where('id', '[0-9]+');
+Route::get('/{id}/invoice/preview',     [SalesOrderController::class, 'previewInvoicePdf'])->name('invoice-preview')->where('id', '[0-9]+');
+Route::post('/{id}/invoice/send-email', [SalesOrderController::class, 'sendInvoiceEmail'])->name('invoice-send-email')->where('id', '[0-9]+');
+    });
 // Halaman Frontend Admin
 Route::get('/admin/gudang', [App\Http\Controllers\Admin\GudangController::class, 'index'])->name('admin.gudang');
-
 // Group API Gudang (Disesuaikan dengan URL fetch di blade)
 Route::prefix('api/admin/gudang')->group(function () {
     // Produk & Stok Utama
@@ -741,7 +722,6 @@ Route::prefix('api/admin/gudang')->group(function () {
     // Barang Keluar
     Route::post('/barang-keluar',        [App\Http\Controllers\Admin\GudangController::class, 'storeBarangKeluar']);
     Route::delete('/barang-keluar/{id}', [App\Http\Controllers\Admin\GudangController::class, 'destroyBarangKeluar']);
-
     // Manajemen Produk (Fix Delete 405)
     Route::delete('/products/{id}', [App\Http\Controllers\Admin\GudangController::class, 'destroyProduct']);
     
@@ -749,28 +729,22 @@ Route::prefix('api/admin/gudang')->group(function () {
     Route::get('/available-serials', [App\Http\Controllers\Admin\GudangController::class, 'getAvailableSerials']);
     Route::get('/product-use-sn',    [App\Http\Controllers\Admin\GudangController::class, 'productUseSerialNumber']);
 });
-
 // =====================================
 // ⭐ NEW: SALES DOCUMENTS ROUTES (Surat Order & Penawaran)
 // =====================================
-
 Route::get('/admin/sales-documents', function () {
     return view('admin.sales-documents');
 })->name('admin.sales-documents');
-
 // =====================================
 // NEW: DYNAMIC PRODUCT SYSTEM ROUTES
 // =====================================
-
 // Frontend Routes - Brand Products (Dynamic) - ALTERNATIVE URL
 Route::get('/brand-products/{brand}', [BrandProductController::class, 'show'])
     ->name('brand.products.dynamic')
     ->where('brand', 'hikvision|dahua|hilook|ezviz|unv');
-
 // API Routes untuk Dynamic Products (Frontend)
 Route::get('/api/brand-products/{brand}/{category}', [BrandProductController::class, 'getProducts'])
     ->name('api.brand.products.dynamic');
-
 Route::get('/api/brand-products/{id}', function($id) {
     try {
         $product = \App\Models\Product::findOrFail($id);
@@ -785,7 +759,6 @@ Route::get('/api/brand-products/{id}', function($id) {
         ], 404);
     }
 })->name('api.brand.product.detail');
-
 // Route untuk Detail Produk Foreage (Mengambil data dari static_products)
 Route::get('/foreages/{id}', function($id) {
     $product = \Illuminate\Support\Facades\DB::table('static_products')
@@ -802,7 +775,6 @@ Route::get('/foreages/{id}', function($id) {
     
     return view('foreages-detail', ['product' => $productArray]);
 })->name('foreages-detail');
-
 // ⭐ NEW: API for /products/{brand} route - Updated ProductController endpoints
 Route::prefix('api')->group(function () {
     // Get all brands configuration
@@ -824,7 +796,6 @@ Route::prefix('api')->group(function () {
     Route::get('/debug/products/{brand?}', [ProductController::class, 'debugProducts'])
         ->name('api.debug.products');
 });
-
 // Admin Routes - Dynamic Product Management (untuk tabel static_products)
 Route::prefix('admin/products')->name('admin.products.')->group(function () {
     // List & Create
@@ -846,38 +817,30 @@ Route::prefix('admin/products')->name('admin.products.')->group(function () {
     // Export
     Route::get('/export', [AdminProductController::class, 'export'])->name('export');
 });
-
 // =====================================
 // API ROUTES - ADMIN (Protected)
 // =====================================
-
 // Statistics API
 Route::get('/api/admin/statistics', [UnifiedAdminController::class, 'getStatistics']);
-
 // Dynamic Products API
 Route::get('/api/products', [UnifiedAdminController::class, 'getDynamicProducts']);
 Route::get('/api/products/{id}', [UnifiedAdminController::class, 'showDynamicProduct']);
 Route::post('/api/products', [UnifiedAdminController::class, 'storeDynamicProduct']);
 Route::post('/api/products/{id}', [UnifiedAdminController::class, 'updateDynamicProduct']);
 Route::delete('/api/products/{id}', [UnifiedAdminController::class, 'deleteDynamicProduct']);
-
 // Static Products API (Admin)
 Route::get('/api/static-products', [UnifiedAdminController::class, 'getStaticProducts']);
 Route::post('/api/static-products/{id}', [UnifiedAdminController::class, 'updateStaticProduct']);
 Route::post('/api/static-products/{id}/toggle', [UnifiedAdminController::class, 'toggleStaticProductStatus']);
 Route::post('/api/static-products/bulk-update', [UnifiedAdminController::class, 'bulkUpdateStaticProducts']);
-
 // All Products API (Combined)
 Route::get('/api/all-products', [UnifiedAdminController::class, 'getAllProducts']);
-
 // =====================================
 // API ROUTES - PUBLIC (Frontend)
 // =====================================
-
 // PUBLIC WiFi Cameras API - FIXED: Menggunakan WiFiCameraController::apiIndex
 Route::get('/api/wifi-cameras', [WiFiCameraController::class, 'apiIndex'])
     ->name('api.wifi-cameras.public');
-
 // PUBLIC Access Control API - UPDATED: Menggunakan AccessControlController::apiIndex
 Route::get('/api/access-control', [AccessControlController::class, 'apiIndex'])
     ->name('api.access-control.public');
@@ -885,7 +848,6 @@ Route::get('/api/access-control/brands', [AccessControlController::class, 'getBr
     ->name('api.access-control.brands');
 Route::get('/api/access-control/categories', [AccessControlController::class, 'getCategories'])
     ->name('api.access-control.categories');
-
 // PUBLIC Ruijie Products API
 Route::get('/api/ruijie-products', [RuijieController::class, 'getProducts'])
     ->name('api.ruijie-products.public');
@@ -895,7 +857,6 @@ Route::get('/api/ruijie-products/category/{category}', [RuijieController::class,
     ->name('api.ruijie-products.category');
 Route::get('/api/ruijie-categories', [RuijieController::class, 'getCategories'])
     ->name('api.ruijie-categories.public');
-
 // PUBLIC Static Products API  
 Route::get('/api/public/static-products', function(Request $request) {
     $query = \DB::table('static_products')
@@ -919,24 +880,20 @@ Route::get('/api/public/static-products', function(Request $request) {
         'count' => $products->count()
     ]);
 })->name('api.static-products.public');
-
 // =====================================
 // LEGACY ROUTES (Backward Compatibility)
 // =====================================
-
 Route::prefix('products')->group(function () {
     Route::post('/store', [ProductController::class, 'store'])->name('products.store');
     Route::get('/{id}/edit', [ProductController::class, 'edit'])->name('products.edit');
     Route::post('/{id}/update', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/{id}/delete', [ProductController::class, 'destroy'])->name('products.destroy');
 });
-
 // =====================================
 // AI ASSISTANT ROUTES
 // =====================================
 Route::post('/ai/chat',      [AiAssistantController::class, 'chat']     )->name('ai.chat');
 Route::post('/ai/recommend', [AiAssistantController::class, 'recommend'])->name('ai.recommend');
-
 // =====================================
 // FALLBACK (404)
 // =====================================
@@ -950,18 +907,15 @@ Route::fallback(function () {
         'description' => 'The page you are looking for does not exist.',
     ], 404);
 });
-
 // =====================================
 // FINAL OVERRIDE: USER MANAGEMENT
 // =====================================
-
 Route::group(['prefix' => 'manage-users'], function() {
     Route::get('/', [AdminUserController::class, 'index'])->name('admin.users.index');
     Route::post('/', [AdminUserController::class, 'store'])->name('admin.users.store');
     Route::put('/{id}', [AdminUserController::class, 'update'])->name('admin.users.update');
     Route::delete('/{id}', [AdminUserController::class, 'destroy'])->name('admin.users.destroy');
 });
-
 // =====================================
 // ROLES & PERMISSIONS MANAGEMENT
 // =====================================

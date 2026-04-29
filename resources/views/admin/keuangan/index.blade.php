@@ -12,7 +12,7 @@
 /* ===== SUMMARY CARDS ===== */
 .summary-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr); /* ← diubah dari 4 ke 5 */
     gap: 16px; margin-bottom: 24px;
 }
 .sum-card {
@@ -26,6 +26,7 @@
 .sum-card.pengeluaran{ border-left-color: #ef4444; }
 .sum-card.laba       { border-left-color: #3b82f6; }
 .sum-card.saldo      { border-left-color: #f59e0b; }
+.sum-card.piutang    { border-left-color: #f59e0b; } /* ← BARU */
 .sum-icon {
     width: 44px; height: 44px; border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
@@ -74,6 +75,7 @@
 }
 .tipe-badge.pemasukan   { background: #d1fae5; color: #065f46; }
 .tipe-badge.pengeluaran { background: #fee2e2; color: #991b1b; }
+.tipe-badge.piutang     { background: #fef3c7; color: #92400e; } /* ← BARU */
 .status-badge { padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
 .status-badge.lunas   { background: #d1fae5; color: #065f46; }
 .status-badge.pending { background: #fef3c7; color: #92400e; }
@@ -168,13 +170,11 @@
                 <button class="btn btn-light fw-bold" onclick="bukaModal('pemasukan')">
                     <i class="bi bi-plus-circle me-1"></i>Pemasukan
                 </button>
-
                 {{-- ✅ TOMBOL PENJUALAN ONLINE - Buka tab baru ke /penjualan-online/staff --}}
                 <button class="btn fw-bold" style="background:#f97316;color:white;"
                         onclick="bukaModalOnline()">
                     🛒 Penjualan Online
                 </button>
-
                 <button class="btn btn-danger fw-bold" onclick="bukaModal('pengeluaran')">
                     <i class="bi bi-dash-circle me-1"></i>Pengeluaran
                 </button>
@@ -184,7 +184,6 @@
             </div>
         </div>
     </div>
-
     {{-- FILTER BULAN --}}
     <div class="d-flex gap-2 mb-3 align-items-center flex-wrap">
         <select id="filterBulan" class="form-select" style="width:auto;" onchange="loadAll()">
@@ -201,7 +200,6 @@
         </select>
         <span class="text-muted small" id="periodLabel"></span>
     </div>
-
     {{-- SUMMARY CARDS --}}
     <div class="summary-grid">
         <div class="sum-card pemasukan">
@@ -224,8 +222,16 @@
             <div class="sum-value text-warning" id="sumSaldo">-</div>
             <div class="sum-label">Total Saldo Keseluruhan</div>
         </div>
+        {{-- ✅ CARD PIUTANG BARU --}}
+        <div class="sum-card piutang">
+            <div class="sum-icon" style="background:#fef9c3;">🧾</div>
+            <div class="sum-value" style="color:#b45309;" id="sumPiutangPending">-</div>
+            <div class="sum-label">Piutang Belum Lunas</div>
+            <div class="mt-1" style="font-size:0.72rem;color:#6b7280;">
+                Lunas bulan ini: <strong id="sumPiutangLunas" class="text-success">-</strong>
+            </div>
+        </div>
     </div>
-
     {{-- CHART --}}
     <div class="chart-grid">
         <div class="chart-card">
@@ -238,7 +244,6 @@
             <div id="kategoriList" class="mt-3"></div>
         </div>
     </div>
-
     {{-- TOOLBAR --}}
     <div class="toolbar">
         <input type="text" id="searchInput" placeholder="🔍 Cari transaksi / kode / nama / no. order..."
@@ -247,6 +252,7 @@
             <option value="">Semua Tipe</option>
             <option value="pemasukan">💚 Pemasukan</option>
             <option value="pengeluaran">❤️ Pengeluaran</option>
+            <option value="piutang">🧾 Piutang</option> {{-- ← BARU --}}
         </select>
         <select id="filterPlatform" onchange="loadTransaksi()">
             <option value="">Semua Platform</option>
@@ -270,7 +276,6 @@
             <i class="bi bi-arrow-clockwise"></i>
         </button>
     </div>
-
     {{-- TABEL TRANSAKSI --}}
     <div class="table-card">
         <div id="loadingTrx" class="loading-overlay">
@@ -297,7 +302,6 @@
         </div>
     </div>
 </div>
-
 {{-- ===== MODAL TRANSAKSI ===== --}}
 <div class="modal fade" id="modalTransaksi" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -332,7 +336,6 @@
                         <label class="form-label">Deskripsi <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="inputDeskripsi" placeholder="Keterangan singkat transaksi...">
                     </div>
-
                     {{-- ===== SECTION TOKO ONLINE ===== --}}
                     <div class="col-12" id="onlineSection" style="display:none;">
                         <div class="online-section">
@@ -362,7 +365,6 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="col-md-6">
                         <label class="form-label">Pihak Terkait</label>
                         <input type="text" class="form-control" id="inputPihak" placeholder="Nama customer / supplier">
@@ -403,7 +405,6 @@
         </div>
     </div>
 </div>
-
 {{-- ===== MODAL DETAIL ===== --}}
 <div class="modal fade" id="modalDetail" tabindex="-1">
     <div class="modal-dialog">
@@ -416,7 +417,6 @@
         </div>
     </div>
 </div>
-
 {{-- ===== MODAL KELOLA LINK ===== --}}
 <div class="modal fade" id="modalKelolaLink" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -480,13 +480,11 @@
         </div>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 let debounceTimer;
 let chartBulanan, chartKategori;
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
-
 const KATEGORI = {
     pemasukan: [
         'Penjualan Online','Penjualan Produk','Jasa Instalasi',
@@ -498,46 +496,38 @@ const KATEGORI = {
         'Sewa Tempat','Pajak','Peralatan','Lain-lain',
     ],
 };
-
 const PLATFORM_CLASS = {
     'Tokopedia':'tokopedia','Shopee':'shopee','TikTok Shop':'tiktok',
     'Lazada':'lazada','Bukalapak':'bukalapak','Website':'website',
     'Instagram':'instagram','WhatsApp':'whatsapp','Lainnya':'lainnya',
 };
-
 const PLATFORM_ICON = {
     'Tokopedia':'🟠','Shopee':'🔴','TikTok Shop':'🟢',
     'Lazada':'🟣','Bukalapak':'🔵','Website':'🌐',
     'Instagram':'📸','WhatsApp':'📱','Lainnya':'📦',
 };
-
 const WARNA_KATEGORI = [
     '#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6',
     '#06b6d4','#84cc16','#f97316','#ec4899','#6b7280',
 ];
-
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('inputTanggal').value = new Date().toISOString().split('T')[0];
     updateKategori();
     loadAll();
 });
-
 function debounceLoad() {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(loadTransaksi, 400);
 }
-
 function getBulan() { return document.getElementById('filterBulan').value; }
 function getTahun() { return document.getElementById('filterTahun').value; }
-
 function loadAll() {
     loadSummary();
     loadTransaksi();
     loadChart();
     loadKategoriBreakdown();
 }
-
 // ===== TOGGLE SECTION ONLINE =====
 function toggleOnlineSection() {
     const kategori = document.getElementById('inputKategori').value;
@@ -551,8 +541,7 @@ function toggleOnlineSection() {
         document.getElementById('inputNoOrder').value  = '';
     }
 }
-
-// ===== LOAD SUMMARY =====
+// ===== LOAD SUMMARY (updated: include piutang) =====
 async function loadSummary() {
     const res  = await fetch(`/api/admin/keuangan/summary?bulan=${getBulan()}&tahun=${getTahun()}`);
     const data = await res.json();
@@ -563,27 +552,29 @@ async function loadSummary() {
     const labaEl = document.getElementById('sumLaba');
     labaEl.textContent = (laba >= 0 ? '+' : '') + formatRp(laba);
     labaEl.className   = 'sum-value ' + (laba >= 0 ? 'text-success' : 'text-danger');
+    // ✅ Piutang
+    if (document.getElementById('sumPiutangPending')) {
+        document.getElementById('sumPiutangPending').textContent = formatRp(data.piutang_pending);
+    }
+    if (document.getElementById('sumPiutangLunas')) {
+        document.getElementById('sumPiutangLunas').textContent = formatRp(data.piutang_lunas_bulan);
+    }
 }
-
 // ===== LOAD TRANSAKSI =====
 async function loadTransaksi() {
     document.getElementById('loadingTrx').style.display     = 'block';
     document.getElementById('tableContainer').style.display = 'none';
-
     const search   = document.getElementById('searchInput').value;
     const tipe     = document.getElementById('filterTipe').value;
     const status   = document.getElementById('filterStatus').value;
     const platform = document.getElementById('filterPlatform').value;
-
     const url = `/api/admin/keuangan/transaksi?bulan=${getBulan()}&tahun=${getTahun()}&search=${encodeURIComponent(search)}&tipe=${tipe}&status=${status}&platform=${encodeURIComponent(platform)}`;
     const res  = await fetch(url);
     const data = await res.json();
-
     renderTransaksi(data.data);
     document.getElementById('loadingTrx').style.display     = 'none';
     document.getElementById('tableContainer').style.display = 'block';
 }
-
 function renderTransaksi(list) {
     const tbody = document.getElementById('trxTableBody');
     if (!list.length) {
@@ -593,18 +584,17 @@ function renderTransaksi(list) {
         return;
     }
     tbody.innerHTML = list.map(t => {
+        // ✅ updated: support piutang
         const isPemasukan = t.tipe === 'pemasukan';
-        const jumlahStr   = (isPemasukan ? '+' : '-') + formatRp(t.jumlah);
-        const jumlahColor = isPemasukan ? 'text-success' : 'text-danger';
-
+        const isPiutang   = t.tipe === 'piutang';
+        const jumlahStr   = (isPemasukan ? '+' : (isPiutang ? '🧾 ' : '-')) + formatRp(t.jumlah);
+        const jumlahColor = isPemasukan ? 'text-success' : (isPiutang ? 'text-warning' : 'text-danger');
         const platformBadge = t.platform
             ? `<span class="platform-badge ${(PLATFORM_CLASS[t.platform] || 'lainnya')}">
                  ${PLATFORM_ICON[t.platform] || '📦'} ${t.platform}
                </span>` : '';
-
         const noOrderLabel = t.no_order
             ? `<div><small class="text-muted" style="font-family:monospace;">${t.no_order}</small></div>` : '';
-
         return `
         <tr>
             <td><span class="badge bg-light text-dark border" style="font-family:monospace">${t.kode_transaksi}</span></td>
@@ -614,7 +604,7 @@ function renderTransaksi(list) {
                 ${platformBadge}${noOrderLabel}
                 ${t.referensi && !t.no_order ? `<small class="text-muted">${t.referensi}</small>` : ''}
             </td>
-            <td><span class="tipe-badge ${t.tipe}">${isPemasukan ? '💚' : '❤️'} ${t.kategori}</span></td>
+            <td><span class="tipe-badge ${t.tipe}">${isPemasukan ? '💚' : (isPiutang ? '🧾' : '❤️')} ${t.kategori}</span></td>
             <td>${t.pihak_terkait || '<span class="text-muted">-</span>'}</td>
             <td><span class="badge bg-light text-dark">${metodeLabel(t.metode_bayar)}</span></td>
             <td class="text-end fw-bold ${jumlahColor}">${jumlahStr}</td>
@@ -623,19 +613,36 @@ function renderTransaksi(list) {
                 <div class="d-flex gap-1 justify-content-center">
                     <button class="btn btn-xs btn-outline-primary py-0 px-2" onclick="lihatDetail(${t.id})"><i class="bi bi-eye"></i></button>
                     <button class="btn btn-xs btn-outline-warning py-0 px-2" onclick="editTransaksi(${t.id})"><i class="bi bi-pencil"></i></button>
+                    ${isPiutang && t.status === 'pending'
+                        ? `<button class="btn btn-xs btn-outline-success py-0 px-2" title="Tandai Lunas" onclick="tandaiLunas(${t.id})"><i class="bi bi-check-lg"></i></button>`
+                        : ''}
                     <button class="btn btn-xs btn-outline-danger py-0 px-2" onclick="hapusTransaksi(${t.id}, '${t.kode_transaksi}')"><i class="bi bi-trash"></i></button>
                 </div>
             </td>
         </tr>`;
     }).join('');
 }
-
+// ===== TANDAI PIUTANG LUNAS =====
+async function tandaiLunas(id) {
+    if (!confirm('Tandai piutang ini sebagai Lunas?')) return;
+    try {
+        const res  = await fetch(`/api/admin/keuangan/transaksi/${id}/status`, {
+            method : 'PATCH',
+            headers: { 'Content-Type':'application/json', 'Accept':'application/json', 'X-CSRF-TOKEN':csrfToken },
+            body   : JSON.stringify({ status: 'lunas' }),
+        });
+        const data = await res.json();
+        if (data.success) { showToast('✅ Piutang ditandai lunas!', 'success'); loadAll(); }
+        else showToast('❌ ' + (data.message || 'Gagal'), 'danger');
+    } catch (e) {
+        showToast('❌ Error: ' + e.message, 'danger');
+    }
+}
 // ===== LOAD CHART BULANAN =====
 async function loadChart() {
     const res  = await fetch(`/api/admin/keuangan/chart-data?tahun=${getTahun()}`);
     const json = await res.json();
     const data = json.data;
-
     if (chartBulanan) chartBulanan.destroy();
     const ctx = document.getElementById('chartBulanan').getContext('2d');
     chartBulanan = new Chart(ctx, {
@@ -659,7 +666,6 @@ async function loadChart() {
         }
     });
 }
-
 // ===== LOAD KATEGORI PIE =====
 async function loadKategoriBreakdown() {
     const res  = await fetch(`/api/admin/keuangan/kategori-breakdown?bulan=${getBulan()}&tahun=${getTahun()}&tipe=pengeluaran`);
@@ -693,14 +699,12 @@ async function loadKategoriBreakdown() {
         </div>
     `).join('');
 }
-
 // ===== BUKA MODAL NORMAL =====
 function bukaModal(tipe = 'pemasukan') {
     resetModal();
     document.getElementById('inputTipe').value   = tipe;
     document.getElementById('inputStatus').value = 'lunas';
     updateKategori();
-
     const isPemasukan = tipe === 'pemasukan';
     const header = document.getElementById('modalHeader');
     header.style.background = isPemasukan ? 'linear-gradient(135deg,#065f46,#10b981)' : 'linear-gradient(135deg,#7f1d1d,#dc2626)';
@@ -709,12 +713,10 @@ function bukaModal(tipe = 'pemasukan') {
     document.getElementById('btnSimpan').className = isPemasukan ? 'btn btn-success fw-bold' : 'btn btn-danger fw-bold';
     new bootstrap.Modal(document.getElementById('modalTransaksi')).show();
 }
-
-// ===== ✅ BUKA PENJUALAN ONLINE - Buka tab baru ke /penjualan-online/staff =====
+// ===== BUKA PENJUALAN ONLINE =====
 function bukaModalOnline() {
     window.open('{{ url("/penjualan-online/staff") }}', '_blank');
 }
-
 // ===== SALIN LINK STAFF =====
 function salinLinkStaff() {
     const url = '{{ url("/penjualan-online/staff") }}';
@@ -730,19 +732,16 @@ function salinLinkStaff() {
             showToast('📋 Link staff berhasil disalin!', 'success');
         });
 }
-
 // ===== GENERATE LINK BARU =====
 async function generateLink() {
     const label       = document.getElementById('linkLabel').value.trim() || 'Link Penjualan';
     const namaAdmin   = document.getElementById('linkNamaAdmin').value.trim() || 'Admin';
     const expiredDays = parseInt(document.getElementById('linkExpiredDays').value) || 30;
     const maxPakai    = parseInt(document.getElementById('linkMaxPakai').value) || 0;
-
     if (expiredDays < 1 || expiredDays > 90) {
         showToast('❌ Berlaku harus antara 1-90 hari', 'danger');
         return;
     }
-
     try {
         const res = await fetch('/api/admin/keuangan/generate-link', {
             method : 'POST',
@@ -762,7 +761,6 @@ async function generateLink() {
         showToast('❌ Error: ' + e.message, 'danger');
     }
 }
-
 // ===== COPY LINK =====
 function copyLink() {
     const input = document.getElementById('urlHasil');
@@ -777,7 +775,6 @@ function copyLink() {
             .catch(() => showToast('❌ Gagal menyalin, salin manual', 'warning'));
     }
 }
-
 // ===== LOAD DAFTAR LINK =====
 async function loadLinks() {
     document.getElementById('listLink').innerHTML =
@@ -787,7 +784,6 @@ async function loadLinks() {
     try {
         const res  = await fetch('/api/admin/keuangan/links');
         const data = await res.json();
-
         if (!data.data || !data.data.length) {
             document.getElementById('listLink').innerHTML =
                 `<div class="text-center text-muted py-4">
@@ -795,14 +791,12 @@ async function loadLinks() {
                  </div>`;
             return;
         }
-
         document.getElementById('listLink').innerHTML = data.data.map(link => {
             const isExpired  = link.is_expired;
             const isInactive = !link.is_active;
             const statusBadge = isExpired
                 ? `<span class="badge bg-danger">Expired</span>`
                 : (isInactive ? `<span class="badge bg-secondary">Nonaktif</span>` : `<span class="badge bg-success">Aktif</span>`);
-
             return `
             <div class="link-card ${isInactive || isExpired ? 'nonaktif' : ''}">
                 <div class="d-flex justify-content-between align-items-start gap-2">
@@ -841,7 +835,6 @@ async function loadLinks() {
             `<p class="text-danger small text-center py-3">❌ Gagal memuat daftar link: ${e.message}</p>`;
     }
 }
-
 // ===== TOGGLE LINK =====
 async function toggleLink(id) {
     try {
@@ -854,7 +847,6 @@ async function toggleLink(id) {
         else showToast('❌ ' + (data.message || 'Gagal'), 'danger');
     } catch (e) { showToast('❌ Error: ' + e.message, 'danger'); }
 }
-
 // ===== HAPUS LINK =====
 async function hapusLink(id) {
     if (!confirm('Hapus link ini? Tindakan tidak dapat dibatalkan.')) return;
@@ -868,7 +860,6 @@ async function hapusLink(id) {
         else showToast('❌ ' + (data.message || 'Gagal menghapus'), 'danger');
     } catch (e) { showToast('❌ Error: ' + e.message, 'danger'); }
 }
-
 function resetModal() {
     document.getElementById('editId').value         = '';
     document.getElementById('inputJumlah').value    = '';
@@ -886,19 +877,16 @@ function resetModal() {
     btn.style.background = '';
     btn.style.color = '';
 }
-
 function updateKategori() {
     const tipe = document.getElementById('inputTipe').value;
     const sel  = document.getElementById('inputKategori');
     sel.innerHTML = (KATEGORI[tipe] || []).map(k => `<option value="${k}">${k}</option>`).join('');
     toggleOnlineSection();
 }
-
 // ===== SIMPAN TRANSAKSI =====
 async function simpanTransaksi() {
     const editId   = document.getElementById('editId').value;
     const kategori = document.getElementById('inputKategori').value;
-
     const payload = {
         tipe         : document.getElementById('inputTipe').value,
         kategori,
@@ -911,7 +899,6 @@ async function simpanTransaksi() {
         status       : document.getElementById('inputStatus').value,
         catatan      : document.getElementById('inputCatatan').value,
     };
-
     if (kategori === 'Penjualan Online') {
         payload.platform = document.getElementById('inputPlatform').value;
         payload.no_order = document.getElementById('inputNoOrder').value;
@@ -920,16 +907,13 @@ async function simpanTransaksi() {
             return;
         }
     }
-
     if (!payload.jumlah || !payload.deskripsi) {
         showToast('❌ Jumlah dan deskripsi wajib diisi!', 'danger');
         return;
     }
-
     const btn = document.getElementById('btnSimpan');
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan...';
-
     try {
         const url    = editId ? `/api/admin/keuangan/transaksi/${editId}` : '/api/admin/keuangan/transaksi';
         const method = editId ? 'PUT' : 'POST';
@@ -953,14 +937,12 @@ async function simpanTransaksi() {
         btn.innerHTML = '<i class="bi bi-save me-1"></i>Simpan';
     }
 }
-
 // ===== EDIT TRANSAKSI =====
 async function editTransaksi(id) {
     const res  = await fetch(`/api/admin/keuangan/transaksi/${id}`);
     const data = await res.json();
     if (!data.success) return;
     const t = data.data;
-
     document.getElementById('editId').value        = t.id;
     document.getElementById('inputTipe').value      = t.tipe;
     updateKategori();
@@ -976,14 +958,12 @@ async function editTransaksi(id) {
     document.getElementById('inputCatatan').value   = t.catatan || '';
     document.getElementById('inputPlatform').value  = t.platform || '';
     document.getElementById('inputNoOrder').value   = t.no_order || '';
-
     const header = document.getElementById('modalHeader');
     header.style.background = '#1f2937';
     header.style.color = 'white';
     document.getElementById('modalTitle').textContent = '✏️ Edit Transaksi';
     new bootstrap.Modal(document.getElementById('modalTransaksi')).show();
 }
-
 // ===== LIHAT DETAIL =====
 async function lihatDetail(id) {
     const res  = await fetch(`/api/admin/keuangan/transaksi/${id}`);
@@ -991,7 +971,7 @@ async function lihatDetail(id) {
     if (!data.success) return;
     const t = data.data;
     const isPemasukan = t.tipe === 'pemasukan';
-
+    const isPiutang   = t.tipe === 'piutang';
     const onlineRows = t.platform ? `
         <tr><th>Platform</th>
             <td><span class="platform-badge ${PLATFORM_CLASS[t.platform] || 'lainnya'}">
@@ -1000,12 +980,11 @@ async function lihatDetail(id) {
         </tr>
         ${t.no_order ? `<tr><th>No. Order</th><td><code>${t.no_order}</code></td></tr>` : ''}
     ` : '';
-
     document.getElementById('detailBody').innerHTML = `
         <div class="text-center mb-3">
-            <div style="font-size:2.5rem">${isPemasukan ? (t.platform ? '🛒' : '💚') : '❤️'}</div>
-            <div class="fw-bold fs-4 ${isPemasukan ? 'text-success' : 'text-danger'}">
-                ${isPemasukan ? '+' : '-'}${formatRp(t.jumlah)}
+            <div style="font-size:2.5rem">${isPemasukan ? (t.platform ? '🛒' : '💚') : (isPiutang ? '🧾' : '❤️')}</div>
+            <div class="fw-bold fs-4 ${isPemasukan ? 'text-success' : (isPiutang ? 'text-warning' : 'text-danger')}">
+                ${isPemasukan ? '+' : (isPiutang ? '🧾 ' : '-')}${formatRp(t.jumlah)}
             </div>
             <div class="text-muted small">${t.kode_transaksi}</div>
         </div>
@@ -1024,7 +1003,6 @@ async function lihatDetail(id) {
     `;
     new bootstrap.Modal(document.getElementById('modalDetail')).show();
 }
-
 // ===== HAPUS TRANSAKSI =====
 async function hapusTransaksi(id, kode) {
     if (!confirm(`Hapus transaksi ${kode}?`)) return;
@@ -1035,13 +1013,11 @@ async function hapusTransaksi(id, kode) {
     const data = await res.json();
     if (data.success) { showToast('✅ ' + data.message, 'success'); loadAll(); }
 }
-
 // ===== EXPORT =====
 function exportLaporan() {
     window.open(`/api/admin/keuangan/transaksi?bulan=${getBulan()}&tahun=${getTahun()}&export=1`, '_blank');
     showToast('📥 Export sedang diproses...', 'info');
 }
-
 // ===== HELPERS =====
 function formatRp(num) {
     return 'Rp ' + parseInt(num || 0).toLocaleString('id-ID');

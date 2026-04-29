@@ -18,6 +18,30 @@ class SalesOrderController extends Controller
         $nextNum = $last ? ((int) substr($last, strlen($prefix))) + 1 : 1;
         return $prefix . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
     }
+    // ===== GENERATE NOMOR INVOICE =====
+    private function generateInvoiceNumber(): string
+    {
+        $year   = now()->year;
+        $prefix = "INV-{$year}-";
+        $last   = DB::table('keuangan_transaksi')
+            ->where('invoice_number', 'like', "{$prefix}%")
+            ->orderBy('invoice_number', 'desc')
+            ->value('invoice_number');
+        $nextNum = $last ? ((int) substr($last, strlen($prefix))) + 1 : 1;
+        return $prefix . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
+    }
+    // ===== GENERATE KODE TRANSAKSI =====
+    private function generateKodeTransaksi(): string
+    {
+        $year   = now()->year;
+        $prefix = "TRX-{$year}-";
+        $last   = DB::table('keuangan_transaksi')
+            ->where('kode_transaksi', 'like', "{$prefix}%")
+            ->orderBy('kode_transaksi', 'desc')
+            ->value('kode_transaksi');
+        $nextNum = $last ? ((int) substr($last, strlen($prefix))) + 1 : 1;
+        return $prefix . str_pad($nextNum, 4, '0', STR_PAD_LEFT);
+    }
     // ===== LIST SO =====
     public function index(Request $request)
     {
@@ -33,16 +57,11 @@ class SalesOrderController extends Controller
             $query->where('status', $request->status);
         }
         $salesOrders = $query->paginate(15);
-        // Attach items ke setiap SO
         $salesOrders->getCollection()->transform(function($so) {
             $so->items = DB::table('sales_order_items')
-                ->leftJoin('gudang_products', 'sales_order_items.product_id', '=', 'gudang_products.id') // ✅ leftJoin
+                ->leftJoin('gudang_products', 'sales_order_items.product_id', '=', 'gudang_products.id')
                 ->where('sales_order_items.sales_order_id', $so->id)
-                ->select(
-                    'sales_order_items.*',
-                    'gudang_products.nama_produk',
-                    'gudang_products.sku'
-                )
+                ->select('sales_order_items.*', 'gudang_products.nama_produk', 'gudang_products.sku')
                 ->get();
             $so->status_label = $this->statusLabel($so->status);
             $so->status_color = $this->statusColor($so->status);
@@ -53,27 +72,20 @@ class SalesOrderController extends Controller
     // ===== FORM BUAT SO =====
     public function create()
     {
-        // Cek session dulu sebelum tampil form
         if (!session('admin_logged_in') || !session('admin_id')) {
             return redirect('/login')->with('error', 'Silakan login terlebih dahulu.');
         }
-
-        $products = DB::table('gudang_products')
-            ->orderBy('nama_produk')
-            ->get();
-
+        $products = DB::table('gudang_products')->orderBy('nama_produk')->get();
         $soNumber = $this->generateSoNumber();
         return view('admin.gudang.sales-orders.create', compact('products', 'soNumber'));
     }
     // ===== SIMPAN SO =====
     public function store(Request $request)
     {
-        // ✅ Cek session
         $adminId = session('admin_id');
         if (!$adminId) {
             return response()->json(['success' => false, 'message' => 'Sesi expired. Silakan login ulang.'], 401);
         }
-        // ✅ Validasi admin masih ada di DB
         $adminExists = DB::table('admins')->where('id', $adminId)->exists();
         if (!$adminExists) {
             session()->flush();
@@ -94,18 +106,14 @@ class SalesOrderController extends Controller
         DB::beginTransaction();
         try {
             $soNumber = $this->generateSoNumber();
-            // 1. Hitung Subtotal Produk dari items
             $subtotal = 0;
             foreach ($request->items as $item) {
                 $subtotal += ($item['qty'] * $item['harga_satuan']);
             }
-            // 2. Hitung PPN
             $ppn_aktif   = $request->ppn_aktif ? 1 : 0;
             $ppn_rate    = $ppn_aktif ? $request->ppn_rate : 0;
             $ppn_nominal = $ppn_aktif ? ($subtotal * ($ppn_rate / 100)) : 0;
-            // 3. Grand Total
             $grand_total = $subtotal + $ppn_nominal;
-            // 4. Insert SO
             $soId = DB::table('sales_orders')->insertGetId([
                 'so_number'        => $soNumber,
                 'customer_name'    => $request->customer_name,
@@ -123,7 +131,6 @@ class SalesOrderController extends Controller
                 'created_at'       => now(),
                 'updated_at'       => now(),
             ]);
-            // 5. Insert Items
             foreach ($request->items as $item) {
                 $subtotal_item = $item['qty'] * $item['harga_satuan'];
                 DB::table('sales_order_items')->insert([
@@ -138,10 +145,7 @@ class SalesOrderController extends Controller
                 ]);
             }
             DB::commit();
-            return response()->json([
-                'success' => true,
-                'message' => "SO {$soNumber} berhasil dibuat."
-            ]);
+            return response()->json(['success' => true, 'message' => "SO {$soNumber} berhasil dibuat."]);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['success' => false, 'message' => 'Gagal membuat SO: ' . $e->getMessage()], 500);
@@ -153,17 +157,11 @@ class SalesOrderController extends Controller
         $salesOrder = DB::table('sales_orders')->where('id', $id)->first();
         if (!$salesOrder) abort(404);
         $salesOrder->items = DB::table('sales_order_items')
-            ->leftJoin('gudang_products', 'sales_order_items.product_id', '=', 'gudang_products.id') // ✅ leftJoin
+            ->leftJoin('gudang_products', 'sales_order_items.product_id', '=', 'gudang_products.id')
             ->where('sales_order_items.sales_order_id', $id)
-            ->select(
-                'sales_order_items.*',
-                'gudang_products.nama_produk',
-                'gudang_products.sku',
-                'gudang_products.category'
-            )
+            ->select('sales_order_items.*', 'gudang_products.nama_produk', 'gudang_products.sku', 'gudang_products.category')
             ->get();
         foreach ($salesOrder->items as $item) {
-            // ✅ Nama produk fallback ke notes jika product_id null (dari konversi quotation)
             if (!$item->nama_produk && $item->notes) {
                 $item->nama_produk = $item->notes;
             }
@@ -180,6 +178,10 @@ class SalesOrderController extends Controller
         $salesOrder->creator_name = DB::table('admins')->where('id', $salesOrder->created_by)->value('name') ?? '-';
         $salesOrder->status_label = $this->statusLabel($salesOrder->status);
         $salesOrder->status_color = $this->statusColor($salesOrder->status);
+        // Cek invoice jika ada
+        $salesOrder->invoice = DB::table('keuangan_transaksi')
+            ->where('so_number', $salesOrder->so_number)
+            ->first();
         return view('admin.gudang.sales-orders.show', compact('salesOrder'));
     }
     // ===== FORM APPROVE =====
@@ -190,33 +192,24 @@ class SalesOrderController extends Controller
             return back()->with('error', 'SO tidak ditemukan atau sudah diproses.');
         }
         $salesOrder->items = DB::table('sales_order_items')
-            ->leftJoin('gudang_products', 'sales_order_items.product_id', '=', 'gudang_products.id') // ✅ leftJoin
+            ->leftJoin('gudang_products', 'sales_order_items.product_id', '=', 'gudang_products.id')
             ->where('sales_order_items.sales_order_id', $id)
-            ->select(
-                'sales_order_items.*',
-                'gudang_products.nama_produk',
-                'gudang_products.sku',
-                'gudang_products.sisa_stok'
-            )
+            ->select('sales_order_items.*', 'gudang_products.nama_produk', 'gudang_products.sku', 'gudang_products.sisa_stok')
             ->get();
-        // ✅ Fallback nama produk dari notes jika product_id null
         foreach ($salesOrder->items as $item) {
             if (!$item->nama_produk && $item->notes) {
                 $item->nama_produk = $item->notes;
             }
         }
-        // Cek stok cukup — skip item tanpa product_id (dari quotation)
         foreach ($salesOrder->items as $item) {
-            if (!$item->product_id) continue; // ✅ skip item tanpa produk katalog
+            if (!$item->product_id) continue;
             if ($item->sisa_stok < $item->qty) {
-                return back()->with('error',
-                    "Stok {$item->nama_produk} tidak cukup. Stok: {$item->sisa_stok}, Butuh: {$item->qty}");
+                return back()->with('error', "Stok {$item->nama_produk} tidak cukup. Stok: {$item->sisa_stok}, Butuh: {$item->qty}");
             }
         }
-        // SN available per item
         $availableSerials = [];
         foreach ($salesOrder->items as $item) {
-            if (!$item->product_id) continue; // ✅ skip item tanpa produk katalog
+            if (!$item->product_id) continue;
             $hasSn = DB::table('barang_masuk')
                 ->where('product_id', $item->product_id)
                 ->where('status', 'tersedia')
@@ -245,16 +238,14 @@ class SalesOrderController extends Controller
             return back()->with('error', 'SO tidak ditemukan atau sudah diproses.');
         }
         $items = DB::table('sales_order_items')
-            ->leftJoin('gudang_products', 'sales_order_items.product_id', '=', 'gudang_products.id') // ✅ leftJoin
+            ->leftJoin('gudang_products', 'sales_order_items.product_id', '=', 'gudang_products.id')
             ->where('sales_order_items.sales_order_id', $id)
             ->select('sales_order_items.*', 'gudang_products.nama_produk', 'gudang_products.sisa_stok')
             ->get();
         DB::beginTransaction();
         try {
             foreach ($items as $item) {
-                // ✅ Skip item tanpa product_id (dari konversi quotation) — tidak kurangi stok
                 if (!$item->product_id) continue;
-
                 $serialIds = $request->serials[$item->id] ?? [];
                 if (!empty($serialIds)) {
                     foreach ($serialIds as $snId) {
@@ -305,6 +296,149 @@ class SalesOrderController extends Controller
             return back()->with('error', 'Gagal approve: ' . $e->getMessage());
         }
     }
+    // ===== FORM BUAT INVOICE =====
+    public function createInvoiceForm($id)
+    {
+        $salesOrder = DB::table('sales_orders')->where('id', $id)->first();
+        if (!$salesOrder || $salesOrder->status !== 'approved') {
+            return back()->with('error', 'SO harus berstatus Disetujui untuk membuat Invoice.');
+        }
+        $existingInvoice = DB::table('keuangan_transaksi')
+            ->where('so_number', $salesOrder->so_number)
+            ->first();
+        if ($existingInvoice) {
+            return back()->with('error', "Invoice sudah dibuat: {$existingInvoice->invoice_number}");
+        }
+        $salesOrder->items = DB::table('sales_order_items')
+            ->leftJoin('gudang_products', 'sales_order_items.product_id', '=', 'gudang_products.id')
+            ->where('sales_order_items.sales_order_id', $id)
+            ->select('sales_order_items.*', 'gudang_products.nama_produk', 'gudang_products.sku')
+            ->get();
+        $invoiceNumber = $this->generateInvoiceNumber();
+        return view('admin.gudang.sales-orders.invoice-form', compact('salesOrder', 'invoiceNumber'));
+    }
+    // ===== SIMPAN INVOICE =====
+    public function storeInvoice(Request $request, $id)
+    {
+        $salesOrder = DB::table('sales_orders')->where('id', $id)->first();
+        if (!$salesOrder || $salesOrder->status !== 'approved') {
+            return back()->with('error', 'SO tidak valid.');
+        }
+        $request->validate([
+            'tipe_bayar'    => 'required|in:cash,tempo',
+            'tempo_hari'    => 'nullable|required_if:tipe_bayar,tempo|integer|min:1',
+            'nama_bank'     => 'required|string|max:100',
+            'no_rekening'   => 'required|string|max:50',
+            'nama_rekening' => 'required|string|max:100',
+            'metode_bayar'  => 'required|in:cash,transfer,qris,kartu_kredit',
+            'catatan'       => 'nullable|string',
+        ]);
+        $exists = DB::table('keuangan_transaksi')->where('so_number', $salesOrder->so_number)->exists();
+        if ($exists) {
+            return back()->with('error', 'Invoice untuk SO ini sudah dibuat.');
+        }
+        DB::beginTransaction();
+        try {
+            $invoiceNumber = $this->generateInvoiceNumber();
+            $kodeTransaksi = $this->generateKodeTransaksi();
+            $invoiceDate   = now()->toDateString();
+            $jatuhTempo    = $request->tipe_bayar === 'tempo'
+                ? now()->addDays((int)$request->tempo_hari)->toDateString()
+                : null;
+            DB::table('keuangan_transaksi')->insert([
+                'kode_transaksi' => $kodeTransaksi,
+                'tipe'           => 'pemasukan',
+                'kategori'       => 'Penjualan Produk',
+                'sub_kategori'   => 'SO',
+                'jumlah'         => $salesOrder->total_amount,
+                'tanggal'        => $invoiceDate,
+                'deskripsi'      => "Invoice {$invoiceNumber} - {$salesOrder->customer_name}",
+                'referensi'      => $salesOrder->so_number,
+                'metode_bayar'   => $request->metode_bayar,
+                'status'         => 'pending',
+                'pihak_terkait'  => $salesOrder->customer_name,
+                'catatan'        => $request->catatan,
+                'no_order'       => $salesOrder->so_number,
+                'invoice_number' => $invoiceNumber,
+                'invoice_date'   => $invoiceDate,
+                'tipe_bayar'     => $request->tipe_bayar,
+                'tempo_hari'     => $request->tipe_bayar === 'tempo' ? $request->tempo_hari : null,
+                'jatuh_tempo'    => $jatuhTempo,
+                'nama_bank'      => $request->nama_bank,
+                'no_rekening'    => $request->no_rekening,
+                'nama_rekening'  => $request->nama_rekening,
+                'so_number'      => $salesOrder->so_number,
+                'created_by'     => session('admin_id'),
+                'created_at'     => now(),
+                'updated_at'     => now(),
+            ]);
+            DB::commit();
+            return redirect("/admin/gudang/sales-orders/{$id}")
+                ->with('success', "Invoice {$invoiceNumber} berhasil dibuat. Tandai Lunas setelah pembayaran diterima.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal membuat Invoice: ' . $e->getMessage());
+        }
+    }
+    // ===== TANDAI LUNAS =====
+    public function markLunas($id)
+    {
+        $salesOrder = DB::table('sales_orders')->where('id', $id)->first();
+        if (!$salesOrder) abort(404);
+        $invoice = DB::table('keuangan_transaksi')
+            ->where('so_number', $salesOrder->so_number)
+            ->where('status', 'pending')
+            ->first();
+        if (!$invoice) {
+            return back()->with('error', 'Invoice tidak ditemukan atau sudah lunas.');
+        }
+        DB::table('keuangan_transaksi')->where('id', $invoice->id)->update([
+            'status'     => 'lunas',
+            'tanggal'    => now()->toDateString(),
+            'updated_at' => now(),
+        ]);
+        return back()->with('success', "Invoice {$invoice->invoice_number} ditandai LUNAS. Transaksi masuk ke pembukuan.");
+    }
+    // ===== DOWNLOAD PDF INVOICE =====
+    public function downloadInvoicePdf($id)
+    {
+        $data = $this->getInvoiceData($id);
+        $pdf = Pdf::loadView('admin.gudang.sales-orders.invoice-pdf', $data)
+            ->setPaper('A4', 'portrait')
+            ->setOption('defaultFont', 'Arial')
+            ->setOption('isHtml5ParserEnabled', true);
+        return $pdf->download("INV-{$data['invoice']->invoice_number}.pdf");
+    }
+    // ===== PREVIEW PDF INVOICE (untuk WhatsApp share) =====
+    public function previewInvoicePdf($id)
+    {
+        $data = $this->getInvoiceData($id);
+        $pdf = Pdf::loadView('admin.gudang.sales-orders.invoice-pdf', $data)
+            ->setPaper('A4', 'portrait')
+            ->setOption('defaultFont', 'Arial')
+            ->setOption('isHtml5ParserEnabled', true);
+        return $pdf->stream("INV-{$data['invoice']->invoice_number}.pdf");
+    }
+    // ===== KIRIM EMAIL INVOICE =====
+    public function sendInvoiceEmail(Request $request, $id)
+    {
+        $request->validate(['email' => 'required|email']);
+        $data = $this->getInvoiceData($id);
+        $pdf = Pdf::loadView('admin.gudang.sales-orders.invoice-pdf', $data)
+            ->setPaper('A4', 'portrait');
+        \Mail::send(
+            'admin.gudang.sales-orders.invoice-email',
+            $data,
+            function ($mail) use ($request, $data, $pdf) {
+                $mail->to($request->email)
+                     ->subject("Invoice {$data['invoice']->invoice_number} - TechStore")
+                     ->attachData($pdf->output(), "INV-{$data['invoice']->invoice_number}.pdf", [
+                         'mime' => 'application/pdf',
+                     ]);
+            }
+        );
+        return back()->with('success', "Invoice berhasil dikirim ke {$request->email}.");
+    }
     // ===== DELIVER =====
     public function deliver($id)
     {
@@ -312,10 +446,7 @@ class SalesOrderController extends Controller
         if (!$so || $so->status !== 'approved') {
             return back()->with('error', 'SO belum disetujui.');
         }
-        DB::table('sales_orders')->where('id', $id)->update([
-            'status'     => 'delivered',
-            'updated_at' => now(),
-        ]);
+        DB::table('sales_orders')->where('id', $id)->update(['status' => 'delivered', 'updated_at' => now()]);
         return back()->with('success', "SO {$so->so_number} ditandai terkirim.");
     }
     // ===== CANCEL =====
@@ -330,7 +461,7 @@ class SalesOrderController extends Controller
             if ($so->status === 'approved') {
                 $items = DB::table('sales_order_items')->where('sales_order_id', $id)->get();
                 foreach ($items as $item) {
-                    if (!$item->product_id) continue; // ✅ skip item tanpa produk katalog
+                    if (!$item->product_id) continue;
                     $terjualSns = DB::table('barang_masuk')
                         ->where('product_id', $item->product_id)
                         ->where('status', 'terjual')
@@ -339,8 +470,7 @@ class SalesOrderController extends Controller
                         ->limit($item->qty)
                         ->get();
                     foreach ($terjualSns as $sn) {
-                        DB::table('barang_masuk')
-                            ->where('id', $sn->id)
+                        DB::table('barang_masuk')->where('id', $sn->id)
                             ->update(['status' => 'tersedia', 'updated_at' => now()]);
                     }
                     DB::table('barang_keluar')
@@ -350,10 +480,7 @@ class SalesOrderController extends Controller
                     $this->recalculateStock($item->product_id);
                 }
             }
-            DB::table('sales_orders')->where('id', $id)->update([
-                'status'     => 'cancelled',
-                'updated_at' => now(),
-            ]);
+            DB::table('sales_orders')->where('id', $id)->update(['status' => 'cancelled', 'updated_at' => now()]);
             DB::commit();
             return back()->with('success', "SO {$so->so_number} dibatalkan.");
         } catch (\Exception $e) {
@@ -374,14 +501,13 @@ class SalesOrderController extends Controller
             DB::table('sales_order_items')->where('sales_order_id', $id)->delete();
             DB::table('sales_orders')->where('id', $id)->delete();
             DB::commit();
-            return redirect('/admin/gudang/sales-orders')
-                ->with('success', "SO {$so->so_number} berhasil dihapus.");
+            return redirect('/admin/gudang/sales-orders')->with('success', "SO {$so->so_number} berhasil dihapus.");
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal hapus SO: ' . $e->getMessage());
         }
     }
-    // ===== DOWNLOAD PDF =====
+    // ===== DOWNLOAD PDF SO =====
     public function downloadPdf($id)
     {
         $salesOrder = $this->getSoForPdf($id);
@@ -391,7 +517,7 @@ class SalesOrderController extends Controller
             ->setOption('isHtml5ParserEnabled', true);
         return $pdf->download("SO-{$salesOrder->so_number}.pdf");
     }
-    // ===== PREVIEW PDF =====
+    // ===== PREVIEW PDF SO =====
     public function previewPdf($id)
     {
         $salesOrder = $this->getSoForPdf($id);
@@ -401,20 +527,17 @@ class SalesOrderController extends Controller
             ->setOption('isHtml5ParserEnabled', true);
         return $pdf->stream("SO-{$salesOrder->so_number}.pdf");
     }
-    // ===== KIRIM EMAIL =====
+    // ===== KIRIM EMAIL SO =====
     public function sendEmail(Request $request, $id)
     {
         $request->validate(['email' => 'required|email']);
         $salesOrder = $this->getSoForPdf($id);
-        $pdf = Pdf::loadView('admin.gudang.sales-orders.pdf', compact('salesOrder'))
-            ->setPaper('A4', 'portrait');
+        $pdf = Pdf::loadView('admin.gudang.sales-orders.pdf', compact('salesOrder'))->setPaper('A4', 'portrait');
         \Mail::send('admin.gudang.sales-orders.email', compact('salesOrder'),
             function ($mail) use ($request, $salesOrder, $pdf) {
                 $mail->to($request->email)
                      ->subject("Surat Order {$salesOrder->so_number} - TechStore")
-                     ->attachData($pdf->output(), "SO-{$salesOrder->so_number}.pdf", [
-                         'mime' => 'application/pdf',
-                     ]);
+                     ->attachData($pdf->output(), "SO-{$salesOrder->so_number}.pdf", ['mime' => 'application/pdf']);
             }
         );
         return back()->with('success', "SO berhasil dikirim ke {$request->email}.");
@@ -438,17 +561,11 @@ class SalesOrderController extends Controller
         $so = DB::table('sales_orders')->where('id', $id)->first();
         if (!$so) abort(404);
         $so->items = DB::table('sales_order_items')
-            ->leftJoin('gudang_products', 'sales_order_items.product_id', '=', 'gudang_products.id') // ✅ leftJoin
+            ->leftJoin('gudang_products', 'sales_order_items.product_id', '=', 'gudang_products.id')
             ->where('sales_order_items.sales_order_id', $id)
-            ->select(
-                'sales_order_items.*',
-                'gudang_products.nama_produk',
-                'gudang_products.sku',
-                'gudang_products.category'
-            )
+            ->select('sales_order_items.*', 'gudang_products.nama_produk', 'gudang_products.sku', 'gudang_products.category')
             ->get();
         foreach ($so->items as $item) {
-            // ✅ Fallback nama produk dari notes jika product_id null
             if (!$item->nama_produk && $item->notes) {
                 $item->nama_produk = $item->notes;
             }
@@ -466,6 +583,31 @@ class SalesOrderController extends Controller
         $so->status_label = $this->statusLabel($so->status);
         $so->status_color = $this->statusColor($so->status);
         return $so;
+    }
+    // ===== HELPER: Data Invoice untuk PDF =====
+    private function getInvoiceData($soId)
+    {
+        $salesOrder = DB::table('sales_orders')->where('id', $soId)->first();
+        if (!$salesOrder) abort(404);
+        $invoice = DB::table('keuangan_transaksi')
+            ->where('so_number', $salesOrder->so_number)
+            ->first();
+        if (!$invoice) abort(404, 'Invoice belum dibuat untuk SO ini.');
+        $salesOrder->items = DB::table('sales_order_items')
+            ->leftJoin('gudang_products', 'sales_order_items.product_id', '=', 'gudang_products.id')
+            ->where('sales_order_items.sales_order_id', $soId)
+            ->select(
+                'sales_order_items.*',
+                'gudang_products.nama_produk',
+                'gudang_products.sku'
+            )
+            ->get();
+        foreach ($salesOrder->items as $item) {
+            if (!$item->nama_produk && $item->notes) {
+                $item->nama_produk = $item->notes;
+            }
+        }
+        return compact('salesOrder', 'invoice');
     }
     // ===== HELPER: Recalculate stok =====
     private function recalculateStock($productId)

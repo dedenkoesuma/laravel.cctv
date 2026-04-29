@@ -46,7 +46,7 @@ class KeuanganController extends Controller
             ->whereYear('tanggal', $tahun)
             ->count();
 
-        // Ringkasan penjualan toko online bulan ini
+        // Penjualan online bulan ini
         $penjualanOnline = DB::table('keuangan_transaksi')
             ->where('tipe', 'pemasukan')
             ->where('kategori', 'Penjualan Online')
@@ -55,14 +55,40 @@ class KeuanganController extends Controller
             ->whereYear('tanggal', $tahun)
             ->sum('jumlah');
 
+        // ─── PIUTANG (dari Staff Finance) ───────────────────────────────────────
+        // Piutang pending = belum dibayar (masih harus ditagih)
+        $piutangPending = DB::table('keuangan_transaksi')
+            ->where('tipe', 'piutang')
+            ->where('status', 'pending')
+            ->sum('jumlah');
+
+        // Piutang lunas bulan ini (sudah dibayar = jadi pemasukan)
+        $piutangLunasBulanIni = DB::table('keuangan_transaksi')
+            ->where('tipe', 'piutang')
+            ->where('status', 'lunas')
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->sum('jumlah');
+
+        // Total piutang bulan ini (semua status)
+        $piutangBulanIni = DB::table('keuangan_transaksi')
+            ->where('tipe', 'piutang')
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->sum('jumlah');
+
         return response()->json([
-            'pemasukan_bulan'    => $pemasukan,
-            'pengeluaran_bulan'  => $pengeluaran,
-            'laba_bulan'         => $pemasukan - $pengeluaran,
-            'saldo_total'        => $totalPemasukan - $totalPengeluaran,
-            'pending'            => $pending,
-            'jumlah_transaksi'   => $jumlahTransaksi,
-            'penjualan_online'   => $penjualanOnline, // tambahan info toko online
+            'pemasukan_bulan'       => $pemasukan,
+            'pengeluaran_bulan'     => $pengeluaran,
+            'laba_bulan'            => $pemasukan - $pengeluaran,
+            'saldo_total'           => $totalPemasukan - $totalPengeluaran,
+            'pending'               => $pending,
+            'jumlah_transaksi'      => $jumlahTransaksi,
+            'penjualan_online'      => $penjualanOnline,
+            // Piutang
+            'piutang_pending'       => $piutangPending,
+            'piutang_lunas_bulan'   => $piutangLunasBulanIni,
+            'piutang_bulan'         => $piutangBulanIni,
         ]);
     }
 
@@ -74,14 +100,14 @@ class KeuanganController extends Controller
         if ($request->tipe)      $query->where('tipe', $request->tipe);
         if ($request->kategori)  $query->where('kategori', $request->kategori);
         if ($request->status)    $query->where('status', $request->status);
-        if ($request->platform)  $query->where('platform', $request->platform); // filter per platform
+        if ($request->platform)  $query->where('platform', $request->platform);
         if ($request->bulan)     $query->whereMonth('tanggal', $request->bulan);
         if ($request->tahun)     $query->whereYear('tanggal', $request->tahun);
         if ($request->search)    $query->where(function ($q) use ($request) {
             $q->where('deskripsi', 'like', '%' . $request->search . '%')
               ->orWhere('kode_transaksi', 'like', '%' . $request->search . '%')
               ->orWhere('pihak_terkait', 'like', '%' . $request->search . '%')
-              ->orWhere('no_order', 'like', '%' . $request->search . '%'); // bisa cari by no order
+              ->orWhere('no_order', 'like', '%' . $request->search . '%');
         });
 
         $transaksi = $query->orderByDesc('tanggal')->orderByDesc('id')->get();
@@ -106,11 +132,18 @@ class KeuanganController extends Controller
                 ->whereMonth('tanggal', $m)->whereYear('tanggal', $tahun)
                 ->sum('jumlah');
 
+            // Piutang lunas (sudah dibayar = bagian pemasukan)
+            $piutangLunas = DB::table('keuangan_transaksi')
+                ->where('tipe', 'piutang')->where('status', 'lunas')
+                ->whereMonth('tanggal', $m)->whereYear('tanggal', $tahun)
+                ->sum('jumlah');
+
             $data[] = [
-                'bulan'       => date('M', mktime(0, 0, 0, $m, 1)),
-                'pemasukan'   => (float) $pemasukan,
-                'pengeluaran' => (float) $pengeluaran,
-                'laba'        => (float) ($pemasukan - $pengeluaran),
+                'bulan'        => date('M', mktime(0, 0, 0, $m, 1)),
+                'pemasukan'    => (float) $pemasukan,
+                'pengeluaran'  => (float) $pengeluaran,
+                'piutang_lunas'=> (float) $piutangLunas,
+                'laba'         => (float) ($pemasukan + $piutangLunas - $pengeluaran),
             ];
         }
 
@@ -162,13 +195,12 @@ class KeuanganController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'tipe'         => 'required|in:pemasukan,pengeluaran',
+            'tipe'         => 'required|in:pemasukan,pengeluaran,piutang',
             'kategori'     => 'required|string',
             'jumlah'       => 'required|numeric|min:1',
             'tanggal'      => 'required|date',
             'deskripsi'    => 'required|string',
             'metode_bayar' => 'required|in:cash,transfer,qris,kartu_kredit',
-            // Validasi khusus toko online
             'platform'     => 'nullable|string|max:50',
             'no_order'     => 'nullable|string|max:100',
         ]);
@@ -185,10 +217,9 @@ class KeuanganController extends Controller
             'deskripsi'      => $request->deskripsi,
             'referensi'      => $request->referensi,
             'metode_bayar'   => $request->metode_bayar,
-            'status'         => $request->status ?? 'lunas',
+            'status'         => $request->status ?? 'pending', // piutang default pending
             'pihak_terkait'  => $request->pihak_terkait,
             'catatan'        => $request->catatan,
-            // Kolom toko online (null jika bukan penjualan online)
             'platform'       => $request->kategori === 'Penjualan Online' ? $request->platform : null,
             'no_order'       => $request->kategori === 'Penjualan Online' ? $request->no_order : null,
             'created_by'     => session('admin_id', 1),
@@ -218,7 +249,6 @@ class KeuanganController extends Controller
             'status'        => $request->status,
             'pihak_terkait' => $request->pihak_terkait,
             'catatan'       => $request->catatan,
-            // Kolom toko online
             'platform'      => $request->kategori === 'Penjualan Online' ? $request->platform : null,
             'no_order'      => $request->kategori === 'Penjualan Online' ? $request->no_order : null,
             'updated_at'    => now(),
