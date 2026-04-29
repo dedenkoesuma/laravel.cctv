@@ -1,4 +1,3 @@
-
 {{-- resources/views/admin/finance/index.blade.php --}}
 @extends('layouts.simple')
 @section('title', 'Finance Staff - Input Piutang & Pengeluaran')
@@ -26,7 +25,6 @@
 .sum-icon { width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:12px; }
 .sum-value { font-size: 1.4rem; font-weight: 800; color: #111827; }
 .sum-label { font-size: 0.78rem; color: #6b7280; margin-top: 2px; }
-
 /* TABS */
 .fin-tabs { display:flex;gap:4px;background:white;border-radius:12px;padding:6px;box-shadow:0 2px 10px rgba(0,0,0,0.07);margin-bottom:18px;flex-wrap:wrap; }
 .fin-tab { padding:9px 18px;border-radius:8px;border:none;font-size:.83rem;font-weight:600;cursor:pointer;transition:all .2s;color:#6b7280;background:transparent;display:flex;align-items:center;gap:6px; }
@@ -36,17 +34,13 @@
 .fin-tab:not(.active) .tbadge { background:#e5e7eb;color:#6b7280; }
 .tab-pane { display:none; }
 .tab-pane.active { display:block; }
-
-/* TABLE & TOOLBAR */
+/* TABLE */
 .toolbar { background:white;border-radius:12px;padding:14px 18px;box-shadow:0 2px 10px rgba(0,0,0,0.07);margin-bottom:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center; }
 .toolbar select,.toolbar input { border:1px solid #d1d5db;border-radius:8px;padding:7px 12px;font-size:.85rem; }
 .table-card { background:white;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,0.07);overflow:hidden;margin-bottom:24px; }
-.table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; }
-.table-card table th, .table-card table td { white-space: nowrap; }
 .table-card table thead th { background:#f8fafc;font-size:.78rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.05em;padding:12px 16px;border-bottom:2px solid #e5e7eb; }
 .table-card table tbody td { padding:12px 16px;font-size:.875rem;border-bottom:1px solid #f3f4f6;vertical-align:middle; }
 .table-card table tbody tr:hover { background:#f9fafb; }
-
 /* BADGES */
 .tipe-badge { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700; }
 .tipe-badge.piutang     { background:#fef3c7;color:#92400e; }
@@ -55,7 +49,6 @@
 .status-badge.lunas   { background:#d1fae5;color:#065f46; }
 .status-badge.pending { background:#fef3c7;color:#92400e; }
 .status-badge.batal   { background:#f3f4f6;color:#6b7280; }
-
 /* INVOICE TAB */
 .inv-card { background:white;border-radius:12px;border:1px solid #e5e7eb;padding:16px;margin-bottom:12px;transition:box-shadow .2s; }
 .inv-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.08); }
@@ -63,7 +56,6 @@
 .inv-card.lunas   { border-left:4px solid #10b981; }
 .inv-card.pending { border-left:4px solid #f59e0b; }
 .sn-badge { display:inline-block;background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:6px;font-size:.72rem;font-family:monospace;font-weight:700;margin:2px; }
-
 /* MODAL */
 .modal-content { border-radius:14px;border:none;box-shadow:0 20px 60px rgba(0,0,0,.2); }
 .modal-header  { border-bottom:1px solid #e5e7eb;padding:18px 24px; }
@@ -72,7 +64,6 @@
 .form-label { font-size:.8rem;font-weight:600;color:#374151;margin-bottom:5px; }
 .form-control,.form-select { border-radius:8px;border:1px solid #d1d5db;font-size:.875rem;padding:8px 12px; }
 .info-box { background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:10px;padding:14px;font-size:.83rem;color:#1e40af; }
-
 /* LAPORAN */
 .lap-tab-btn { padding:8px 18px;border-radius:8px;border:2px solid #e5e7eb;background:white;font-weight:700;font-size:.82rem;cursor:pointer;transition:all .2s;color:#374151; }
 .lap-tab-btn.active { background:#0f172a;color:white;border-color:#0f172a; }
@@ -92,23 +83,7 @@
 .cf-mini-table tbody td { padding:7px 10px;border-bottom:1px solid #f3f4f6; }
 .cf-mini-table tfoot td { padding:8px 10px;font-weight:800;background:#f1f5f9;border-top:2px solid #e5e7eb;font-size:.82rem; }
 .loading-overlay { text-align:center;padding:40px;color:#9ca3af; }
-
-/* FIX RESPONSIVE MOBILE */
-@media(max-width:768px) {
-    .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .sum-card { padding: 15px; }
-    .sum-value { font-size: 1.1rem; }
-    
-    .toolbar { flex-direction: column; align-items: stretch; padding: 14px; }
-    .toolbar > * { width: 100%; margin-bottom: 8px; }
-    .toolbar > *:last-child { margin-bottom: 0; }
-    
-    .fin-header { padding: 20px 16px; }
-    .fin-header .d-flex { flex-direction: column; align-items: stretch !important; text-align: center; }
-    .fin-header .d-flex > div:last-child { justify-content: center; margin-top: 10px; }
-    
-    .fin-tabs { justify-content: center; }
-}
+@media(max-width:768px){.summary-grid{grid-template-columns:repeat(2,1fr)}.toolbar{flex-direction:column}}
 </style>
 
 <div class="container py-4">
@@ -136,12 +111,12 @@
 
     {{-- FILTER --}}
     <div class="d-flex gap-2 mb-3 align-items-center flex-wrap">
-        <select id="filterBulan" class="form-select" style="width:auto; flex-grow: 1;" onchange="loadAll()">
+        <select id="filterBulan" class="form-select" style="width:auto;" onchange="loadAll()">
             @for($m=1;$m<=12;$m++)
                 <option value="{{ $m }}" {{ $m==date('m')?'selected':'' }}>{{ DateTime::createFromFormat('!m',$m)->format('F') }}</option>
             @endfor
         </select>
-        <select id="filterTahun" class="form-select" style="width:auto; flex-grow: 1;" onchange="loadAll()">
+        <select id="filterTahun" class="form-select" style="width:auto;" onchange="loadAll()">
             @for($y=date('Y');$y>=date('Y')-3;$y--)
                 <option value="{{ $y }}" {{ $y==date('Y')?'selected':'' }}>{{ $y }}</option>
             @endfor
@@ -203,24 +178,22 @@
                 <p class="mt-2">Memuat invoice...</p>
             </div>
             <div id="invContainer" style="display:none">
-                <div class="table-responsive">
-                    <table class="table mb-0">
-                        <thead>
-                            <tr>
-                                <th>Invoice</th>
-                                <th>SO</th>
-                                <th>Customer</th>
-                                <th>Tgl Invoice</th>
-                                <th>Tipe Bayar</th>
-                                <th>Jatuh Tempo</th>
-                                <th class="text-end">Total</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="invTableBody"></tbody>
-                    </table>
-                </div>
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Invoice</th>
+                            <th>SO</th>
+                            <th>Customer</th>
+                            <th>Tgl Invoice</th>
+                            <th>Tipe Bayar</th>
+                            <th>Jatuh Tempo</th>
+                            <th class="text-end">Total</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invTableBody"></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -251,20 +224,18 @@
                 <p class="mt-2">Memuat data...</p>
             </div>
             <div id="tableContainer" style="display:none">
-                <div class="table-responsive">
-                    <table class="table mb-0">
-                        <thead>
-                            <tr>
-                                <th>Kode</th><th>Tanggal</th><th>Tipe</th><th>Deskripsi</th>
-                                <th>Pihak Terkait</th><th>Kategori</th>
-                                <th class="text-end">Jumlah</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="trxTableBody"></tbody>
-                    </table>
-                </div>
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Kode</th><th>Tanggal</th><th>Tipe</th><th>Deskripsi</th>
+                            <th>Pihak Terkait</th><th>Kategori</th>
+                            <th class="text-end">Jumlah</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="trxTableBody"></tbody>
+                </table>
             </div>
         </div>
     </div>
