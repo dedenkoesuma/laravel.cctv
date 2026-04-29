@@ -174,6 +174,7 @@ class SalesOrderController extends Controller
     }
 
     // ===== DETAIL SO =====
+    // ===== DETAIL SO =====
     public function show($id)
     {
         $salesOrder = DB::table('sales_orders')->where('id', $id)->first();
@@ -205,13 +206,16 @@ class SalesOrderController extends Controller
         $salesOrder->status_label = $this->statusLabel($salesOrder->status);
         $salesOrder->status_color = $this->statusColor($salesOrder->status);
 
-        // ERROR HANDLING: Cek invoice jika ada
         try {
             $salesOrder->invoice = DB::table('keuangan_transaksi')
-                ->where('so_number', $salesOrder->so_number)
+                ->where('no_order', $salesOrder->so_number) 
                 ->first();
+                
+            // ✅ FIX: Buatkan alias agar view blade tidak error
+            if ($salesOrder->invoice) {
+                $salesOrder->invoice->so_number = $salesOrder->invoice->no_order;
+            }
         } catch (\Exception $e) {
-            // Jika tabel / kolom tidak ditemukan, kita set ke null saja agar halaman tidak error
             $salesOrder->invoice = null;
         }
 
@@ -354,17 +358,17 @@ class SalesOrderController extends Controller
             return back()->with('error', 'SO harus berstatus Disetujui untuk membuat Invoice.');
         }
 
-        // ERROR HANDLING: Cek exists
+        // ✅ FIXED: Ubah where menjadi 'no_order'
         try {
             $existingInvoice = DB::table('keuangan_transaksi')
-                ->where('so_number', $salesOrder->so_number)
+                ->where('no_order', $salesOrder->so_number) 
                 ->first();
                 
             if ($existingInvoice) {
                 return back()->with('error', "Invoice sudah dibuat: {$existingInvoice->invoice_number}");
             }
         } catch (\Exception $e) {
-            // Abaikan jika tabel error / belum di migrate, lanjut ke form
+            // Abaikan
         }
 
         $salesOrder->items = DB::table('sales_order_items')
@@ -395,14 +399,16 @@ class SalesOrderController extends Controller
             'catatan'       => 'nullable|string',
         ]);
 
-        // ERROR HANDLING
+        // ✅ FIXED: Ubah where menjadi 'no_order'
         try {
-            $exists = DB::table('keuangan_transaksi')->where('so_number', $salesOrder->so_number)->exists();
+            $exists = DB::table('keuangan_transaksi')
+                ->where('no_order', $salesOrder->so_number) 
+                ->exists();
             if ($exists) {
                 return back()->with('error', 'Invoice untuk SO ini sudah dibuat.');
             }
         } catch (\Exception $e) {
-            // Abaikan jika error check
+            // Abaikan
         }
 
         DB::beginTransaction();
@@ -459,10 +465,10 @@ class SalesOrderController extends Controller
         $salesOrder = DB::table('sales_orders')->where('id', $id)->first();
         if (!$salesOrder) abort(404);
 
-        // ERROR HANDLING
+        // ✅ FIXED: Ubah where menjadi 'no_order'
         try {
             $invoice = DB::table('keuangan_transaksi')
-                ->where('so_number', $salesOrder->so_number)
+                ->where('no_order', $salesOrder->so_number) 
                 ->where('status', 'pending')
                 ->first();
                 
@@ -710,19 +716,22 @@ class SalesOrderController extends Controller
         return $so;
     }
 
-    // ===== HELPER: Data Invoice untuk PDF =====
+   // ===== HELPER: Data Invoice untuk PDF =====
     private function getInvoiceData($soId)
     {
         $salesOrder = DB::table('sales_orders')->where('id', $soId)->first();
         if (!$salesOrder) abort(404);
 
-        // ERROR HANDLING
         try {
             $invoice = DB::table('keuangan_transaksi')
-                ->where('so_number', $salesOrder->so_number)
+                ->where('no_order', $salesOrder->so_number) 
                 ->first();
                 
             if (!$invoice) abort(404, 'Invoice belum dibuat untuk SO ini.');
+            
+            // ✅ FIX: Buatkan alias so_number untuk dipanggil di invoice-pdf.blade.php
+            $invoice->so_number = $invoice->no_order;
+
         } catch (\Exception $e) {
             return null; // Return null agar di handle oleh controller pemanggil
         }

@@ -17,18 +17,18 @@
         .header {
             display: table;
             width: 100%;
-            border-bottom: 3px solid #1a56db;
+            border-bottom: 3px solid #e11d48; /* Disesuaikan dengan warna merah MJA */
             padding-bottom: 14px;
             margin-bottom: 18px;
         }
         .header-left  { display: table-cell; width: 60%; vertical-align: middle; }
         .header-right { display: table-cell; width: 40%; vertical-align: middle; text-align: right; }
 
-        .logo { height: 52px; }
-        .company-name { font-size: 22px; font-weight: 700; color: #1a56db; }
+        .logo { height: 60px; object-fit: contain; } /* Diperbesar sedikit agar MJA jelas */
+        .company-name { font-size: 22px; font-weight: 800; color: #111; margin-top: 5px;}
         .company-sub  { font-size: 10px; color: #555; margin-top: 2px; }
 
-        .invoice-title { font-size: 26px; font-weight: 700; color: #1a56db; letter-spacing:1px; }
+        .invoice-title { font-size: 26px; font-weight: 700; color: #e11d48; letter-spacing:1px; }
         .invoice-number { font-size: 13px; font-weight: 700; color: #111; margin-top: 3px; }
         .invoice-date   { font-size: 10px; color: #666; }
 
@@ -54,8 +54,8 @@
             font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
-            color: #1a56db;
-            border-bottom: 1px solid #dbeafe;
+            color: #e11d48;
+            border-bottom: 1px solid #fecdd3;
             padding-bottom: 4px;
             margin-bottom: 8px;
             letter-spacing: 0.5px;
@@ -67,8 +67,8 @@
 
         /* ===== REKENING BOX ===== */
         .rekening-box {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
+            background: #fff1f2;
+            border: 1px solid #fecdd3;
             border-radius: 6px;
             padding: 10px 14px;
             margin-bottom: 16px;
@@ -77,13 +77,13 @@
             font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
-            color: #1a56db;
+            color: #e11d48;
             margin-bottom: 6px;
         }
         .rekening-box .rek-row { display: table; width: 100%; }
         .rekening-box .rek-cell { display: table-cell; width: 33%; }
         .rekening-box .rek-label { font-size: 9px; color: #666; }
-        .rekening-box .rek-value { font-size: 12px; font-weight: 700; color: #1e3a5f; }
+        .rekening-box .rek-value { font-size: 12px; font-weight: 700; color: #881337; }
 
         /* ===== TEMPO BOX ===== */
         .tempo-box {
@@ -98,7 +98,7 @@
 
         /* ===== TABEL ITEM ===== */
         .items-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
-        .items-table thead tr { background: #1a56db; color: #fff; }
+        .items-table thead tr { background: #e11d48; color: #fff; }
         .items-table thead th { padding: 7px 10px; text-align: left; font-size: 11px; }
         .items-table thead th.text-right { text-align: right; }
         .items-table thead th.text-center { text-align: center; }
@@ -129,7 +129,7 @@
         }
         .footer-left  { display: table-cell; width: 60%; font-size: 10px; color: #666; vertical-align: bottom; }
         .footer-right { display: table-cell; width: 40%; text-align: center; vertical-align: bottom; }
-        .ttd-box { border-top: 1px solid #333; margin-top: 50px; padding-top: 4px; font-size: 10px; color: #444; }
+        .ttd-box { border-top: 1px solid #333; margin-top: 50px; padding-top: 4px; font-size: 10px; color: #444; font-weight: bold;}
         .page-wrap { padding: 28px 32px; }
     </style>
 </head>
@@ -139,7 +139,13 @@
     {{-- HEADER --}}
     <div class="header">
         <div class="header-left">
-            <img src="{{ public_path('images/logo.png') }}" class="logo" alt="Logo">
+            <!-- Gambar Logo MJA dipanggil dari folder public/images -->
+            @php
+                $imagePath = storage_path('app/public/gambar/logo-mja.png');
+                $imageData = base64_encode(file_get_contents($imagePath));
+                $src = 'data:image/jpeg;base64,' . $imageData;
+            @endphp
+            <img src="{{ $src }}" class="logo" alt="Logo MJA">
             <div class="company-name">TechStore</div>
             <div class="company-sub">Solusi Teknologi & Networking Terpercaya</div>
         </div>
@@ -149,7 +155,7 @@
             <div class="invoice-date">Tanggal: {{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d F Y') }}</div>
             <div>
                 @if($invoice->status === 'lunas')
-                    <span class="status-badge status-lunas">✓ LUNAS</span>
+                    <span class="status-badge status-lunas">LUNAS</span>
                 @else
                     <span class="status-badge status-pending">BELUM LUNAS</span>
                 @endif
@@ -258,7 +264,7 @@
 
     {{-- REKENING TUJUAN --}}
     <div class="rekening-box">
-        <h4>📋 Rekening Tujuan Pembayaran</h4>
+        <h4>Rekening Tujuan Pembayaran</h4>
         <div class="rek-row">
             <div class="rek-cell">
                 <div class="rek-label">Bank</div>
@@ -284,12 +290,12 @@
     {{-- FOOTER --}}
     <div class="footer">
         <div class="footer-left">
-            <div>Dokumen ini diterbitkan secara resmi oleh <strong>TechStore</strong>.</div>
+            <div>Dokumen ini diterbitkan secara resmi oleh <strong>Makmur Jaya Abadi</strong>.</div>
             <div style="margin-top:3px">Terima kasih atas kepercayaan Anda.</div>
         </div>
         <div class="footer-right">
             <div style="font-size:10px;color:#666;margin-bottom:4px">Hormat kami,</div>
-            <div class="ttd-box">TechStore</div>
+            <div class="ttd-box">Makmur Jaya Abadi</div>
         </div>
     </div>
 

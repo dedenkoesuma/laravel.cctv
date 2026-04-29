@@ -63,7 +63,7 @@
         </div>
 
         <div class="rek-box">
-            <h4>📋 Rekening Tujuan Pembayaran</h4>
+            <h4>Rekening Tujuan Pembayaran</h4>
             <div class="rek-val">{{ $invoice->nama_bank }}</div>
             <div class="rek-val">{{ $invoice->no_rekening }}</div>
             <div style="font-size:12px;color:#374151;margin-top:3px">a.n. {{ $invoice->nama_rekening }}</div>

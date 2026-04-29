@@ -462,6 +462,7 @@
         </div>
     </div>
 </div>
+
 <script>
 let debounceTimer, debounceInvTimer;
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
@@ -584,28 +585,9 @@ async function lihatDetailInv(id) {
 
     const isLunas = inv.status === 'lunas';
 
-    // Sembunyikan/tampilkan tombol lunas
-    document.getElementById('btnLunasInv').style.display = isLunas ? 'none' : 'inline-flex';
-    
-    // ===== PERBAIKAN: GENERATE URL ROUTE LARAVEL UNTUK DOWNLOAD =====
-    const btnDownload = document.getElementById('btnDownloadInv');
-    if (so && so.id) {
-        try {
-            // Gunakan helper route Laravel agar path url 100% presisi
-            const urlTemplate = "{{ route('admin.sales-orders.invoice-download', ':id') }}";
-            const finalUrl = urlTemplate.replace(':id', so.id);
-            btnDownload.setAttribute('data-url', finalUrl);
-            btnDownload.style.display = 'inline-block';
-        } catch(err) {
-            // Fallback (jika misal nama route-nya sedikit berbeda)
-            btnDownload.setAttribute('data-url', `/admin/gudang/sales-orders/${so.id}/invoice/download`);
-            btnDownload.style.display = 'inline-block';
-        }
-    } else {
-        btnDownload.removeAttribute('data-url');
-        btnDownload.style.display = 'none';
-    }
-    // ================================================================
+    // Sembunyikan/tampilkan tombol
+    document.getElementById('btnLunasInv').style.display  = isLunas ? 'none' : 'inline-flex';
+    document.getElementById('btnDownloadInv').href = `/admin/gudang/sales-orders/${so?.id}/invoice/download`;
 
     // Items dengan SN
     const itemRows = items.map(item => {
@@ -627,7 +609,6 @@ async function lihatDetailInv(id) {
         </tr>`;
     }).join('');
 
-    // Menambahkan Nomor Telpon di info invoice
     document.getElementById('detailInvBody').innerHTML = `
         <div class="row g-3 mb-3">
             <div class="col-md-6">
@@ -637,7 +618,6 @@ async function lihatDetailInv(id) {
                         <tr><td class="text-muted">No. Invoice</td><td><strong style="font-family:monospace">${inv.invoice_number||inv.kode_transaksi}</strong></td></tr>
                         <tr><td class="text-muted">No. SO</td><td><span style="font-family:monospace">${inv.so_number||'—'}</span></td></tr>
                         <tr><td class="text-muted">Customer</td><td><strong>${inv.pihak_terkait||'—'}</strong></td></tr>
-                        <tr><td class="text-muted">No. Telp</td><td>${so?.customer_phone || '—'}</td></tr>
                         <tr><td class="text-muted">Tgl Invoice</td><td>${formatDate(inv.invoice_date||inv.tanggal)}</td></tr>
                         <tr><td class="text-muted">Tipe Bayar</td><td>${inv.tipe_bayar==='tempo'?`⏱ Tempo ${inv.tempo_hari} hari`:'💵 Cash'}</td></tr>
                         ${inv.jatuh_tempo?`<tr><td class="text-muted">Jatuh Tempo</td><td><strong>${formatDate(inv.jatuh_tempo)}</strong></td></tr>`:''}
@@ -685,15 +665,9 @@ function tandaiLunasInv() {
     }, 400);
 }
 
-// ===== PERBAIKAN: EKSEKUSI DOWNLOAD PDF (Direct DL) =====
 function downloadInv() {
-    const url = document.getElementById('btnDownloadInv').getAttribute('data-url');
-    if (url) {
-        // location.href memicu download tanpa membuat tab baru yang kosong
-        window.location.href = url;
-    } else {
-        showToast('❌ URL Download tidak tersedia', 'danger');
-    }
+    const href = document.getElementById('btnDownloadInv').href;
+    window.open(href, '_blank');
 }
 
 // ===== CETAK SN =====
