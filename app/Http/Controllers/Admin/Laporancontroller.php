@@ -349,7 +349,7 @@ class LaporanController extends Controller
             $data = ['rows' => $rows, 'tahun' => $tahun];
         }
 
-        return view('admin.finance.laporan-pdf', array_merge($data, [
+        return view('admin.finance.laporan', array_merge($data, [
             'jenis'   => $jenis,
             'periode' => $periode,
             'bulan'   => $bulan,

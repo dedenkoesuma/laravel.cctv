@@ -464,67 +464,80 @@ table.items-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
         @endif
     </div>
 
-    {{-- ===== CTA ===== --}}
-    @if(in_array($quo->status, ['sent', 'draft']))
-    <div class="cta-section" id="ctaSection">
-        <div class="cta-title">Konfirmasi Penawaran Ini</div>
-        <div class="cta-sub">Silakan pilih tindakan di bawah. Keputusan Anda akan langsung diterima tim kami.</div>
-        <div class="cta-grid">
-            <button class="cta-btn btn-approve" onclick="openModal('approved')">
-                <span class="ico">✅</span>
-                <span>Setuju &<br>Terima Penawaran</span>
-            </button>
-            <button class="cta-btn btn-revise" onclick="openModal('revised')">
-                <span class="ico">🔄</span>
-                <span>Minta<br>Revisi Harga</span>
-            </button>
-            <button class="cta-btn btn-reject" onclick="openModal('rejected')">
-                <span class="ico">❌</span>
-                <span>Tolak<br>Penawaran</span>
-            </button>
+    {{-- ===== CTA ===== (DI SINI PERUBAHANNYA DITERAPKAN) --}}
+    @if(request('preview'))
+        
+        <div class="cta-section" style="text-align: center; background: #e0f2fe; border: 1.5px solid #bae6fd;">
+            <div style="font-size: 1.5rem; margin-bottom: 8px;">👁️</div>
+            <div style="font-size: 1.05rem; font-weight: 800; color: #0369a1; margin-bottom: 4px;">Mode Pratinjau (Preview)</div>
+            <div style="font-size: .85rem; color: #0284c7;">Ini adalah tampilan yang akan dilihat oleh customer. Tombol aksi disembunyikan.</div>
         </div>
-        <textarea class="notes-input" id="customerNotes" placeholder="Tulis catatan atau alasan di sini (opsional)..."></textarea>
-    </div>
 
-    @elseif($quo->status === 'approved')
-    <div class="card responded-card">
-        <div class="responded-icon">🎉</div>
-        <div class="responded-title" style="color:#065f46;">Penawaran Diterima!</div>
-        <div class="responded-sub">
-            Terima kasih sudah menyetujui penawaran ini.<br>
-            Tim kami akan segera menghubungi Anda untuk langkah selanjutnya.
-            @if($quo->customer_notes)
-            <div class="responded-note" style="background:#f0fdf4;color:#065f46;">
-                Catatan Anda: <em>{{ $quo->customer_notes }}</em>
+    @else
+
+        @if(in_array($quo->status, ['sent', 'draft']))
+        <div class="cta-section" id="ctaSection">
+            <div class="cta-title">Konfirmasi Penawaran Ini</div>
+            <div class="cta-sub">Silakan pilih tindakan di bawah. Keputusan Anda akan langsung diterima tim kami.</div>
+            <div class="cta-grid">
+                <button class="cta-btn btn-approve" onclick="openModal('approved')">
+                    <span class="ico">✅</span>
+                    <span>Setuju &<br>Terima Penawaran</span>
+                </button>
+                <button class="cta-btn btn-revise" onclick="openModal('revised')">
+                    <span class="ico">🔄</span>
+                    <span>Minta<br>Revisi Harga</span>
+                </button>
+                <button class="cta-btn btn-reject" onclick="openModal('rejected')">
+                    <span class="ico">❌</span>
+                    <span>Tolak<br>Penawaran</span>
+                </button>
             </div>
-            @endif
+            <textarea class="notes-input" id="customerNotes" placeholder="Tulis catatan atau alasan di sini (opsional)..."></textarea>
         </div>
-    </div>
 
-    @elseif($quo->status === 'rejected')
-    <div class="card responded-card">
-        <div class="responded-icon">📩</div>
-        <div class="responded-title" style="color:#dc2626;">Penawaran Ditolak</div>
-        <div class="responded-sub">
-            Terima kasih atas konfirmasi Anda.<br>
-            Jika ada yang bisa kami bantu, jangan ragu untuk menghubungi kami.
-        </div>
-    </div>
-
-    @elseif($quo->status === 'revised')
-    <div class="card responded-card">
-        <div class="responded-icon">✉️</div>
-        <div class="responded-title" style="color:#92400e;">Permintaan Revisi Terkirim</div>
-        <div class="responded-sub">
-            Tim kami akan meninjau permintaan revisi Anda dan menghubungi Anda segera.
-            @if($quo->customer_notes)
-            <div class="responded-note" style="background:#fefce8;color:#92400e;">
-                Catatan Anda: <em>{{ $quo->customer_notes }}</em>
+        @elseif($quo->status === 'approved')
+        <div class="card responded-card">
+            <div class="responded-icon">🎉</div>
+            <div class="responded-title" style="color:#065f46;">Penawaran Diterima!</div>
+            <div class="responded-sub">
+                Terima kasih sudah menyetujui penawaran ini.<br>
+                Tim kami akan segera menghubungi Anda untuk langkah selanjutnya.
+                @if($quo->customer_notes)
+                <div class="responded-note" style="background:#f0fdf4;color:#065f46;">
+                    Catatan Anda: <em>{{ $quo->customer_notes }}</em>
+                </div>
+                @endif
             </div>
-            @endif
         </div>
-    </div>
+
+        @elseif($quo->status === 'rejected')
+        <div class="card responded-card">
+            <div class="responded-icon">📩</div>
+            <div class="responded-title" style="color:#dc2626;">Penawaran Ditolak</div>
+            <div class="responded-sub">
+                Terima kasih atas konfirmasi Anda.<br>
+                Jika ada yang bisa kami bantu, jangan ragu untuk menghubungi kami.
+            </div>
+        </div>
+
+        @elseif($quo->status === 'revised')
+        <div class="card responded-card">
+            <div class="responded-icon">✉️</div>
+            <div class="responded-title" style="color:#92400e;">Permintaan Revisi Terkirim</div>
+            <div class="responded-sub">
+                Tim kami akan meninjau permintaan revisi Anda dan menghubungi Anda segera.
+                @if($quo->customer_notes)
+                <div class="responded-note" style="background:#fefce8;color:#92400e;">
+                    Catatan Anda: <em>{{ $quo->customer_notes }}</em>
+                </div>
+                @endif
+            </div>
+        </div>
+        @endif
+
     @endif
+    {{-- ===== AKHIR CTA ===== --}}
 
     <div class="quo-footer">
         Dokumen ini dibuat secara digital oleh sistem penawaran kami.<br>

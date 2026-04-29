@@ -47,7 +47,7 @@
                 @if($salesOrder->status === 'approved')
                     @php
                         $invoice = DB::table('keuangan_transaksi')
-                            ->where('so_number', $salesOrder->so_number)
+                            ->where('no_order', $salesOrder->so_number) // FIXED: diganti jadi no_order
                             ->first();
                     @endphp
                     @if(!$invoice)
@@ -252,7 +252,7 @@
     {{-- Info Invoice (jika sudah dibuat) --}}
     @php
         $invoiceInfo = DB::table('keuangan_transaksi')
-            ->where('so_number', $salesOrder->so_number)
+            ->where('no_order', $salesOrder->so_number) // FIXED: diganti jadi no_order
             ->first();
     @endphp
     @if($invoiceInfo)

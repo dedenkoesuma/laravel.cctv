@@ -36,6 +36,20 @@ input:checked+.sl::before{transform:translateX(16px);}
 .btn-save{background:linear-gradient(135deg,#1e3a5f,#2d6fba);color:white;border:none;padding:12px 24px;border-radius:10px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:inherit;}
 .btn-save:hover{opacity:.9;}
 .btn-batal{background:white;color:#6b7280;border:1px solid #d1d5db;padding:12px 18px;border-radius:10px;font-size:.9rem;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-block;}
+
+/* ===== AUTOCOMPLETE STYLES ===== */
+.ac-wrapper { position: relative; }
+.ac-list {
+    position: absolute; top: 100%; left: 0; right: 0; z-index: 999;
+    background: white; border: 1px solid #d1d5db; border-radius: 6px;
+    max-height: 200px; overflow-y: auto; box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    display: none; margin: 4px 0 0 0; padding: 0; list-style: none;
+}
+.ac-item {
+    padding: 8px 12px; cursor: pointer; font-size: .8rem; border-bottom: 1px solid #f3f4f6; color: #374151;
+}
+.ac-item:last-child { border-bottom: none; }
+.ac-item:hover { background: #f0fdf4; color: #065f46; font-weight: 600; }
 </style>
 
 <div class="container py-4">
@@ -76,7 +90,8 @@ input:checked+.sl::before{transform:translateX(16px);}
             <div class="card">
                 <div class="card-hdr green">🛒 Item Penawaran</div>
                 <div class="card-bd">
-                    <div style="overflow-x:auto;">
+                    {{-- Tambahkan padding-bottom agar dropdown autocomplete tidak terpotong --}}
+                    <div style="overflow-x:visible; padding-bottom: 60px;"> 
                         <table class="it">
                             <thead><tr>
                                 <th style="width:28%">Nama Item</th>
@@ -90,8 +105,8 @@ input:checked+.sl::before{transform:translateX(16px);}
                             </tr></thead>
                             <tbody id="itemsBody"></tbody>
                         </table>
+                        <button class="btn-add" onclick="tambahItem()">+ Tambah Item</button>
                     </div>
-                    <button class="btn-add" onclick="tambahItem()">+ Tambah Item</button>
                 </div>
             </div>
 
@@ -168,21 +183,28 @@ document.addEventListener('DOMContentLoaded', () => {
     hitung();
 });
 
+// Menutup dropdown autocomplete saat mengklik di luar area
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.ac-wrapper')) {
+        document.querySelectorAll('.ac-list').forEach(el => el.style.display = 'none');
+    }
+});
+
 function tambahItem(d = null) {
     const id  = ++rowCount;
     const tr  = document.createElement('tr');
     tr.id     = 'r' + id;
-    const opts = PRODUCTS.map(p =>
-        `<option value="${p.nama_produk}" data-h="${p.harga_jual||0}"
-            ${d && d.nama_item===p.nama_produk?'selected':''}>${p.nama_produk}</option>`
-    ).join('');
+    
     const sats = ['unit','pcs','set','meter','roll','box','buah'];
+    
+    // Mengganti Select dengan Input Text + Autocomplete Dropdown
     tr.innerHTML = `
         <td>
-            <select onchange="pilihProduk(${id},this)" style="width:100%;margin-bottom:3px;">
-                <option value="">-- Dari Produk --</option>${opts}
-            </select>
-            <input type="text" id="n${id}" placeholder="Nama item..." value="${d?d.nama_item:''}">
+            <div class="ac-wrapper">
+                <input type="text" id="n${id}" placeholder="Ketik nama item..." value="${d?d.nama_item:''}" 
+                       oninput="cariProduk(${id}, this)" onfocus="cariProduk(${id}, this)" autocomplete="off">
+                <ul id="acList${id}" class="ac-list"></ul>
+            </div>
         </td>
         <td><input type="text" id="d${id}" placeholder="Opsional" value="${d?d.deskripsi||'':''}"></td>
         <td><input type="number" id="q${id}" value="${d?d.qty:1}" min="1" oninput="hr(${id})"></td>
@@ -195,13 +217,41 @@ function tambahItem(d = null) {
     hr(id);
 }
 
-function pilihProduk(id, sel) {
-    const opt = sel.options[sel.selectedIndex];
-    if (opt.value) {
-        document.getElementById('n'+id).value = opt.value;
-        document.getElementById('h'+id).value = opt.dataset.h || 0;
-        hr(id);
+// Fungsi live search produk
+function cariProduk(id, input) {
+    const list = document.getElementById('acList' + id);
+    const val  = input.value.toLowerCase();
+    list.innerHTML = '';
+
+    // Sembunyikan semua list lain
+    document.querySelectorAll('.ac-list').forEach(el => el.style.display = 'none');
+
+    // Filter produk yang namanya mengandung kata kunci
+    const filtered = PRODUCTS.filter(p => p.nama_produk.toLowerCase().includes(val));
+
+    // Jika tidak ada hasil (atau data produk kosong)
+    if (filtered.length === 0) {
+        list.style.display = 'none';
+        return;
     }
+
+    // Tampilkan hasil filter
+    filtered.forEach(p => {
+        const li = document.createElement('li');
+        li.className = 'ac-item';
+        li.textContent = p.nama_produk;
+        
+        // Ketika produk diklik
+        li.onclick = function() {
+            document.getElementById('n' + id).value = p.nama_produk;
+            document.getElementById('h' + id).value = p.harga_jual || 0;
+            list.style.display = 'none';
+            hr(id); // Hitung subtotal ulang
+        };
+        list.appendChild(li);
+    });
+
+    list.style.display = 'block';
 }
 
 function hr(id) {

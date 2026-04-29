@@ -205,7 +205,7 @@ table.it{width:100%;border-collapse:collapse;font-size:.82rem;}
                     <div class="link-box">
                         <span class="link-url" id="linkUrl">{{ $quo->public_url }}</span>
                         <button class="btn-copy" onclick="salin()">📋 Salin Link</button>
-                        <a href="{{ $quo->public_url }}" target="_blank" class="btn-copy" style="background:#2d6fba;">👁 Preview</a>
+                        <a href="{{ $quo->public_url }}?preview=true" target="_blank" class="btn-copy" style="background:#2d6fba;">👁 Preview</a>
                     </div>
 
                     {{-- SO Info --}}
@@ -379,7 +379,13 @@ async function konversiSO() {
     });
     const data = await res.json();
     showToast((data.success ? '✅ ' : '❌ ') + data.message, data.success ? 'success' : 'danger');
-    if (data.success) setTimeout(() => location.reload(), 1500);
+    
+    // Jika berhasil, redirect ke halaman sales orders setelah pesan sukses (toast) muncul
+    if (data.success) {
+        setTimeout(() => {
+            window.location.href = '/admin/gudang/sales-orders';
+        }, 1500);
+    }
 }
 
 async function hapus() {
