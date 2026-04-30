@@ -174,6 +174,16 @@ function renderTable(list){
         </td>
     </tr>`).join('');
 }
+function exportExcel() {
+    const search = document.getElementById('searchInput').value;
+    const status = document.getElementById('filterStatus').value;
+    const bulan = getBulan();
+    const tahun = getTahun();
+    
+    // Arahkan browser ke route export dengan query parameter
+    const url = `/admin/purchase-orders/export?bulan=${bulan}&tahun=${tahun}&search=${encodeURIComponent(search)}&status=${status}`;
+    window.open(url, '_blank');
+}
 
 async function lihatDetail(id){
     document.getElementById('detailBody').innerHTML=`<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>`;

@@ -335,7 +335,57 @@ class PurchaseOrderController extends Controller
         ]);
     }
     public function history()
-{
-    return view('admin.purchase-orders.history');
-}
+    {
+        return view('admin.purchase-orders.history');
+    }
+    // ===== EXPORT KE CSV =====
+    public function export(Request $request)
+    {
+        $query = DB::table('purchase_orders');
+
+        // Filter sesuai yang ada di halaman depan
+        if ($request->search)  $query->where(function($q) use ($request) {
+            $q->where('po_number', 'like', '%'.$request->search.'%')
+              ->orWhere('supplier_name', 'like', '%'.$request->search.'%');
+        });
+        if ($request->status)  $query->where('status', $request->status);
+        if ($request->bulan)   $query->whereMonth('po_date', $request->bulan);
+        if ($request->tahun)   $query->whereYear('po_date', $request->tahun);
+
+        $list = $query->orderByDesc('id')->get();
+
+        $fileName = 'Export_PO_' . date('Y-m-d_H-i-s') . '.csv';
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $columns = ['No PO', 'Tanggal', 'Supplier', 'Status', 'Subtotal', 'PPN', 'Diskon', 'Ongkir', 'Total'];
+
+        $callback = function() use($list, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($list as $po) {
+                fputcsv($file, [
+                    $po->po_number,
+                    $po->po_date,
+                    $po->supplier_name,
+                    strtoupper($po->status),
+                    $po->subtotal,
+                    $po->ppn_amount,
+                    $po->discount,
+                    $po->shipping_cost,
+                    $po->total_amount
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
 }
