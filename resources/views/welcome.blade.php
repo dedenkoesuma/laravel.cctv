@@ -276,7 +276,6 @@
     width: 100%;
     height: 100%;
     object-fit: cover; 
-    /* Hilangkan background putih yang bocor */
     mix-blend-mode: multiply;
 }
 
@@ -347,12 +346,14 @@
 
 .camera-image {
     background: #f8f9fa;
-    padding: 2rem;
+    padding: 1.5rem;
     text-align: center;
-    min-height: 220px;
+    min-height: 240px;
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Tambahan overflow hidden agar gambar yang di-zoom besar (seperti Cruiser) tidak keluar dari kotak abu-abu */
+    overflow: hidden; 
 }
 
 .camera-content {
@@ -928,7 +929,8 @@ $brands = [
                     'desc' => '3MP 2K Smart Pan & Tilt Indoor WiFi Camera dengan resolusi tajam dan pelacakan pintar.', 
                     'brand' => 'EZVIZ', 
                     'image' => 'storage/wifi_cameras/v6LL8HisEC46kQvOxfigAV1CAwkhNPF56C2In0fL.png', 
-                    'slug' => 'ezviz-c6n-3mp'
+                    'slug' => 'ezviz-c6n-3mp',
+                    'img_style' => 'transform: scale(1.1);'
                 ],
                 [
                     'name' => 'EZVIZ H8c 2MP', 
@@ -936,7 +938,8 @@ $brands = [
                     'desc' => '2MP 1080P Smart Pan & Tilt Outdoor Camera dengan fitur perlindungan aktif dan night vision.', 
                     'brand' => 'EZVIZ', 
                     'image' => 'storage/wifi_cameras/rxaGgP1uLpfZtwyugs1AflJCCdbmmiLlLDPs64rK.png', 
-                    'slug' => 'ezviz-h8c-2mp'
+                    'slug' => 'ezviz-h8c-2mp',
+                    'img_style' => 'transform: scale(1.1);'
                 ],
                 [
                     'name' => 'IMOU Ranger A1 3MP', 
@@ -944,7 +947,9 @@ $brands = [
                     'desc' => '3MP 2K Smart WiFi Pan & Tilt Indoor Camera dengan deteksi manusia dan mode privasi.', 
                     'brand' => 'IMOU', 
                     'image' => 'storage/wifi_cameras/xTI8ykz6668DaEkWUUIydb5k80RCjLig9BYgT1GH.jpg', 
-                    'slug' => 'imou-ranger-a1-3mp'
+                    'slug' => 'imou-ranger-a1-3mp',
+                    // Memotong garis sisi pada gambar JPG bawaan 
+                    'img_style' => 'transform: scale(1.15); clip-path: inset(2% 2% 8% 2%);'
                 ],
                 [
                     'name' => 'IMOU Cruiser SC 2MP', 
@@ -952,7 +957,9 @@ $brands = [
                     'desc' => '2MP 1080P Smart Home Pan & Tilt Outdoor WiFi Camera yang tahan cuaca ekstrem.', 
                     'brand' => 'IMOU', 
                     'image' => 'storage/wifi_cameras/OvQajIXCbMJ0G8Wtm0bXPpNd8ooxckx6so1xOOI6.webp', 
-                    'slug' => 'imou-cruiser-sc-2mp'
+                    'slug' => 'imou-cruiser-sc-2mp',
+                    // Zoom lebih besar khusus untuk Cruiser
+                    'img_style' => 'transform: scale(2.2); transform-origin: center;'
                 ],
             ];
             @endphp
@@ -961,10 +968,10 @@ $brands = [
             <div class="col-lg-3 col-md-6">
                 <div class="wifi-camera-card">
                     <div class="camera-image">
-                        <!-- MENAMBAHKAN mix-blend-mode: multiply; AGAR KOTAK PUTIH MENGHILANG -->
+                        <!-- Menerapkan styling khusus per-item -->
                         <img src="{{ asset($camera['image']) }}" 
                              alt="{{ $camera['name'] }}" 
-                             class="img-fluid" style="max-height: 180px; object-fit: contain; mix-blend-mode: multiply;">
+                             class="img-fluid" style="max-height: 220px; object-fit: contain; mix-blend-mode: multiply; {{ $camera['img_style'] }}">
                     </div>
                     
                     <div class="camera-content">
