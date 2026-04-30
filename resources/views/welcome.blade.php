@@ -352,7 +352,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    /* Tambahan overflow hidden agar gambar yang di-zoom besar (seperti Cruiser) tidak keluar dari kotak abu-abu */
     overflow: hidden; 
 }
 
@@ -929,7 +928,7 @@ $brands = [
                     'desc' => '3MP 2K Smart Pan & Tilt Indoor WiFi Camera dengan resolusi tajam dan pelacakan pintar.', 
                     'brand' => 'EZVIZ', 
                     'image' => 'storage/wifi_cameras/v6LL8HisEC46kQvOxfigAV1CAwkhNPF56C2In0fL.png', 
-                    'slug' => 'ezviz-c6n-3mp',
+                    'slug' => 'c6n-3mp',
                     'img_style' => 'transform: scale(1.1);'
                 ],
                 [
@@ -938,7 +937,7 @@ $brands = [
                     'desc' => '2MP 1080P Smart Pan & Tilt Outdoor Camera dengan fitur perlindungan aktif dan night vision.', 
                     'brand' => 'EZVIZ', 
                     'image' => 'storage/wifi_cameras/rxaGgP1uLpfZtwyugs1AflJCCdbmmiLlLDPs64rK.png', 
-                    'slug' => 'ezviz-h8c-2mp',
+                    'slug' => 'h8c-2mp',
                     'img_style' => 'transform: scale(1.1);'
                 ],
                 [
@@ -947,8 +946,7 @@ $brands = [
                     'desc' => '3MP 2K Smart WiFi Pan & Tilt Indoor Camera dengan deteksi manusia dan mode privasi.', 
                     'brand' => 'IMOU', 
                     'image' => 'storage/wifi_cameras/xTI8ykz6668DaEkWUUIydb5k80RCjLig9BYgT1GH.jpg', 
-                    'slug' => 'imou-ranger-a1-3mp',
-                    // Memotong garis sisi pada gambar JPG bawaan 
+                    'slug' => 'ranger-a1-3mp-1777277541', // ⭐ SUDAH DIPERBAIKI
                     'img_style' => 'transform: scale(1.15); clip-path: inset(2% 2% 8% 2%);'
                 ],
                 [
@@ -957,8 +955,7 @@ $brands = [
                     'desc' => '2MP 1080P Smart Home Pan & Tilt Outdoor WiFi Camera yang tahan cuaca ekstrem.', 
                     'brand' => 'IMOU', 
                     'image' => 'storage/wifi_cameras/OvQajIXCbMJ0G8Wtm0bXPpNd8ooxckx6so1xOOI6.webp', 
-                    'slug' => 'imou-cruiser-sc-2mp',
-                    // Zoom lebih besar khusus untuk Cruiser
+                    'slug' => 'cruiser-sc-2mp',
                     'img_style' => 'transform: scale(2.2); transform-origin: center;'
                 ],
             ];
