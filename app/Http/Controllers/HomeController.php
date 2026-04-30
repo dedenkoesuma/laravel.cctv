@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\WiFiCamera; // Wajib import model ini untuk narik data dari DB
 
 class HomeController extends Controller
 {
@@ -19,18 +18,53 @@ class HomeController extends Controller
             ['name' => 'HIKVISION', 'slug' => 'hikvision', 'image' => 'hikvision.png'],
             ['name' => 'Dahua', 'slug' => 'dahua', 'image' => 'dahua.png'],
             ['name' => 'HiLook', 'slug' => 'hilook', 'image' => 'hilook.png'],
-            ['name' => 'EZVIZ', 'slug' => 'ezviz', 'image' => 'ezviz.png'], // EZVIZ ditambahkan
+            ['name' => 'EZVIZ', 'slug' => 'ezviz', 'image' => 'ezviz.png'],
             ['name' => 'UNV', 'slug' => 'unv', 'image' => 'unv.png'],
             ['name' => 'RUIJIE', 'slug' => 'ruijie', 'image' => 'ruijie.png'],
             ['name' => 'HIVIEW', 'slug' => 'hiview', 'image' => 'hiview.png'],
         ];
 
-        // 2. DATA WIFI CAMERAS (💯 FULL DINAMIS DARI DATABASE)
-        // Mengambil 4 kamera wifi terbaru yang statusnya aktif (is_active = 1)
-        // Jika tidak ada kolom is_active di DB kamu, hapus bagian ->where('is_active', 1)
-        $wifiCameras = WiFiCamera::latest()->take(4)->get();
+        // 2. DATA WIFI CAMERAS (Dikembalikan ke 4 produk spesifik yang tadi)
+        $wifiCameras = [
+            [
+                'name' => 'EZVIZ C6N 3MP', 
+                'price' => '450000', 
+                'desc' => '3MP 2K Smart Pan & Tilt Indoor WiFi Camera dengan resolusi tajam dan pelacakan pintar.', 
+                'brand' => 'EZVIZ', 
+                'image' => 'storage/wifi_cameras/v6LL8HisEC46kQvOxfigAV1CAwkhNPF56C2In0fL.png', 
+                'slug' => 'c6n-3mp', // Jangan lupa sesuaikan kalau di URL aslinya ada angkanya
+                'img_style' => 'transform: scale(1.1);'
+            ],
+            [
+                'name' => 'EZVIZ H8c 2MP', 
+                'price' => '650000', 
+                'desc' => '2MP 1080P Smart Pan & Tilt Outdoor Camera dengan fitur perlindungan aktif dan night vision.', 
+                'brand' => 'EZVIZ', 
+                'image' => 'storage/wifi_cameras/rxaGgP1uLpfZtwyugs1AflJCCdbmmiLlLDPs64rK.png', 
+                'slug' => 'h8c-2mp', // Jangan lupa sesuaikan kalau di URL aslinya ada angkanya
+                'img_style' => 'transform: scale(1.1);'
+            ],
+            [
+                'name' => 'IMOU Ranger A1 3MP', 
+                'price' => '430000', 
+                'desc' => '3MP 2K Smart WiFi Pan & Tilt Indoor Camera dengan deteksi manusia dan mode privasi.', 
+                'brand' => 'IMOU', 
+                'image' => 'storage/wifi_cameras/xTI8ykz6668DaEkWUUIydb5k80RCjLig9BYgT1GH.jpg', 
+                'slug' => 'ranger-a1-3mp-1777277541', 
+                'img_style' => 'transform: scale(1.15); clip-path: inset(2% 2% 8% 2%);'
+            ],
+            [
+                'name' => 'IMOU Cruiser 2 3MP', 
+                'price' => '550000', 
+                'desc' => '3MP Smart Home Pan & Tilt Outdoor WiFi Camera yang tahan cuaca ekstrem.', 
+                'brand' => 'IMOU', 
+                'image' => 'storage/wifi_cameras/OvQajIXCbMJ0G8Wtm0bXPpNd8ooxckx6so1xOOI6.webp', 
+                'slug' => 'cruiser-2-3mp-1777283031', 
+                'img_style' => 'transform: scale(2.2); transform-origin: center;'
+            ],
+        ];
 
-        // 3. DATA PACKAGES (Sementara array, dipindah dari Blade agar rapi)
+        // 3. DATA PACKAGES
         $packages = [
             [
                 'channel' => '2',
@@ -70,7 +104,7 @@ class HomeController extends Controller
             ],
         ];
 
-        // 4. DATA ACCESS CONTROLS (Bisa diubah jadi dinamis nanti pakai DB::table('...')->get())
+        // 4. DATA ACCESS CONTROLS
         $accessControls = [
             ['id' => 1, 'name' => 'MB20', 'price' => '1032000', 'desc' => 'Time Attendance & Access Control', 'brand' => 'ZKTeco'],
             ['id' => 2, 'name' => 'DS-K1T343MX', 'price' => '1989000', 'desc' => 'Access Control', 'brand' => 'HIKVISION'],
@@ -85,7 +119,6 @@ class HomeController extends Controller
             ['icon' => '🏢', 'title' => 'Kantor', 'description' => 'Keberadaan CCTV membuat karyawan, pelanggan, dan pengunjung lebih berhati-hati dalam berperilaku dan membantu menjaga lingkungan kerja yang kondusif.'],
         ];
 
-        // Lempar semua data ke view
         return view('welcome', compact('brands', 'wifiCameras', 'packages', 'accessControls', 'services'));
     }
 }

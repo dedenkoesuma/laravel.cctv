@@ -172,7 +172,7 @@
     </div>
 </section>
 
-<!-- WiFi Camera Section (DINAMIS DARI DATABASE) -->
+<!-- WiFi Camera Section -->
 <section class="py-5">
     <div class="container">
         <div class="section-header">
@@ -184,52 +184,26 @@
         </div>
 
         <div class="row g-4">
-            {{-- Melakukan loop dari data database ($wifiCameras) --}}
-            @forelse($wifiCameras as $camera)
-                @php
-                    // Logika pintar CSS: Terapkan style otomatis berdasarkan nama kamera 
-                    $scale = 1.1; 
-                    $customCss = '';
-                    $nameLower = strtolower($camera->name);
-
-                    if (str_contains($nameLower, 'cruiser')) {
-                        $scale = 2.2; 
-                        $customCss = 'transform-origin: center;';
-                    } elseif (str_contains($nameLower, 'ranger')) {
-                        $scale = 1.15; 
-                        $customCss = 'clip-path: inset(2% 2% 8% 2%);';
-                    }
-                @endphp
-
-                <div class="col-lg-3 col-md-6">
-                    <div class="wifi-camera-card">
-                        <div class="camera-image">
-                            {{-- Memanggil main_image dari Database --}}
-                            <img src="{{ asset('storage/' . $camera->main_image) }}" 
-                                 alt="{{ $camera->name }}" 
-                                 class="img-fluid" 
-                                 style="max-height: 220px; object-fit: contain; mix-blend-mode: multiply; transform: scale({{ $scale }}); {{ $customCss }}">
-                        </div>
-                        
-                        <div class="camera-content">
-                            <h5 class="camera-name">{{ $camera->name }}</h5>
-                            <p class="camera-price">Rp. {{ number_format($camera->price, 0, ',', '.') }}</p>
-                            <p class="camera-description">{{ Str::limit(strip_tags($camera->description ?? ''), 80) }}</p>
-                        </div>
-                        
-                        <div class="camera-footer">
-                            <a href="{{ route('wifi-cam.detail', $camera->slug) }}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye me-1"></i>Lihat Detail
-                            </a>
-                            <span class="camera-brand">{{ $camera->brand }}</span>
-                        </div>
+            @foreach($wifiCameras as $camera)
+            <div class="col-lg-3 col-md-6">
+                <div class="wifi-camera-card">
+                    <div class="camera-image">
+                        <img src="{{ asset($camera['image']) }}" alt="{{ $camera['name'] }}" class="img-fluid" style="max-height: 220px; object-fit: contain; mix-blend-mode: multiply; {{ $camera['img_style'] ?? '' }}">
+                    </div>
+                    <div class="camera-content">
+                        <h5 class="camera-name">{{ $camera['name'] }}</h5>
+                        <p class="camera-price">Rp. {{ number_format((float)$camera['price'], 0, ',', '.') }}</p>
+                        <p class="camera-description">{{ $camera['desc'] }}</p>
+                    </div>
+                    <div class="camera-footer">
+                        <a href="{{ route('wifi-cam.detail', $camera['slug']) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye me-1"></i>Lihat Detail
+                        </a>
+                        <span class="camera-brand">{{ $camera['brand'] }}</span>
                     </div>
                 </div>
-            @empty
-                <div class="col-12 text-center text-muted py-4">
-                    <p>Belum ada produk WiFi Camera.</p>
-                </div>
-            @endforelse
+            </div>
+            @endforeach
         </div>
     </div>
 </section>
@@ -250,8 +224,7 @@
             <div class="col-lg-3 col-md-6">
                 <div class="access-card">
                     <div class="access-image">
-                        <img src="https://via.placeholder.com/200x200/f8f9fa/666?text={{ urlencode($device['name']) }}" 
-                             alt="{{ $device['name'] }}" class="img-fluid" style="mix-blend-mode: multiply;">
+                        <img src="https://via.placeholder.com/200x200/f8f9fa/666?text={{ urlencode($device['name']) }}" alt="{{ $device['name'] }}" class="img-fluid" style="mix-blend-mode: multiply;">
                     </div>
                     <div class="access-content">
                         <h5 class="access-name">{{ $device['name'] }}</h5>
