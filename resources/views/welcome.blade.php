@@ -276,7 +276,10 @@
     width: 100%;
     height: 100%;
     object-fit: cover; 
+    /* Hilangkan background putih yang bocor */
+    mix-blend-mode: multiply;
 }
+
 .package-price {
     text-align: center;
     padding: 0 1.5rem 1rem;
@@ -741,7 +744,7 @@ $brands = [
             <div class="brand-logo">
                 <img src="{{ asset('storage/image/brands/' . $brand['image']) }}"
                      alt="{{ $brand['name'] }}" 
-                     class="img-fluid">
+                     class="img-fluid" style="mix-blend-mode: multiply;">
             </div>
             <h5 class="brand-name">{{ $brand['name'] }}</h5>
             <span class="brand-link-text">Lihat Produk <i class="bi bi-arrow-right"></i></span>
@@ -861,7 +864,7 @@ $brands = [
                         <div class="package-image">
                             <img src="{{ $package['image'] }}" 
                                 alt="{{ $package['channel'] }} Channel Package" 
-                                class="img-fluid">
+                                class="img-fluid" style="mix-blend-mode: multiply;">
                         </div>
                         
                         <div class="package-price">
@@ -958,10 +961,10 @@ $brands = [
             <div class="col-lg-3 col-md-6">
                 <div class="wifi-camera-card">
                     <div class="camera-image">
-                        <!-- Menggunakan asset() untuk memanggil gambar dari folder public/storage -->
+                        <!-- MENAMBAHKAN mix-blend-mode: multiply; AGAR KOTAK PUTIH MENGHILANG -->
                         <img src="{{ asset($camera['image']) }}" 
                              alt="{{ $camera['name'] }}" 
-                             class="img-fluid" style="max-height: 180px; object-fit: contain;">
+                             class="img-fluid" style="max-height: 180px; object-fit: contain; mix-blend-mode: multiply;">
                     </div>
                     
                     <div class="camera-content">
@@ -1015,7 +1018,7 @@ $brands = [
                     <div class="access-image">
                         <img src="https://via.placeholder.com/200x200/f8f9fa/666?text={{ urlencode($device['name']) }}" 
                              alt="{{ $device['name'] }}" 
-                             class="img-fluid">
+                             class="img-fluid" style="mix-blend-mode: multiply;">
                     </div>
                     
                     <div class="access-content">
