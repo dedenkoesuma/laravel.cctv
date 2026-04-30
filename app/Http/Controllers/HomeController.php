@@ -32,7 +32,7 @@ class HomeController extends Controller
                 'desc' => '3MP 2K Smart Pan & Tilt Indoor WiFi Camera dengan resolusi tajam dan pelacakan pintar.', 
                 'brand' => 'EZVIZ', 
                 'image' => 'storage/wifi_cameras/v6LL8HisEC46kQvOxfigAV1CAwkhNPF56C2In0fL.png', 
-                'slug' => 'c6n-3mp', // Jangan lupa sesuaikan kalau di URL aslinya ada angkanya
+                'slug' => 'ezviz-c6n-3mp-1777015443', // Jangan lupa sesuaikan kalau di URL aslinya ada angkanya
                 'img_style' => 'transform: scale(1.1);'
             ],
             [
@@ -41,7 +41,7 @@ class HomeController extends Controller
                 'desc' => '2MP 1080P Smart Pan & Tilt Outdoor Camera dengan fitur perlindungan aktif dan night vision.', 
                 'brand' => 'EZVIZ', 
                 'image' => 'storage/wifi_cameras/rxaGgP1uLpfZtwyugs1AflJCCdbmmiLlLDPs64rK.png', 
-                'slug' => 'h8c-2mp', // Jangan lupa sesuaikan kalau di URL aslinya ada angkanya
+                'slug' => 'h8c-2mp-1777210553', // Jangan lupa sesuaikan kalau di URL aslinya ada angkanya
                 'img_style' => 'transform: scale(1.1);'
             ],
             [
@@ -59,7 +59,7 @@ class HomeController extends Controller
                 'desc' => '3MP Smart Home Pan & Tilt Outdoor WiFi Camera yang tahan cuaca ekstrem.', 
                 'brand' => 'IMOU', 
                 'image' => 'storage/wifi_cameras/OvQajIXCbMJ0G8Wtm0bXPpNd8ooxckx6so1xOOI6.webp', 
-                'slug' => 'cruiser-2-3mp-1777283031', 
+                'slug' => 'cruiser-2-3mp-1777283631', 
                 'img_style' => 'transform: scale(2.2); transform-origin: center;'
             ],
         ];
