@@ -156,12 +156,14 @@
                 <td></td>
             </tr>
             
-            {{-- Baris PPN Selalu Muncul --}}
+            {{-- Tampilkan PPN hanya jika ada / dicentang --}}
+            @if(isset($salesOrder->ppn_rate) && floatval($salesOrder->ppn_rate) > 0)
             <tr class="ppn-row">
-                <td colspan="5" style="text-align:right">PPN ({{ isset($salesOrder->ppn_rate) ? floatval($salesOrder->ppn_rate) : 0 }}%)</td>
+                <td colspan="5" style="text-align:right">PPN ({{ floatval($salesOrder->ppn_rate) }}%)</td>
                 <td>+ Rp {{ number_format($salesOrder->ppn_nominal ?? 0, 0, ',', '.') }}</td>
                 <td></td>
             </tr>
+            @endif
 
             <tr class="total-row">
                 <td colspan="5" style="text-align:right">TOTAL KESELURUHAN</td>

@@ -69,6 +69,13 @@
         .section-header h2 { font-size: 24px; color: #2d3748; font-weight: 700; display: flex; align-items: center; gap: 12px; }
         .loading { display: inline-block; width: 18px; height: 18px; border: 2px solid #f3f3f3; border-top: 2px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Fix for logout button overlapping content on small screens */
+        @media(max-width: 992px) {
+            .sidebar { transform: translateX(-100%); transition: 0.3s; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+        }
     </style>
 </head>
 <body>
@@ -96,14 +103,21 @@
         @if($canAccess('view_inventory'))
         <a href="/admin/gudang" class="menu-item"><i class="bi bi-box-seam"></i><span>Gudang</span></a>
         @endif
+
+        <a href="{{ route('admin.po.index') }}" class="menu-item"><i class="bi bi-cart-check"></i><span>Purchase Order</span></a>
         
         @if($canAccess('view_sales_documents'))
         <a href="/admin/gudang/sales-orders" class="menu-item"><i class="bi bi-file-earmark-check"></i><span>Sales Order</span></a>
         @endif
 
+        <a href="{{ route('admin.quotation.index') }}" class="menu-item"><i class="bi bi-file-text"></i><span>Quotation</span></a>
+
         @if($canAccess('view_bookkeeping'))
-        <a href="/admin/keuangan" class="menu-item"><i class="bi bi-wallet2"></i><span>Keuangan</span></a>
+        <a href="/admin/keuangan" class="menu-item"><i class="bi bi-wallet2"></i><span>Keuangan Boss</span></a>
         @endif
+
+        {{-- NEW: Finance Staff di Sidebar --}}
+        <a href="/admin/finance" class="menu-item"><i class="bi bi-receipt"></i><span>Finance Staff</span></a>
 
         <div class="menu-section-title">Products Management</div>
         @if($canAccess('view_ruijie'))
@@ -220,12 +234,26 @@
         </div>
         @endif
 
+        <div class="product-category-card" style="border-left: 4px solid #805ad5;">
+            <div class="category-header">
+                <div class="category-icon" style="background: linear-gradient(135deg, #9f7aea 0%, #6b46c1 100%);"><i class="bi bi-cart-check" style="color: white;"></i></div>
+                <div class="category-info">
+                    <h3>Purchase Order (PO)</h3>
+                    <p class="category-count">Kelola pembelian barang ke Supplier</p>
+                </div>
+            </div>
+            <div class="category-actions">
+                <a href="{{ route('admin.po.index') }}" class="btn btn-primary"><i class="bi bi-list-ul"></i><span>Daftar PO</span></a>
+                <a href="{{ route('admin.po.create') }}" class="btn btn-outline"><i class="bi bi-plus-circle"></i><span>Buat Baru</span></a>
+            </div>
+        </div>
+
         @if($canAccess('view_sales_documents'))
         <div class="product-category-card" style="border-left: 4px solid #f6ad55;">
             <div class="category-header">
                 <div class="category-icon" style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);"><i class="bi bi-file-earmark-check" style="color: white;"></i></div>
                 <div class="category-info">
-                    <h3>Sales Order</h3>
+                    <h3>Sales Order (SO)</h3>
                     <p class="category-count">Kelola pesanan dan pengiriman barang</p>
                 </div>
             </div>
@@ -236,12 +264,26 @@
         </div>
         @endif
 
+        <div class="product-category-card" style="border-left: 4px solid #3182ce;">
+            <div class="category-header">
+                <div class="category-icon" style="background: linear-gradient(135deg, #63b3ed 0%, #2b6cb0 100%);"><i class="bi bi-file-text" style="color: white;"></i></div>
+                <div class="category-info">
+                    <h3>Quotation (Penawaran)</h3>
+                    <p class="category-count">Buat penawaran harga untuk customer</p>
+                </div>
+            </div>
+            <div class="category-actions">
+                <a href="{{ route('admin.quotation.index') }}" class="btn btn-primary"><i class="bi bi-file-text"></i><span>Daftar Penawaran</span></a>
+                <a href="{{ route('admin.quotation.create') }}" class="btn btn-outline"><i class="bi bi-plus-circle"></i><span>Buat Baru</span></a>
+            </div>
+        </div>
+
         @if($canAccess('view_bookkeeping'))
         <div class="product-category-card" style="border-left: 4px solid #48bb78;">
             <div class="category-header">
                 <div class="category-icon" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);"><i class="bi bi-wallet2" style="color: white;"></i></div>
                 <div class="category-info">
-                    <h3>Keuangan</h3>
+                    <h3>Keuangan Boss</h3>
                     <p class="category-count">Kelola arus kas & laporan penjualan</p>
                 </div>
             </div>
@@ -250,6 +292,20 @@
             </div>
         </div>
         @endif
+
+        {{-- NEW MODULE: Finance Staff --}}
+        <div class="product-category-card" style="border-left: 4px solid #10b981;">
+            <div class="category-header">
+                <div class="category-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><i class="bi bi-receipt-cutoff" style="color: white;"></i></div>
+                <div class="category-info">
+                    <h3>Finance Staff</h3>
+                    <p class="category-count">Input Piutang, Pengeluaran & Lunas</p>
+                </div>
+            </div>
+            <div class="category-actions">
+                <a href="/admin/finance" class="btn btn-primary"><i class="bi bi-cash-coin"></i><span>Buka Finance Staff</span></a>
+            </div>
+        </div>
 
         @if($canAccess('view_ruijie'))
         <div class="product-category-card" style="border-left: 4px solid #4299e1;">
@@ -341,7 +397,7 @@ document.addEventListener('DOMContentLoaded', function() {
 async function loadAllStatistics() {
     let totalCount = 0;
     
-    // API GUDANG BARU (Disesuaikan dengan API gudang yang benar)
+    // API GUDANG
     try {
         const res = await fetch('/api/admin/gudang/products');
         const data = await res.json();

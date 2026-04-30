@@ -47,7 +47,7 @@
                 @if($salesOrder->status === 'approved')
                     @php
                         $invoice = DB::table('keuangan_transaksi')
-                            ->where('no_order', $salesOrder->so_number) // FIXED: diganti jadi no_order
+                            ->where('no_order', $salesOrder->so_number) 
                             ->first();
                     @endphp
                     @if(!$invoice)
@@ -228,15 +228,18 @@
                             </td>
                             <td></td>
                         </tr>
+                        {{-- Tampilkan PPN hanya jika ada / dicentang --}}
+                        @if(isset($salesOrder->ppn_rate) && floatval($salesOrder->ppn_rate) > 0)
                         <tr>
                             <td colspan="5" class="text-end text-muted">
-                                PPN ({{ isset($salesOrder->ppn_rate) ? floatval($salesOrder->ppn_rate) : 0 }}%)
+                                PPN ({{ floatval($salesOrder->ppn_rate) }}%)
                             </td>
                             <td class="fw-bold text-danger">
                                 + Rp {{ number_format($salesOrder->ppn_nominal ?? 0, 0, ',', '.') }}
                             </td>
                             <td></td>
                         </tr>
+                        @endif
                         <tr>
                             <td colspan="5" class="text-end fw-bold">TOTAL KESELURUHAN</td>
                             <td class="fw-bold text-success fs-6">
@@ -252,7 +255,7 @@
     {{-- Info Invoice (jika sudah dibuat) --}}
     @php
         $invoiceInfo = DB::table('keuangan_transaksi')
-            ->where('no_order', $salesOrder->so_number) // FIXED: diganti jadi no_order
+            ->where('no_order', $salesOrder->so_number)
             ->first();
     @endphp
     @if($invoiceInfo)
