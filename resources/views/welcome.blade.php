@@ -919,10 +919,38 @@ $brands = [
         <div class="row g-4">
             @php
             $wifiCameras = [
-                ['name' => 'C6N', 'price' => '1.065.000', 'desc' => '2MP 1080P Smart Pan & Tilt Indoor Wifi Camera', 'brand' => 'EZVIZ'],
-                ['name' => 'H8C', 'price' => '1.699.000', 'desc' => '2MP 1080P Smart Wifi Pan & Tilt Outdoor Camera', 'brand' => 'EZVIZ'],
-                ['name' => 'Ranger A1', 'price' => '1.329.000', 'desc' => '3MP 2K Smart Wifi Pan & Tilt Indoor Camera', 'brand' => 'IMOU'],
-                ['name' => 'Cruiser SC', 'price' => '1.879.000', 'desc' => '5MP 3K Smart Home Pan & Tilt Outdoor Wifi Camera', 'brand' => 'IMOU'],
+                [
+                    'name' => 'EZVIZ C6N 3MP', 
+                    'price' => '450.000', 
+                    'desc' => '3MP 2K Smart Pan & Tilt Indoor WiFi Camera dengan resolusi tajam dan pelacakan pintar.', 
+                    'brand' => 'EZVIZ', 
+                    'image' => 'storage/wifi_cameras/v6LL8HisEC46kQvOxfigAV1CAwkhNPF56C2In0fL.png', 
+                    'slug' => 'ezviz-c6n-3mp'
+                ],
+                [
+                    'name' => 'EZVIZ H8c 2MP', 
+                    'price' => '650.000', 
+                    'desc' => '2MP 1080P Smart Pan & Tilt Outdoor Camera dengan fitur perlindungan aktif dan night vision.', 
+                    'brand' => 'EZVIZ', 
+                    'image' => 'storage/wifi_cameras/rxaGgP1uLpfZtwyugs1AflJCCdbmmiLlLDPs64rK.png', 
+                    'slug' => 'ezviz-h8c-2mp'
+                ],
+                [
+                    'name' => 'IMOU Ranger A1 3MP', 
+                    'price' => '430.000', 
+                    'desc' => '3MP 2K Smart WiFi Pan & Tilt Indoor Camera dengan deteksi manusia dan mode privasi.', 
+                    'brand' => 'IMOU', 
+                    'image' => 'storage/wifi_cameras/xTI8ykz6668DaEkWUUIydb5k80RCjLig9BYgT1GH.jpg', 
+                    'slug' => 'imou-ranger-a1-3mp'
+                ],
+                [
+                    'name' => 'IMOU Cruiser SC 2MP', 
+                    'price' => '550.000', 
+                    'desc' => '2MP 1080P Smart Home Pan & Tilt Outdoor WiFi Camera yang tahan cuaca ekstrem.', 
+                    'brand' => 'IMOU', 
+                    'image' => 'storage/wifi_cameras/OvQajIXCbMJ0G8Wtm0bXPpNd8ooxckx6so1xOOI6.webp', 
+                    'slug' => 'imou-cruiser-sc-2mp'
+                ],
             ];
             @endphp
 
@@ -930,9 +958,10 @@ $brands = [
             <div class="col-lg-3 col-md-6">
                 <div class="wifi-camera-card">
                     <div class="camera-image">
-                        <img src="https://via.placeholder.com/200x200/ffffff/666?text={{ urlencode($camera['name']) }}" 
+                        <!-- Menggunakan asset() untuk memanggil gambar dari folder public/storage -->
+                        <img src="{{ asset($camera['image']) }}" 
                              alt="{{ $camera['name'] }}" 
-                             class="img-fluid">
+                             class="img-fluid" style="max-height: 180px; object-fit: contain;">
                     </div>
                     
                     <div class="camera-content">
@@ -942,9 +971,9 @@ $brands = [
                     </div>
                     
                     <div class="camera-footer">
-                        <button class="btn btn-sm btn-outline-primary">
+                        <a href="{{ route('wifi-cam.detail', $camera['slug']) }}" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-eye me-1"></i>Lihat Detail
-                        </button>
+                        </a>
                         <span class="camera-brand">{{ $camera['brand'] }}</span>
                     </div>
                 </div>
@@ -973,10 +1002,10 @@ $brands = [
         <div class="row g-4">
             @php
             $accessControls = [
-                ['name' => 'MB20', 'price' => '1.032.000', 'desc' => 'Time Attendance & Access Control', 'brand' => 'ZKTeco'],
-                ['name' => 'DS-K1T343MX', 'price' => '1.989.000', 'desc' => 'Access Control', 'brand' => 'HIKVISION'],
-                ['name' => 'SF300', 'price' => '2.779.000', 'desc' => 'Time Attendance & Access Control', 'brand' => 'ZKTeco'],
-                ['name' => 'LH6500', 'price' => '2.589.000', 'desc' => 'Hotel Lock', 'brand' => 'ZKTeco'],
+                ['id' => 1, 'name' => 'MB20', 'price' => '1.032.000', 'desc' => 'Time Attendance & Access Control', 'brand' => 'ZKTeco'],
+                ['id' => 2, 'name' => 'DS-K1T343MX', 'price' => '1.989.000', 'desc' => 'Access Control', 'brand' => 'HIKVISION'],
+                ['id' => 3, 'name' => 'SF300', 'price' => '2.779.000', 'desc' => 'Time Attendance & Access Control', 'brand' => 'ZKTeco'],
+                ['id' => 4, 'name' => 'LH6500', 'price' => '2.589.000', 'desc' => 'Hotel Lock', 'brand' => 'ZKTeco'],
             ];
             @endphp
 
@@ -996,9 +1025,9 @@ $brands = [
                     </div>
                     
                     <div class="access-footer">
-                        <button class="btn btn-sm btn-outline-primary">
+                        <a href="{{ route('access-control.detail', $device['id']) }}" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-eye me-1"></i>Lihat Detail
-                        </button>
+                        </a>
                         <span class="access-brand">{{ $device['brand'] }}</span>
                     </div>
                 </div>
