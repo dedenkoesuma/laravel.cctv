@@ -1,4 +1,3 @@
-
 {{-- resources/views/admin/finance/index.blade.php --}}
 @extends('layouts.simple')
 @section('title', 'Finance Staff - Input Piutang & Pengeluaran')
@@ -587,7 +586,10 @@ function renderInvoice(list) {
                 ${inv.jatuh_tempo ? `<div style="font-size:.82rem">${formatDate(inv.jatuh_tempo)}</div>` : '—'}
                 ${isOverdue ? `<div><span style="font-size:.7rem;color:#ef4444;font-weight:700">LEWAT JATUH TEMPO</span></div>` : ''}
             </td>
-            <td class="text-end fw-bold text-success">${formatRp(inv.jumlah)}</td>
+            <td class="text-end">
+                <div class="fw-bold text-success">${formatRp(inv.jumlah)}</div>
+                ${(inv.dp_nominal && inv.dp_nominal > 0) ? `<div style="font-size:10px; color:#dc2626; font-weight:bold;">Sisa: ${formatRp(inv.sisa_tagihan)}</div>` : ''}
+            </td>
             <td class="text-center">${statusBadge}</td>
             <td class="text-center">
                 <div class="d-flex gap-1 justify-content-center">
@@ -638,6 +640,16 @@ async function lihatDetailInv(id) {
         </tr>`;
     }).join('');
 
+    let tempoWarning = '';
+    if(inv.tipe_bayar === 'tempo' && inv.status !== 'lunas') {
+        tempoWarning = `
+        <div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 6px; padding: 8px 14px; margin-bottom: 16px; font-size: 11px;">
+            <strong style="color: #b45309;">⚠ Pembayaran Tempo:</strong>
+            Harap melakukan pembayaran sebelum <strong>${formatDate(inv.jatuh_tempo)}</strong> (${inv.tempo_hari} hari dari tanggal invoice).
+            ${(inv.dp_nominal && inv.dp_nominal > 0) ? ` Sisa tagihan yang harus dibayar: <strong>Rp ${parseInt(inv.sisa_tagihan).toLocaleString('id-ID')}</strong>.` : ''}
+        </div>`;
+    }
+
     document.getElementById('detailInvBody').innerHTML = `
         <div class="row g-3 mb-3">
             <div class="col-md-6">
@@ -650,6 +662,8 @@ async function lihatDetailInv(id) {
                         <tr><td class="text-muted">Tgl Invoice</td><td>${formatDate(inv.invoice_date||inv.tanggal)}</td></tr>
                         <tr><td class="text-muted">Tipe Bayar</td><td>${inv.tipe_bayar==='tempo'?`⏱ Tempo ${inv.tempo_hari} hari`:'💵 Cash'}</td></tr>
                         ${inv.jatuh_tempo?`<tr><td class="text-muted">Jatuh Tempo</td><td><strong>${formatDate(inv.jatuh_tempo)}</strong></td></tr>`:''}
+                        ${(inv.dp_nominal && inv.dp_nominal > 0) ? `<tr><td class="text-muted">DP / Uang Muka</td><td><strong style="color:#b45309">Rp ${parseInt(inv.dp_nominal).toLocaleString('id-ID')}</strong></td></tr>
+                        <tr><td class="text-muted">Sisa Tagihan</td><td><strong style="color:#dc2626">Rp ${parseInt(inv.sisa_tagihan).toLocaleString('id-ID')}</strong></td></tr>` : ''}
                         <tr><td class="text-muted">Status</td><td><span class="status-badge ${inv.status}">${inv.status}</span></td></tr>
                     </table>
                 </div>
@@ -664,6 +678,7 @@ async function lihatDetailInv(id) {
                 </div>
             </div>
         </div>
+        ${tempoWarning}
         <div class="fw-bold mb-2">📦 Item Produk</div>
         <div style="overflow-x:auto;">
             <table class="table table-bordered table-sm">
@@ -672,7 +687,11 @@ async function lihatDetailInv(id) {
                 </thead>
                 <tbody>${itemRows||'<tr><td colspan="5" class="text-center text-muted">Data item tidak tersedia</td></tr>'}</tbody>
                 <tfoot class="table-light">
-                    <tr><td colspan="3" class="text-end fw-bold">TOTAL</td><td colspan="2" class="fw-bold text-success">${formatRp(inv.jumlah)}</td></tr>
+                    <tr><td colspan="3" class="text-end fw-bold">TOTAL TAGIHAN</td><td colspan="2" class="fw-bold text-success">${formatRp(inv.jumlah)}</td></tr>
+                    ${(inv.dp_nominal && inv.dp_nominal > 0) ? `
+                    <tr><td colspan="3" class="text-end fw-bold" style="font-size: 11px;">DP / Uang Muka (sudah dibayar)</td><td colspan="2" class="fw-bold" style="color: #b45309; font-size: 11px;">- Rp ${parseInt(inv.dp_nominal).toLocaleString('id-ID')}</td></tr>
+                    <tr style="background: #fff1f2;"><td colspan="3" class="text-end fw-bold" style="color: #991b1b;">SISA TAGIHAN</td><td colspan="2" class="fw-bold" style="color: #991b1b;">Rp ${parseInt(inv.sisa_tagihan).toLocaleString('id-ID')}</td></tr>
+                    ` : ''}
                 </tfoot>
             </table>
         </div>`;
