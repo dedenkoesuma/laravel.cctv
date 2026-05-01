@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'MJA Tech')</title>
-    
+    <title>@yield('title', 'Tech Store')</title>
+    <link rel="icon" href="/storage/gambar/logo-mja.png" type="image/png">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
@@ -492,11 +492,11 @@
 
                 <!-- Kolom 2: Alamat -->
                 <div class="col-lg-3 col-md-6">
-                    <h5 class="footer-heading">Head Office di Jabodetabek</h5>
+                    <h5 class="footer-heading">Head Office</h5>
                     <p class="footer-text mb-0">
-                        Ruko Neo Fiera Blok NF/C-19, Pd. Kacang<br>
-                        Bar., Kec. Pd. Aren, Kota Tangerang<br>
-                        Selatan, Banten 15224
+                        Jl. Kalibaru Timur, RT.3/RW.2, Bungur,<br>
+                        Kec. Senen, Kota Jakarta Pusat,<br>
+                        Daerah Khusus Ibukota Jakarta 10460
                     </p>
                 </div>
 
@@ -518,10 +518,10 @@
                             <a href="#"><i class="bi bi-instagram me-3 fs-5"></i> Instagram</a>
                         </li>
                         <li>
-                            <a href="mailto:admin@techstore.com"><i class="bi bi-envelope me-3 fs-5"></i> admin@techstore.com</a>
+                            <a href="mailto:admin@techstore.com"><i class="bi bi-envelope me-3 fs-5"></i> Email</a>
                         </li>
                         <li>
-                            <a href="https://wa.me/6281234567890"><i class="bi bi-whatsapp me-3 fs-5"></i> +62 812-3456-7890</a>
+                            <a href="tel:+6281234567890"><i class="bi bi-telephone me-3 fs-5"></i> Telfon</a>
                         </li>
                     </ul>
                 </div>
@@ -532,7 +532,7 @@
             <!-- Baris Copyright & Tombol Back to Top -->
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
                 <p class="footer-text mb-0 text-center text-md-start">
-                    &copy; 2026 MJA Tech. All rights reserved. 
+                    &copy; 2021 MJA Tech. All rights reserved. 
                 </p>
                 <button onclick="scrollToTop()" class="btn-back-to-top mt-3 mt-md-0" aria-label="Back to top">
                     <i class="bi bi-arrow-up fs-5"></i>

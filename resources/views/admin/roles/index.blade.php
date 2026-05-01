@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roles Management - PT Trac</title>
+    <title>Roles Management - Tech Store</title>
+    <link rel="icon" href="/storage/gambar/logo-mja.png" type="image/png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
         /* CSS GLOBAL & SIDEBAR */
@@ -17,12 +18,12 @@
         .sidebar-menu { padding: 20px 0 100px; }
         .menu-section-title { padding: 20px 24px 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; opacity: 0.6; letter-spacing: 1px; }
         .menu-item { padding: 14px 24px; display: flex; align-items: center; gap: 12px; color: white; text-decoration: none; transition: all 0.3s; cursor: pointer; border-left: 4px solid transparent; }
-        .menu-item:hover { background: rgba(255,255,255,0.15); border-left-color: white; }
-        .menu-item.active { background: rgba(255,255,255,0.2); border-left-color: white; }
+        .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.2); border-left-color: white; color: white; }
         .menu-item i { width: 24px; text-align: center; font-size: 18px; }
         .menu-item .badge { margin-left: auto; background: rgba(255,255,255,0.3); padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
-        .logout-btn { position: fixed; bottom: 20px; left: 20px; width: 240px; padding: 12px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; text-decoration: none; }
-        
+        .logout-btn { position: fixed; bottom: 20px; left: 20px; width: 240px; padding: 12px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 8px; cursor: pointer; transition: all 0.3s; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; }
+        .logout-btn:hover { background: rgba(255,255,255,0.3); color: white; }
+
         .main-content { margin-left: 280px; padding: 30px; min-height: 100vh; }
         .card { background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); overflow: hidden; }
         .btn { padding: 10px 20px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
@@ -41,6 +42,15 @@
 </head>
 <body>
 
+@php
+    $adminRoleName = strtolower(session('admin_role'));
+    $currentRole = \Spatie\Permission\Models\Role::where('name', $adminRoleName)->first();
+    
+    $canAccess = function($permissionName) use ($currentRole) {
+        return $currentRole ? $currentRole->hasPermissionTo($permissionName) : false;
+    };
+@endphp
+
 <div class="sidebar">
     <div class="sidebar-header">
         <h2>🏢 PT Trac</h2>
@@ -50,37 +60,55 @@
     <div class="sidebar-menu">
         <a href="/dashboard" class="menu-item"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
 
-        <div class="menu-section-title">Inventory Management</div>
-        <a href="/admin/inventory" class="menu-item"><i class="bi bi-box-seam"></i><span>Dashboard</span></a>
-        <a href="/admin/inventory/incoming-continuous" class="menu-item"><i class="bi bi-box-arrow-in-down"></i><span>Barang Masuk</span><span class="badge">NEW</span></a>
-        <a href="/admin/inventory/outgoing" class="menu-item"><i class="bi bi-box-arrow-up"></i><span>Barang Keluar</span></a>
+        <div class="menu-section-title">Operations Management</div>
+        
+        @if($canAccess('view_inventory'))
+        <a href="/admin/gudang" class="menu-item"><i class="bi bi-box-seam"></i><span>Gudang</span></a>
+        @endif
+
+        <a href="{{ route('admin.po.index') }}" class="menu-item"><i class="bi bi-cart-check"></i><span>Purchase Order</span></a>
+        
+        @if($canAccess('view_sales_documents'))
+        <a href="/admin/gudang/sales-orders" class="menu-item"><i class="bi bi-file-earmark-check"></i><span>Sales Order</span></a>
+        @endif
+
+        <a href="{{ route('admin.quotation.index') }}" class="menu-item"><i class="bi bi-file-text"></i><span>Quotation</span></a>
+
+        @if($canAccess('view_bookkeeping'))
+        <a href="/admin/keuangan" class="menu-item"><i class="bi bi-wallet2"></i><span>Keuangan Boss</span></a>
+        @endif
+
+        <a href="/admin/finance" class="menu-item"><i class="bi bi-receipt"></i><span>Finance Staff</span></a>
 
         <div class="menu-section-title">Products Management</div>
+        @if($canAccess('view_ruijie'))
         <a href="/admin/ruijie" class="menu-item"><i class="bi bi-router"></i><span>Ruijie Networks</span></a>
+        @endif
+        
+        @if($canAccess('view_wifi_cameras'))
         <a href="/admin/wifi-cameras" class="menu-item"><i class="bi bi-camera-video"></i><span>WiFi Cameras</span></a>
+        @endif
+        
+        @if($canAccess('view_access_control'))
         <a href="/admin/access-control" class="menu-item"><i class="bi bi-shield-lock"></i><span>Access Control</span></a>
+        @endif
+        
+        @if($canAccess('view_static_products'))
         <a href="/admin/static-products" class="menu-item"><i class="bi bi-box"></i><span>Static Products</span></a>
-
-        <div class="menu-section-title">Business Documents</div>
-        <a href="/admin/bookkeeping" class="menu-item"><i class="bi bi-calculator"></i><span>Pembukuan</span></a>
-        <a href="/admin/sales-documents" class="menu-item"><i class="bi bi-file-earmark-text"></i><span>Surat Order & Penawaran</span></a>
+        @endif
 
         <div class="menu-section-title">System</div>
-        <a href="#" class="menu-item"><i class="bi bi-graph-up"></i><span>Analytics</span></a>
         
-        <a href="{{ route('admin.users.index') }}" class="menu-item">
-            <i class="bi bi-people"></i><span>Users Account</span>
-        </a>
+        @if($canAccess('view_users'))
+        <a href="{{ route('admin.users.index') }}" class="menu-item"><i class="bi bi-people"></i><span>Users Account</span></a>
+        <a href="{{ route('admin.roles.index') }}" class="menu-item active"><i class="bi bi-shield-lock"></i><span>Roles & Permissions</span><span class="badge">SECURE</span></a>
+        @endif
         
-        <a href="{{ route('admin.roles.index') }}" class="menu-item active">
-            <i class="bi bi-shield-lock"></i><span>Roles & Permissions</span>
-            <span class="badge">SECURE</span>
-        </a>
-        
-        <a href="#" class="menu-item"><i class="bi bi-gear"></i><span>Settings</span></a>
     </div>
     
-    <a href="{{ route('admin.logout') }}" class="logout-btn"><i class="bi bi-box-arrow-right"></i><span>Logout</span></a>
+    <a href="{{ route('admin.logout') }}" class="logout-btn" onclick="hapusJejakBrowser(event)">
+        <i class="bi bi-box-arrow-right"></i><span>Logout</span>
+    </a>
 </div>
 
 <div class="main-content">
@@ -161,6 +189,14 @@
         if (event.target.classList.contains('modal')) {
             event.target.classList.remove('show');
         }
+    }
+
+    // Fungsi untuk hapus jejak login
+    function hapusJejakBrowser(event) {
+        event.preventDefault();
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = '/admin/logout'; 
     }
 </script>
 
