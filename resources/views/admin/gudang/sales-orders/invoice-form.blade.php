@@ -113,8 +113,8 @@
                         <label class="form-label fw-bold">Metode Bayar <span class="text-danger">*</span></label>
                         <select name="metode_bayar" class="form-select" required>
                             <option value="transfer" {{ old('metode_bayar','transfer') == 'transfer' ? 'selected' : '' }}>Transfer</option>
-                            <option value="cash"     {{ old('metode_bayar') == 'cash'          ? 'selected' : '' }}>Cash</option>
-                            <option value="qris"     {{ old('metode_bayar') == 'qris'          ? 'selected' : '' }}>QRIS</option>
+                            <option value="cash"     {{ old('metode_bayar') == 'cash'         ? 'selected' : '' }}>Cash</option>
+                            <option value="qris"     {{ old('metode_bayar') == 'qris'         ? 'selected' : '' }}>QRIS</option>
                             <option value="kartu_kredit" {{ old('metode_bayar') == 'kartu_kredit' ? 'selected' : '' }}>Kartu Kredit</option>
                         </select>
                     </div>
