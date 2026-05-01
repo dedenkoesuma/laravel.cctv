@@ -176,6 +176,7 @@ class FinanceController extends Controller
     }
 
     // ===== SIMPAN TRANSAKSI =====
+    // ===== SIMPAN TRANSAKSI =====
     public function store(Request $request)
     {
         $request->validate([
@@ -192,6 +193,7 @@ class FinanceController extends Controller
         $tipeDb = $request->tipe === 'piutang' ? 'pemasukan' : 'pengeluaran';
         $defaultStatus = $request->tipe === 'piutang' ? 'pending' : 'lunas';
 
+        // 1. Simpan data Piutang / Pengeluaran ke database
         DB::table('keuangan_transaksi')->insert([
             'kode_transaksi' => $kode,
             'tipe'           => $tipeDb,
@@ -209,6 +211,43 @@ class FinanceController extends Controller
             'created_at'     => now(),
             'updated_at'     => now(),
         ]);
+
+        // 2. ===== BIKIN NOTIFIKASI PIUTANG MANUAL (BIAR MASUK JADI 0) =====
+        if ($request->tipe === 'piutang' && ($request->status ?? $defaultStatus) === 'pending' && !empty($request->jatuh_tempo)) {
+            $jatuhTempo = \Carbon\Carbon::parse($request->jatuh_tempo);
+            $selisih = (int) now()->startOfDay()->diffInDays($jatuhTempo->startOfDay(), false);
+            $total = 'Rp ' . number_format($request->jumlah, 0, ',', '.');
+            $tglFmt = $jatuhTempo->format('d/m/Y');
+            $pihak = $request->pihak_terkait;
+
+            $tipeNotif = 'h3'; // Default
+            $judul = "Piutang baru dicatat — {$pihak}";
+            $pesan = "Piutang atas nama {$pihak} senilai {$total} dengan jatuh tempo {$tglFmt}.";
+
+            if ($selisih < 0) {
+                $tipeNotif = 'overdue';
+                $judul = "Piutang overdue — {$pihak}";
+                $pesan = "Piutang atas nama {$pihak} senilai {$total} telah melewati jatuh tempo ({$tglFmt}).";
+            } elseif ($selisih === 1) {
+                $tipeNotif = 'h1';
+                $judul = "Jatuh tempo besok! — {$pihak}";
+                $pesan = "Piutang atas nama {$pihak} senilai {$total} jatuh tempo besok ({$tglFmt}). Segera follow up.";
+            } elseif ($selisih <= 3) {
+                $tipeNotif = 'h3';
+                $judul = "Jatuh tempo {$selisih} hari lagi — {$pihak}";
+                $pesan = "Piutang atas nama {$pihak} senilai {$total} akan jatuh tempo pada {$tglFmt}.";
+            }
+
+            // SIMPAN NOTIFIKASI
+            \App\Models\Notification::create([
+                'tipe'       => $tipeNotif,
+                'judul'      => $judul,
+                'pesan'      => $pesan,
+                'invoice_id' => null,
+                'dibaca'     => false // INI KUNCI UTAMANYA: Paksa jadi 0 !
+            ]);
+        }
+        // =================================================================
 
         return response()->json([
             'success' => true,
