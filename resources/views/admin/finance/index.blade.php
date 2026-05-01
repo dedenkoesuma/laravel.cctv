@@ -1,6 +1,5 @@
-
 {{-- resources/views/admin/finance/index.blade.php --}}
-@extends('layouts.simple')
+@extends('layouts.finance')
 @section('title', 'Finance Staff - Input Piutang & Pengeluaran')
 @section('content')
 <style>
@@ -534,7 +533,7 @@ async function loadSummary() {
     } catch(e) { console.error(e); }
 }
 
-// ===== LOAD INVOICE (dari keuangan_transaksi yang punya invoice_number) =====
+// ===== LOAD INVOICE =====
 async function loadInvoice() {
     document.getElementById('loadingInv').style.display  = 'block';
     document.getElementById('invContainer').style.display = 'none';
@@ -608,13 +607,12 @@ async function lihatDetailInv(id) {
     const data = await res.json();
     if (!data.success) return;
 
-    const inv = data.invoice;
-    const so  = data.so;
+    const inv   = data.invoice;
+    const so    = data.so;
     const items = data.items || [];
 
     const isLunas = inv.status === 'lunas';
 
-    // Sembunyikan/tampilkan tombol
     document.getElementById('btnLunasInv').style.display  = isLunas ? 'none' : 'inline-flex';
     document.getElementById('btnDownloadInv').href = `/admin/gudang/sales-orders/${so?.id}/invoice/download`;
 
@@ -638,6 +636,22 @@ async function lihatDetailInv(id) {
         </tr>`;
     }).join('');
 
+    // ✅ Baris DP & Sisa Tagihan di tfoot
+    const dpRows = (inv.dp_nominal > 0) ? `
+        <tr>
+            <td colspan="3" class="text-end text-muted">DP / Uang Muka</td>
+            <td colspan="2" class="fw-bold text-warning">- ${formatRp(inv.dp_nominal)}</td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+            <td colspan="3" class="text-end fw-bold">SISA TAGIHAN</td>
+            <td colspan="2" class="fw-bold text-danger fs-6">${formatRp(inv.sisa_tagihan)}</td>
+        </tr>` : '';
+
+    // ✅ Baris DP di Info Invoice
+    const dpInfoRows = (inv.dp_nominal > 0) ? `
+        <tr><td class="text-muted">DP / Uang Muka</td><td><strong class="text-warning">${formatRp(inv.dp_nominal)}</strong></td></tr>
+        <tr><td class="text-muted">Sisa Tagihan</td><td><strong class="text-danger">${formatRp(inv.sisa_tagihan)}</strong></td></tr>` : '';
+
     document.getElementById('detailInvBody').innerHTML = `
         <div class="row g-3 mb-3">
             <div class="col-md-6">
@@ -651,6 +665,7 @@ async function lihatDetailInv(id) {
                         <tr><td class="text-muted">Tipe Bayar</td><td>${inv.tipe_bayar==='tempo'?`⏱ Tempo ${inv.tempo_hari} hari`:'💵 Cash'}</td></tr>
                         ${inv.jatuh_tempo?`<tr><td class="text-muted">Jatuh Tempo</td><td><strong>${formatDate(inv.jatuh_tempo)}</strong></td></tr>`:''}
                         <tr><td class="text-muted">Status</td><td><span class="status-badge ${inv.status}">${inv.status}</span></td></tr>
+                        ${dpInfoRows}
                     </table>
                 </div>
             </div>
@@ -673,11 +688,11 @@ async function lihatDetailInv(id) {
                 <tbody>${itemRows||'<tr><td colspan="5" class="text-center text-muted">Data item tidak tersedia</td></tr>'}</tbody>
                 <tfoot class="table-light">
                     <tr><td colspan="3" class="text-end fw-bold">TOTAL</td><td colspan="2" class="fw-bold text-success">${formatRp(inv.jumlah)}</td></tr>
+                    ${dpRows}
                 </tfoot>
             </table>
         </div>`;
 
-    // Store id for lunas action
     document.getElementById('btnLunasInv').setAttribute('data-id', id);
     new bootstrap.Modal(document.getElementById('modalDetailInv')).show();
 }
@@ -685,7 +700,6 @@ async function lihatDetailInv(id) {
 // ===== TANDAI LUNAS DARI DETAIL MODAL =====
 function tandaiLunasInv() {
     const id  = document.getElementById('btnLunasInv').getAttribute('data-id');
-    const inv = { id }; // minimal
     bootstrap.Modal.getInstance(document.getElementById('modalDetailInv')).hide();
     setTimeout(() => {
         document.getElementById('lunasId').value = id;
@@ -817,6 +831,7 @@ async function simpanTransaksi() {
         pihak_terkait : document.getElementById('inputPihak').value,
         jumlah        : document.getElementById('inputJumlah').value,
         tanggal       : document.getElementById('inputTanggal').value,
+        jatuh_tempo   : document.getElementById('inputJatuhTempo').value || null,
         deskripsi     : document.getElementById('inputDeskripsi').value,
         referensi     : document.getElementById('inputReferensi').value,
         metode_bayar  : document.getElementById('inputMetode').value,
@@ -852,6 +867,7 @@ async function editTransaksi(id) {
     document.getElementById('inputPihak').value=t.pihak_terkait||'';
     document.getElementById('inputJumlah').value=t.jumlah;
     document.getElementById('inputTanggal').value=t.tanggal;
+    document.getElementById('inputJatuhTempo').value=t.jatuh_tempo||'';
     document.getElementById('inputDeskripsi').value=t.deskripsi;
     document.getElementById('inputReferensi').value=t.referensi||'';
     document.getElementById('inputMetode').value=t.metode_bayar||'transfer';

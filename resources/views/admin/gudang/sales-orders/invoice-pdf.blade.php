@@ -17,14 +17,14 @@
         .header {
             display: table;
             width: 100%;
-            border-bottom: 3px solid #e11d48; /* Disesuaikan dengan warna merah MJA */
+            border-bottom: 3px solid #e11d48;
             padding-bottom: 14px;
             margin-bottom: 18px;
         }
         .header-left  { display: table-cell; width: 60%; vertical-align: middle; }
         .header-right { display: table-cell; width: 40%; vertical-align: middle; text-align: right; }
 
-        .logo { height: 60px; object-fit: contain; } /* Diperbesar sedikit agar MJA jelas */
+        .logo { height: 60px; object-fit: contain; }
         .company-name { font-size: 22px; font-weight: 800; color: #111; margin-top: 5px;}
         .company-sub  { font-size: 10px; color: #555; margin-top: 2px; }
 
@@ -118,6 +118,21 @@
             background: #d1fae5;
             border-top: 2px solid #10b981;
         }
+        .items-table tfoot tr.dp td {
+            font-size: 11px;
+            font-weight: 600;
+            color: #b45309;
+            background: #fffbeb;
+            border-top: 1px solid #fcd34d;
+        }
+        .items-table tfoot tr.sisa td {
+            font-size: 13px;
+            font-weight: 700;
+            color: #991b1b;
+            background: #fff1f2;
+            border-top: 2px solid #fecdd3;
+            border-bottom: 3px double #e11d48;
+        }
 
         /* ===== FOOTER ===== */
         .footer {
@@ -139,7 +154,6 @@
     {{-- HEADER --}}
     <div class="header">
         <div class="header-left">
-            <!-- Gambar Logo MJA dipanggil dari folder public/images -->
             @php
                 $imagePath = storage_path('app/public/gambar/logo-mja.png');
                 $imageData = base64_encode(file_get_contents($imagePath));
@@ -199,6 +213,11 @@
                 @if($invoice->jatuh_tempo)
                 <tr><td>Jatuh Tempo</td><td><strong>{{ \Carbon\Carbon::parse($invoice->jatuh_tempo)->format('d/m/Y') }}</strong></td></tr>
                 @endif
+                {{-- ✅ DP & Sisa Tagihan di Info Detail --}}
+                @if(!empty($invoice->dp_nominal) && $invoice->dp_nominal > 0)
+                <tr><td>DP / Uang Muka</td><td><strong style="color:#b45309">Rp {{ number_format($invoice->dp_nominal, 0, ',', '.') }}</strong></td></tr>
+                <tr><td>Sisa Tagihan</td><td><strong style="color:#dc2626">Rp {{ number_format($invoice->sisa_tagihan, 0, ',', '.') }}</strong></td></tr>
+                @endif
             </table>
         </div>
     </div>
@@ -210,6 +229,10 @@
         Harap melakukan pembayaran sebelum
         <strong>{{ \Carbon\Carbon::parse($invoice->jatuh_tempo)->format('d F Y') }}</strong>
         ({{ $invoice->tempo_hari }} hari dari tanggal invoice).
+        @if(!empty($invoice->dp_nominal) && $invoice->dp_nominal > 0)
+            Sisa tagihan yang harus dibayar:
+            <strong>Rp {{ number_format($invoice->sisa_tagihan, 0, ',', '.') }}</strong>.
+        @endif
     </div>
     @endif
 
@@ -259,6 +282,17 @@
                 <td colspan="5" style="text-align:right">TOTAL TAGIHAN</td>
                 <td style="text-align:right">Rp {{ number_format($invoice->jumlah, 0, ',', '.') }}</td>
             </tr>
+            {{-- ✅ Baris DP & Sisa Tagihan di tfoot --}}
+            @if(!empty($invoice->dp_nominal) && $invoice->dp_nominal > 0)
+            <tr class="dp">
+                <td colspan="5" style="text-align:right">DP / Uang Muka (sudah dibayar)</td>
+                <td style="text-align:right">- Rp {{ number_format($invoice->dp_nominal, 0, ',', '.') }}</td>
+            </tr>
+            <tr class="sisa">
+                <td colspan="5" style="text-align:right">SISA TAGIHAN</td>
+                <td style="text-align:right">Rp {{ number_format($invoice->sisa_tagihan, 0, ',', '.') }}</td>
+            </tr>
+            @endif
         </tfoot>
     </table>
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class SalesOrderController extends Controller
 {
@@ -174,7 +175,6 @@ class SalesOrderController extends Controller
     }
 
     // ===== DETAIL SO =====
-    // ===== DETAIL SO =====
     public function show($id)
     {
         $salesOrder = DB::table('sales_orders')->where('id', $id)->first();
@@ -208,10 +208,9 @@ class SalesOrderController extends Controller
 
         try {
             $salesOrder->invoice = DB::table('keuangan_transaksi')
-                ->where('no_order', $salesOrder->so_number) 
+                ->where('no_order', $salesOrder->so_number)
                 ->first();
-                
-            // ✅ FIX: Buatkan alias agar view blade tidak error
+
             if ($salesOrder->invoice) {
                 $salesOrder->invoice->so_number = $salesOrder->invoice->no_order;
             }
@@ -358,12 +357,11 @@ class SalesOrderController extends Controller
             return back()->with('error', 'SO harus berstatus Disetujui untuk membuat Invoice.');
         }
 
-        // ✅ FIXED: Ubah where menjadi 'no_order'
         try {
             $existingInvoice = DB::table('keuangan_transaksi')
-                ->where('no_order', $salesOrder->so_number) 
+                ->where('no_order', $salesOrder->so_number)
                 ->first();
-                
+
             if ($existingInvoice) {
                 return back()->with('error', "Invoice sudah dibuat: {$existingInvoice->invoice_number}");
             }
@@ -396,13 +394,13 @@ class SalesOrderController extends Controller
             'no_rekening'   => 'required|string|max:50',
             'nama_rekening' => 'required|string|max:100',
             'metode_bayar'  => 'required|in:cash,transfer,qris,kartu_kredit',
+            'dp_nominal'    => 'nullable|numeric|min:0',  // ✅ TAMBAHAN
             'catatan'       => 'nullable|string',
         ]);
 
-        // ✅ FIXED: Ubah where menjadi 'no_order'
         try {
             $exists = DB::table('keuangan_transaksi')
-                ->where('no_order', $salesOrder->so_number) 
+                ->where('no_order', $salesOrder->so_number)
                 ->exists();
             if ($exists) {
                 return back()->with('error', 'Invoice untuk SO ini sudah dibuat.');
@@ -418,8 +416,12 @@ class SalesOrderController extends Controller
             $invoiceDate   = now()->toDateString();
 
             $jatuhTempo = $request->tipe_bayar === 'tempo'
-                ? now()->addDays((int)$request->tempo_hari)->toDateString()
+                ? now()->addDays((int) $request->tempo_hari)->toDateString()
                 : null;
+
+            // ✅ Hitung dp_nominal & sisa_tagihan
+            $dp_nominal   = (float) ($request->dp_nominal ?? 0);
+            $sisa_tagihan = $salesOrder->total_amount - $dp_nominal;
 
             DB::table('keuangan_transaksi')->insert([
                 'kode_transaksi' => $kodeTransaksi,
@@ -443,11 +445,23 @@ class SalesOrderController extends Controller
                 'nama_bank'      => $request->nama_bank,
                 'no_rekening'    => $request->no_rekening,
                 'nama_rekening'  => $request->nama_rekening,
-                // 'so_number'   => $salesOrder->so_number, // DI MATIKAN SEMENTARA AGAR TIDAK ERROR
+                'dp_nominal'     => $dp_nominal,    // ✅ TAMBAHAN
+                'sisa_tagihan'   => $sisa_tagihan,  // ✅ TAMBAHAN
                 'created_by'     => session('admin_id'),
                 'created_at'     => now(),
                 'updated_at'     => now(),
             ]);
+
+            // ✅ NOTIFIKASI OTOMATIS JIKA PEMBAYARAN TEMPO
+            if ($request->tipe_bayar === 'tempo' && $jatuhTempo) {
+                $this->buatNotifikasiInvoiceTempo(
+                    $invoiceNumber,
+                    $salesOrder->customer_name,
+                    $salesOrder->total_amount,
+                    $jatuhTempo,
+                    (int) $request->tempo_hari
+                );
+            }
 
             DB::commit();
             return redirect("/admin/gudang/sales-orders/{$id}")
@@ -455,7 +469,50 @@ class SalesOrderController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Gagal membuat Invoice (Kemungkinan struktur tabel belum diperbarui): ' . $e->getMessage());
+            return back()->with('error', 'Gagal membuat Invoice: ' . $e->getMessage());
+        }
+    }
+
+    // ===== HELPER: BUAT NOTIFIKASI INVOICE TEMPO =====
+    private function buatNotifikasiInvoiceTempo(
+        string $invoiceNumber,
+        string $customerName,
+        float  $totalAmount,
+        string $jatuhTempo,
+        int    $tempoHari
+    ): void {
+        $total   = 'Rp ' . number_format($totalAmount, 0, ',', '.');
+        $tglFmt  = Carbon::parse($jatuhTempo)->format('d/m/Y');
+        $selisih = (int) now()->startOfDay()->diffInDays(Carbon::parse($jatuhTempo)->startOfDay(), false);
+
+        if ($selisih < 0) {
+            \App\Models\Notification::create([
+                'tipe'       => 'overdue',
+                'judul'      => "Piutang overdue — {$invoiceNumber}",
+                'pesan'      => "Invoice {$invoiceNumber} atas nama {$customerName} senilai {$total} telah melewati jatuh tempo ({$tglFmt}).",
+                'invoice_id' => null,
+            ]);
+        } elseif ($selisih === 1) {
+            \App\Models\Notification::create([
+                'tipe'       => 'h1',
+                'judul'      => "Jatuh tempo besok! — {$invoiceNumber}",
+                'pesan'      => "Invoice {$invoiceNumber} atas nama {$customerName} senilai {$total} jatuh tempo besok ({$tglFmt}). Segera follow up.",
+                'invoice_id' => null,
+            ]);
+        } elseif ($selisih <= 3) {
+            \App\Models\Notification::create([
+                'tipe'       => 'h3',
+                'judul'      => "Jatuh tempo {$selisih} hari lagi — {$invoiceNumber}",
+                'pesan'      => "Invoice {$invoiceNumber} atas nama {$customerName} senilai {$total} akan jatuh tempo pada {$tglFmt}.",
+                'invoice_id' => null,
+            ]);
+        } else {
+            \App\Models\Notification::create([
+                'tipe'       => 'h3',
+                'judul'      => "Invoice tempo dibuat — {$invoiceNumber}",
+                'pesan'      => "Invoice {$invoiceNumber} atas nama {$customerName} senilai {$total} dengan jatuh tempo {$tglFmt} ({$tempoHari} hari).",
+                'invoice_id' => null,
+            ]);
         }
     }
 
@@ -465,13 +522,12 @@ class SalesOrderController extends Controller
         $salesOrder = DB::table('sales_orders')->where('id', $id)->first();
         if (!$salesOrder) abort(404);
 
-        // ✅ FIXED: Ubah where menjadi 'no_order'
         try {
             $invoice = DB::table('keuangan_transaksi')
-                ->where('no_order', $salesOrder->so_number) 
+                ->where('no_order', $salesOrder->so_number)
                 ->where('status', 'pending')
                 ->first();
-                
+
             if (!$invoice) {
                 return back()->with('error', 'Invoice tidak ditemukan atau sudah lunas.');
             }
@@ -484,7 +540,7 @@ class SalesOrderController extends Controller
 
             return back()->with('success', "Invoice {$invoice->invoice_number} ditandai LUNAS. Transaksi masuk ke pembukuan.");
         } catch (\Exception $e) {
-             return back()->with('error', 'Gagal memproses (Tabel/Kolom tidak valid): ' . $e->getMessage());
+            return back()->with('error', 'Gagal memproses: ' . $e->getMessage());
         }
     }
 
@@ -502,7 +558,7 @@ class SalesOrderController extends Controller
         return $pdf->download("INV-{$data['invoice']->invoice_number}.pdf");
     }
 
-    // ===== PREVIEW PDF INVOICE (untuk WhatsApp share) =====
+    // ===== PREVIEW PDF INVOICE =====
     public function previewInvoicePdf($id)
     {
         $data = $this->getInvoiceData($id);
@@ -716,7 +772,7 @@ class SalesOrderController extends Controller
         return $so;
     }
 
-   // ===== HELPER: Data Invoice untuk PDF =====
+    // ===== HELPER: Data Invoice untuk PDF =====
     private function getInvoiceData($soId)
     {
         $salesOrder = DB::table('sales_orders')->where('id', $soId)->first();
@@ -724,26 +780,21 @@ class SalesOrderController extends Controller
 
         try {
             $invoice = DB::table('keuangan_transaksi')
-                ->where('no_order', $salesOrder->so_number) 
+                ->where('no_order', $salesOrder->so_number)
                 ->first();
-                
+
             if (!$invoice) abort(404, 'Invoice belum dibuat untuk SO ini.');
-            
-            // ✅ FIX: Buatkan alias so_number untuk dipanggil di invoice-pdf.blade.php
+
             $invoice->so_number = $invoice->no_order;
 
         } catch (\Exception $e) {
-            return null; // Return null agar di handle oleh controller pemanggil
+            return null;
         }
 
         $salesOrder->items = DB::table('sales_order_items')
             ->leftJoin('gudang_products', 'sales_order_items.product_id', '=', 'gudang_products.id')
             ->where('sales_order_items.sales_order_id', $soId)
-            ->select(
-                'sales_order_items.*',
-                'gudang_products.nama_produk',
-                'gudang_products.sku'
-            )
+            ->select('sales_order_items.*', 'gudang_products.nama_produk', 'gudang_products.sku')
             ->get();
 
         foreach ($salesOrder->items as $item) {
