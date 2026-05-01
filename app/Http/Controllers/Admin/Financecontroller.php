@@ -23,28 +23,24 @@ class FinanceController extends Controller
         $bulan = $request->bulan ?? date('m');
         $tahun = $request->tahun ?? date('Y');
 
-        // Piutang bulan ini
         $piutangBulan = DB::table('keuangan_transaksi')
-            ->where('tipe', 'piutang')
+            ->where('tipe', 'pemasukan')
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
             ->sum('jumlah');
 
-        // Piutang pending (belum lunas) — semua waktu
         $piutangPending = DB::table('keuangan_transaksi')
-            ->where('tipe', 'piutang')
+            ->where('tipe', 'pemasukan')
             ->where('status', 'pending')
             ->sum('jumlah');
 
-        // Piutang lunas bulan ini
         $piutangLunas = DB::table('keuangan_transaksi')
-            ->where('tipe', 'piutang')
+            ->where('tipe', 'pemasukan')
             ->where('status', 'lunas')
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
             ->sum('jumlah');
 
-        // Pengeluaran bulan ini (input oleh staff finance)
         $pengeluaranBulan = DB::table('keuangan_transaksi')
             ->where('tipe', 'pengeluaran')
             ->where('status', 'lunas')
@@ -52,19 +48,18 @@ class FinanceController extends Controller
             ->whereYear('tanggal', $tahun)
             ->sum('jumlah');
 
-        // Total transaksi bulan ini
         $totalTransaksi = DB::table('keuangan_transaksi')
-            ->whereIn('tipe', ['piutang', 'pengeluaran'])
+            ->whereIn('tipe', ['pemasukan', 'pengeluaran'])
             ->whereMonth('tanggal', $bulan)
             ->whereYear('tanggal', $tahun)
             ->count();
 
         return response()->json([
-            'piutang_bulan'    => $piutangBulan,
-            'piutang_pending'  => $piutangPending,
-            'piutang_lunas'    => $piutangLunas,
-            'pengeluaran_bulan'=> $pengeluaranBulan,
-            'total_transaksi'  => $totalTransaksi,
+            'piutang_bulan'     => $piutangBulan,
+            'piutang_pending'   => $piutangPending,
+            'piutang_lunas'     => $piutangLunas,
+            'pengeluaran_bulan' => $pengeluaranBulan,
+            'total_transaksi'   => $totalTransaksi,
         ]);
     }
 
@@ -72,46 +67,56 @@ class FinanceController extends Controller
     public function getTransaksi(Request $request)
     {
         $query = DB::table('keuangan_transaksi')
-            ->whereIn('tipe', ['piutang', 'pengeluaran']); // hanya tampilkan piutang & pengeluaran
+            ->whereIn('tipe', ['pemasukan', 'pengeluaran']);
 
-        if ($request->tipe)   $query->where('tipe', $request->tipe);
+        if ($request->tipe) {
+            $tipeDb = $request->tipe === 'piutang' ? 'pemasukan' : 'pengeluaran';
+            $query->where('tipe', $tipeDb);
+        }
         if ($request->status) $query->where('status', $request->status);
         if ($request->bulan)  $query->whereMonth('tanggal', $request->bulan);
         if ($request->tahun)  $query->whereYear('tanggal', $request->tahun);
 
-        if ($request->search) $query->where(function ($q) use ($request) {
-            $q->where('deskripsi', 'like', '%' . $request->search . '%')
-              ->orWhere('kode_transaksi', 'like', '%' . $request->search . '%')
-              ->orWhere('pihak_terkait', 'like', '%' . $request->search . '%');
-        });
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('deskripsi', 'like', '%' . $request->search . '%')
+                  ->orWhere('kode_transaksi', 'like', '%' . $request->search . '%')
+                  ->orWhere('pihak_terkait', 'like', '%' . $request->search . '%');
+            });
+        }
 
         $transaksi = $query->orderByDesc('tanggal')->orderByDesc('id')->get();
+
+        // Konversi tipe pemasukan → piutang untuk frontend
+        $transaksi->transform(function ($t) {
+            if ($t->tipe === 'pemasukan') $t->tipe = 'piutang';
+            return $t;
+        });
 
         return response()->json(['success' => true, 'data' => $transaksi]);
     }
 
-    // ===== API: LIST INVOICE (dari keuangan_transaksi yang punya invoice_number) =====
+    // ===== API: LIST INVOICE =====
     public function getInvoices(Request $request)
     {
         $query = DB::table('keuangan_transaksi')
-            ->whereNotNull('invoice_number'); // hanya yang punya invoice dari SO
+            ->whereNotNull('invoice_number');
 
         if ($request->status) $query->where('status', $request->status);
 
         if ($request->search) {
             $query->where(function ($q) use ($request) {
                 $q->where('invoice_number', 'like', '%' . $request->search . '%')
-                  ->orWhere('no_order',      'like', '%' . $request->search . '%') // <-- FIXED (dulu so_number)
-                  ->orWhere('pihak_terkait',  'like', '%' . $request->search . '%')
-                  ->orWhere('kode_transaksi', 'like', '%' . $request->search . '%');
+                  ->orWhere('no_order',     'like', '%' . $request->search . '%')
+                  ->orWhere('pihak_terkait', 'like', '%' . $request->search . '%')
+                  ->orWhere('kode_transaksi','like', '%' . $request->search . '%');
             });
         }
 
         $data = $query->orderByDesc('id')->get();
 
-        // Map data agar nama propertinya tetap terbaca 'so_number' di frontend
-        $data->transform(function($inv) {
-            $inv->so_number = $inv->no_order; 
+        $data->transform(function ($inv) {
+            $inv->so_number = $inv->no_order;
             return $inv;
         });
 
@@ -126,35 +131,27 @@ class FinanceController extends Controller
             return response()->json(['success' => false, 'message' => 'Invoice tidak ditemukan'], 404);
         }
 
-        // Tambahkan alias agar frontend tidak rusak
         $invoice->so_number = $invoice->no_order;
 
-        // Cari SO berdasarkan no_order
         $so    = null;
         $items = collect();
 
-        if ($invoice->no_order) { // <-- FIXED (dulu so_number)
+        if ($invoice->no_order) {
             $so = DB::table('sales_orders')
-                ->where('so_number', $invoice->no_order) // <-- FIXED (dulu so_number)
+                ->where('so_number', $invoice->no_order)
                 ->first();
 
             if ($so) {
                 $items = DB::table('sales_order_items')
                     ->leftJoin('gudang_products', 'sales_order_items.product_id', '=', 'gudang_products.id')
                     ->where('sales_order_items.sales_order_id', $so->id)
-                    ->select(
-                        'sales_order_items.*',
-                        'gudang_products.nama_produk',
-                        'gudang_products.sku'
-                    )
+                    ->select('sales_order_items.*', 'gudang_products.nama_produk', 'gudang_products.sku')
                     ->get()
                     ->map(function ($item) {
-                        // Fallback nama produk
                         if (!$item->nama_produk && $item->notes) {
                             $item->nama_produk = $item->notes;
                         }
 
-                        // Ambil serial number jika ada
                         $item->serials = $item->product_id
                             ? DB::table('barang_masuk')
                                 ->where('product_id', $item->product_id)
@@ -178,30 +175,30 @@ class FinanceController extends Controller
         ]);
     }
 
-    // ===== SIMPAN TRANSAKSI (Piutang / Pengeluaran) =====
+    // ===== SIMPAN TRANSAKSI =====
     public function store(Request $request)
     {
         $request->validate([
-            'tipe'         => 'required|in:piutang,pengeluaran',
-            'kategori'     => 'required|string',
-            'jumlah'       => 'required|numeric|min:1',
-            'tanggal'      => 'required|date',
-            'deskripsi'    => 'required|string',
-            'pihak_terkait'=> 'required|string', // wajib untuk piutang
-            'metode_bayar' => 'nullable|in:cash,transfer,qris,kartu_kredit',
+            'tipe'          => 'required|in:piutang,pengeluaran',
+            'kategori'      => 'required|string',
+            'jumlah'        => 'required|numeric|min:1',
+            'tanggal'       => 'required|date',
+            'deskripsi'     => 'required|string',
+            'pihak_terkait' => 'required|string',
+            'metode_bayar'  => 'nullable|in:cash,transfer,qris,kartu_kredit',
         ]);
 
-        $kode = $this->generateKode($request->tipe);
-
-        // Piutang default pending, pengeluaran default lunas
+        $kode   = $this->generateKode($request->tipe);
+        $tipeDb = $request->tipe === 'piutang' ? 'pemasukan' : 'pengeluaran';
         $defaultStatus = $request->tipe === 'piutang' ? 'pending' : 'lunas';
 
         DB::table('keuangan_transaksi')->insert([
             'kode_transaksi' => $kode,
-            'tipe'           => $request->tipe,
+            'tipe'           => $tipeDb,
             'kategori'       => $request->kategori,
             'jumlah'         => $request->jumlah,
             'tanggal'        => $request->tanggal,
+            'jatuh_tempo'    => $request->jatuh_tempo ?: null,
             'deskripsi'      => $request->deskripsi,
             'referensi'      => $request->referensi,
             'metode_bayar'   => $request->metode_bayar ?? 'transfer',
@@ -220,7 +217,7 @@ class FinanceController extends Controller
         ]);
     }
 
-    // ===== UPDATE STATUS PIUTANG (lunas / batal) =====
+    // ===== UPDATE STATUS =====
     public function updateStatus(Request $request, $id)
     {
         $request->validate(['status' => 'required|in:lunas,pending,batal']);
@@ -242,11 +239,23 @@ class FinanceController extends Controller
     // ===== UPDATE TRANSAKSI =====
     public function update(Request $request, $id)
     {
+        // Konversi tipe untuk database
+        $tipe = $request->tipe;
+        if ($tipe === 'piutang') {
+            $tipeDb = 'pemasukan';
+        } elseif ($tipe === 'pengeluaran') {
+            $tipeDb = 'pengeluaran';
+        } else {
+            // Sudah dalam format DB (pemasukan/pengeluaran)
+            $tipeDb = $tipe;
+        }
+
         DB::table('keuangan_transaksi')->where('id', $id)->update([
-            'tipe'          => $request->tipe,
+            'tipe'          => $tipeDb,
             'kategori'      => $request->kategori,
             'jumlah'        => $request->jumlah,
             'tanggal'       => $request->tanggal,
+            'jatuh_tempo'   => $request->jatuh_tempo ?: null,
             'deskripsi'     => $request->deskripsi,
             'referensi'     => $request->referensi,
             'metode_bayar'  => $request->metode_bayar,
@@ -280,8 +289,10 @@ class FinanceController extends Controller
     {
         $tahun  = date('Y');
         $prefix = $tipe === 'piutang' ? 'PIU' : 'EXP';
-        $count  = DB::table('keuangan_transaksi')
-            ->where('tipe', $tipe)
+        $tipeDb = $tipe === 'piutang' ? 'pemasukan' : 'pengeluaran';
+
+        $count = DB::table('keuangan_transaksi')
+            ->where('tipe', $tipeDb)
             ->whereYear('created_at', $tahun)
             ->count();
 

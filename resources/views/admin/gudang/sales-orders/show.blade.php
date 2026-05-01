@@ -47,17 +47,15 @@
                 @if($salesOrder->status === 'approved')
                     @php
                         $invoice = DB::table('keuangan_transaksi')
-                            ->where('no_order', $salesOrder->so_number) 
+                            ->where('no_order', $salesOrder->so_number)
                             ->first();
                     @endphp
                     @if(!$invoice)
-                        {{-- Belum ada invoice --}}
                         <a href="{{ route('admin.sales-orders.create-invoice', $salesOrder->id) }}"
                             class="btn btn-success btn-sm">
                             <i class="fas fa-file-invoice-dollar me-1"></i>Buat Invoice
                         </a>
                     @elseif($invoice->status === 'pending')
-                        {{-- Invoice pending — pelunasan hanya bisa dari Finance --}}
                         <span class="badge bg-warning text-dark me-1">
                             <i class="fas fa-clock me-1"></i>Invoice {{ $invoice->invoice_number }}
                             @if($invoice->tipe_bayar === 'tempo')
@@ -68,12 +66,10 @@
                             <i class="fas fa-cash-register me-1"></i>Tandai Lunas di Finance
                         </a>
                     @else
-                        {{-- Invoice sudah lunas --}}
                         <span class="badge bg-success">
                             <i class="fas fa-check-circle me-1"></i>Invoice {{ $invoice->invoice_number }} — LUNAS
                         </span>
                     @endif
-                    {{-- Tombol Tandai Terkirim tetap ada --}}
                     <form action="{{ route('admin.sales-orders.deliver', $salesOrder->id) }}" method="POST" class="d-inline">
                         @csrf
                         <button type="submit" class="btn btn-primary btn-sm"
@@ -223,28 +219,19 @@
                     <tfoot class="table-light">
                         <tr>
                             <td colspan="5" class="text-end text-muted">Subtotal Produk</td>
-                            <td class="fw-bold text-muted">
-                                Rp {{ number_format($subtotal_items, 0, ',', '.') }}
-                            </td>
+                            <td class="fw-bold text-muted">Rp {{ number_format($subtotal_items, 0, ',', '.') }}</td>
                             <td></td>
                         </tr>
-                        {{-- Tampilkan PPN hanya jika ada / dicentang --}}
                         @if(isset($salesOrder->ppn_rate) && floatval($salesOrder->ppn_rate) > 0)
                         <tr>
-                            <td colspan="5" class="text-end text-muted">
-                                PPN ({{ floatval($salesOrder->ppn_rate) }}%)
-                            </td>
-                            <td class="fw-bold text-danger">
-                                + Rp {{ number_format($salesOrder->ppn_nominal ?? 0, 0, ',', '.') }}
-                            </td>
+                            <td colspan="5" class="text-end text-muted">PPN ({{ floatval($salesOrder->ppn_rate) }}%)</td>
+                            <td class="fw-bold text-danger">+ Rp {{ number_format($salesOrder->ppn_nominal ?? 0, 0, ',', '.') }}</td>
                             <td></td>
                         </tr>
                         @endif
                         <tr>
                             <td colspan="5" class="text-end fw-bold">TOTAL KESELURUHAN</td>
-                            <td class="fw-bold text-success fs-6">
-                                Rp {{ number_format($salesOrder->total_amount, 0, ',', '.') }}
-                            </td>
+                            <td class="fw-bold text-success fs-6">Rp {{ number_format($salesOrder->total_amount, 0, ',', '.') }}</td>
                             <td></td>
                         </tr>
                     </tfoot>
@@ -252,6 +239,7 @@
             </div>
         </div>
     </div>
+
     {{-- Info Invoice (jika sudah dibuat) --}}
     @php
         $invoiceInfo = DB::table('keuangan_transaksi')
@@ -306,20 +294,93 @@
                     <strong class="text-success fs-6">Rp {{ number_format($invoiceInfo->jumlah, 0, ',', '.') }}</strong>
                 </div>
             </div>
-            {{-- ===== TOMBOL AKSI INVOICE ===== --}}
+
+            {{-- ===== DOWN PAYMENT ===== --}}
+            @if(!empty($invoiceInfo->dp_nominal) && $invoiceInfo->dp_nominal > 0)
+            @php
+                $dpNominal  = $invoiceInfo->dp_nominal;
+                $sisaTagihan = $invoiceInfo->sisa_tagihan ?? ($invoiceInfo->jumlah - $dpNominal);
+                $dpPersen   = $invoiceInfo->jumlah > 0 ? round(($dpNominal / $invoiceInfo->jumlah) * 100, 1) : 0;
+            @endphp
+            <div class="mt-3 pt-3 border-top">
+                <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-hand-holding-usd me-2" style="color:#e67e22"></i>
+                    <strong style="color:#e67e22">Down Payment (DP)</strong>
+                </div>
+                <div class="row g-2">
+                    {{-- DP Dibayar --}}
+                    <div class="col-md-4">
+                        <div class="card border-0 bg-light h-100">
+                            <div class="card-body py-2 px-3">
+                                <small class="text-muted d-block">DP Dibayar</small>
+                                <strong class="text-primary fs-6">
+                                    Rp {{ number_format($dpNominal, 0, ',', '.') }}
+                                </strong>
+                                <small class="text-muted d-block">({{ $dpPersen }}% dari total)</small>
+                            </div>
+                        </div>
+                    </div>
+                    {{-- Sisa Tagihan --}}
+                    <div class="col-md-4">
+                        <div class="card border-0 bg-light h-100">
+                            <div class="card-body py-2 px-3">
+                                <small class="text-muted d-block">Sisa Tagihan</small>
+                                <strong class="{{ $sisaTagihan > 0 ? 'text-danger' : 'text-success' }} fs-6">
+                                    Rp {{ number_format($sisaTagihan, 0, ',', '.') }}
+                                </strong>
+                                <div class="mt-1">
+                                    @if($invoiceInfo->status === 'lunas' || $sisaTagihan <= 0)
+                                        <span class="badge bg-success">LUNAS</span>
+                                    @else
+                                        <span class="badge bg-danger">BELUM DILUNASI</span>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{-- Mini ringkasan --}}
+                    <div class="col-md-4">
+                        <div class="card border-0 bg-light h-100">
+                            <div class="card-body py-2 px-3">
+                                <small class="text-muted d-block mb-1">Ringkasan Pembayaran</small>
+                                <div class="d-flex justify-content-between small">
+                                    <span class="text-muted">Total</span>
+                                    <span>Rp {{ number_format($invoiceInfo->jumlah, 0, ',', '.') }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between small text-primary">
+                                    <span>DP</span>
+                                    <span>&minus; Rp {{ number_format($dpNominal, 0, ',', '.') }}</span>
+                                </div>
+                                <hr class="my-1">
+                                <div class="d-flex justify-content-between small fw-bold {{ $sisaTagihan > 0 ? 'text-danger' : 'text-success' }}">
+                                    <span>Sisa</span>
+                                    <span>Rp {{ number_format($sisaTagihan, 0, ',', '.') }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+            {{-- ===== END DOWN PAYMENT ===== --}}
+
+            {{-- Tombol Aksi Invoice --}}
             <div class="d-flex gap-2 flex-wrap mt-3 pt-3 border-top">
-                {{-- Download PDF --}}
                 <a href="{{ route('admin.sales-orders.invoice-download', $salesOrder->id) }}"
                     class="btn btn-dark btn-sm" target="_blank">
                     <i class="fas fa-file-pdf me-1"></i>Download Invoice PDF
                 </a>
-                {{-- Share WhatsApp --}}
                 @php
                     $invoicePdfUrl = route('admin.sales-orders.invoice-preview', $salesOrder->id);
+                    $dpInfo = (!empty($invoiceInfo->dp_nominal) && $invoiceInfo->dp_nominal > 0)
+                        ? "\nDP: *Rp " . number_format($invoiceInfo->dp_nominal, 0, ',', '.') . "*"
+                          . "\nSisa: *Rp " . number_format($invoiceInfo->sisa_tagihan ?? ($invoiceInfo->jumlah - $invoiceInfo->dp_nominal), 0, ',', '.') . "*"
+                        : "";
                     $waText = urlencode(
                         "Halo {$salesOrder->customer_name},\n\n" .
                         "Berikut Invoice *{$invoiceInfo->invoice_number}* dari TechStore.\n\n" .
-                        "Total Tagihan: *Rp " . number_format($invoiceInfo->jumlah, 0, ',', '.') . "*\n" .
+                        "Total Tagihan: *Rp " . number_format($invoiceInfo->jumlah, 0, ',', '.') . "*" .
+                        $dpInfo . "\n" .
                         ($invoiceInfo->tipe_bayar === 'tempo'
                             ? "Jatuh Tempo: *" . \Carbon\Carbon::parse($invoiceInfo->jatuh_tempo)->format('d/m/Y') . "*\n"
                             : ""
@@ -337,7 +398,6 @@
                 <a href="{{ $waUrl }}" target="_blank" class="btn btn-success btn-sm">
                     <i class="fab fa-whatsapp me-1"></i>Share WhatsApp
                 </a>
-                {{-- Kirim Email --}}
                 <button type="button" class="btn btn-info btn-sm"
                     data-bs-toggle="modal" data-bs-target="#emailInvoiceModal">
                     <i class="fas fa-envelope me-1"></i>Kirim Email Invoice
@@ -345,7 +405,8 @@
             </div>
         </div>
     </div>
-    {{-- ===== MODAL EMAIL INVOICE ===== --}}
+
+    {{-- Modal Email Invoice --}}
     <div class="modal fade" id="emailInvoiceModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -384,6 +445,7 @@
     </div>
     @endif
 </div>
+
 {{-- Modal Kirim Email SO --}}
 <div class="modal fade" id="emailModal" tabindex="-1">
     <div class="modal-dialog">

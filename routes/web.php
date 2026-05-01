@@ -41,6 +41,8 @@ use App\Http\Controllers\QuotationPublicController;
 // ⭐ NEW: Finance Controllers
 use App\Http\Controllers\Admin\FinanceController;
 use App\Http\Controllers\Admin\LaporanController;
+// ⭐ NEW: Notification Controller
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -389,6 +391,17 @@ Route::get('/penjualan-online/staff',   [PenjualanLinkController::class, 'showFo
 Route::post('/penjualan-online/simpan', [PenjualanLinkController::class, 'simpan'])->name('penjualan.link.simpan');
 
 // =====================================
+// ⭐ NOTIFICATION ROUTES
+// =====================================
+Route::get('/notifications',                       [NotificationController::class, 'index'])->name('notifications.index');
+Route::patch('/notifications/read-all',            [NotificationController::class, 'markAllRead'])->name('notifications.readAll');
+Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+// Notifikasi Jatuh Tempo (API)
+Route::get('/api/admin/notifikasi',                    [NotificationController::class, 'index'])->name('api.notifikasi.index');
+Route::patch('/api/admin/notifikasi/baca-semua',       [NotificationController::class, 'markAllRead'])->name('api.notifikasi.readAll');
+Route::patch('/api/admin/notifikasi/{id}/baca',        [NotificationController::class, 'markRead'])->name('api.notifikasi.read');
+
+// =====================================
 // ⭐ LAPORAN KEUANGAN ROUTES
 // =====================================
 Route::get('/admin/finance/laporan', [LaporanController::class, 'index'])
@@ -519,7 +532,7 @@ Route::prefix('admin/gudang/sales-orders')->name('admin.sales-orders.')->group(f
     Route::get('/{id}/preview-pdf',[SalesOrderController::class, 'previewPdf'])->name('preview-pdf')->where('id', '[0-9]+');
     Route::post('/{id}/send-email',[SalesOrderController::class, 'sendEmail'])->name('send-email')->where('id', '[0-9]+');
     
-    // ✅ INVOICE ROUTES (Sudah ada di dalam group dengan prefix yang tepat)
+    // ✅ INVOICE ROUTES
     Route::get('/{id}/create-invoice',      [SalesOrderController::class, 'createInvoiceForm'])->name('create-invoice')->where('id', '[0-9]+');
     Route::post('/{id}/store-invoice',      [SalesOrderController::class, 'storeInvoice'])->name('store-invoice')->where('id', '[0-9]+');
     Route::post('/{id}/mark-lunas',         [SalesOrderController::class, 'markLunas'])->name('mark-lunas')->where('id', '[0-9]+');
