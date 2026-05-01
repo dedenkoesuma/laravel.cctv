@@ -701,3 +701,7 @@ Route::group(['prefix' => 'admin/roles', 'as' => 'admin.roles.'], function() {
     Route::get('/{id}/edit', [App\Http\Controllers\Admin\RoleController::class, 'edit'])->name('edit');
     Route::put('/{id}', [App\Http\Controllers\Admin\RoleController::class, 'update'])->name('update');
 });
+Route::get('/buat-symlink', function () {
+    \Illuminate\Support\Facades\Artisan::call('storage:link');
+    return 'Symlink berhasil dibuat!';
+});
