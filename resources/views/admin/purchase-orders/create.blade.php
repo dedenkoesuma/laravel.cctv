@@ -184,7 +184,7 @@ function addRow() {
             <input type="text" placeholder="Nama produk..." id="pname-${idx}" oninput="calcTotal()">
             <input type="text" placeholder="Deskripsi..." id="pdesc-${idx}" style="margin-top:4px;font-size:11px;color:#6b7280">
         </td>
-        <td><input type="number" id="qty-${idx}" value="1" min="0.1" step="0.1" style="text-align:center" oninput="calcTotal()" onkeyup="calcTotal()" onchange="calcTotal()"></td>
+        <td><input type="number" id="qty-${idx}" value="1" min="1" step="1" style="text-align:center" oninput="calcTotal()" onkeyup="calcTotal()" onchange="calcTotal()"></td>
         <td><select id="unit-${idx}"><option>pcs</option><option>unit</option><option>box</option><option>roll</option><option>set</option><option>meter</option></select></td>
         <td><input type="number" id="price-${idx}" value="0" min="0" style="text-align:right" oninput="calcTotal()" onkeyup="calcTotal()" onchange="calcTotal()"></td>
         <td><input type="number" id="disc-${idx}" value="0" min="0" max="100" placeholder="%" style="text-align:center" oninput="calcTotal()" onkeyup="calcTotal()" onchange="calcTotal()"></td>

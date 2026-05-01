@@ -54,7 +54,7 @@
             </div>
         </div>
 
-        {{-- Nomor Rekening --}}
+      {{-- Nomor Rekening --}}
         <div class="card mb-3 shadow-sm">
             <div class="card-header bg-info text-white">
                 <i class="fas fa-university me-2"></i>Informasi Rekening Tujuan Pembayaran
@@ -62,22 +62,22 @@
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label class="form-label fw-bold">Nama Bank <span class="text-danger">*</span></label>
-                        <input type="text" name="nama_bank" class="form-control"
-                            placeholder="Contoh: BCA, Mandiri, BRI"
-                            value="{{ old('nama_bank') }}" required>
+                        <label class="form-label fw-bold">Nama Bank</label>
+                        {{-- Ganti value "BCA" dengan nama bank kamu --}}
+                        <input type="text" name="nama_bank" class="form-control bg-light"
+                            value="BCA" readonly>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-bold">Nomor Rekening <span class="text-danger">*</span></label>
-                        <input type="text" name="no_rekening" class="form-control font-monospace"
-                            placeholder="Contoh: 1234567890"
-                            value="{{ old('no_rekening') }}" required>
+                        <label class="form-label fw-bold">Nomor Rekening</label>
+                        {{-- Ganti value "1234567890" dengan nomor rekening kamu --}}
+                        <input type="text" name="no_rekening" class="form-control font-monospace bg-light"
+                            value="5015211951" readonly>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label fw-bold">Atas Nama <span class="text-danger">*</span></label>
-                        <input type="text" name="nama_rekening" class="form-control"
-                            placeholder="Nama pemilik rekening"
-                            value="{{ old('nama_rekening') }}" required>
+                        <label class="form-label fw-bold">Atas Nama</label>
+                        {{-- Ganti value "PT TechStore" dengan nama pemilik rekening --}}
+                        <input type="text" name="nama_rekening" class="form-control bg-light"
+                            value="Nabil Ihsan Kurniasandy" readonly>
                     </div>
                 </div>
             </div>

@@ -443,6 +443,7 @@ Route::prefix('admin/purchase-orders')->name('admin.po.')->group(function () {
     Route::get('/create',     [App\Http\Controllers\Admin\PurchaseOrderController::class, 'create'])->name('create');
     Route::get('/{id}/edit',  [App\Http\Controllers\Admin\PurchaseOrderController::class, 'edit'])->name('edit')->where('id','[0-9]+');
     Route::get('/{id}/print', [App\Http\Controllers\Admin\PurchaseOrderController::class, 'printPdf'])->name('print')->where('id','[0-9]+');
+    Route::get('/export',     [App\Http\Controllers\Admin\PurchaseOrderController::class, 'export'])->name('export');
     Route::get('/{id}/pdf',   [App\Http\Controllers\Admin\PurchaseOrderController::class, 'downloadPdf'])->name('pdf')->where('id','[0-9]+');
 });
 

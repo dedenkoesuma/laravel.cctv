@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'TechStore')</title>
+    <title>@yield('title', 'MJA Tech')</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -60,32 +60,41 @@
         }
 
         .brand-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            width: 45px; 
+            height: 45px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+            padding: 5px;
+        }
+
+        .brand-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .navbar-brand:hover {
-            color: #60a5fa;
+            color: #ff3333;
             transform: translateY(-2px);
         }
 
         .navbar-brand:hover .brand-icon {
-            transform: rotate(360deg) scale(1.1);
-            box-shadow: 0 8px 30px rgba(59, 130, 246, 0.6);
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(255, 0, 0, 0.4);
         }
 
+        /* Warna Teks Brand Disesuaikan dengan Logo Merah */
         .brand-text {
-            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            background: linear-gradient(135deg, #f50000 0%, #e2e1ff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            font-weight: 800;
+            filter: drop-shadow(0 2px 4px rgba(255, 0, 0, 0.2));
         }
 
         /* Navigation Menu */
@@ -121,7 +130,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(168, 0, 0, 0.1));
             opacity: 0;
             transition: opacity 0.3s ease;
             border-radius: 10px;
@@ -138,8 +147,8 @@
 
         .navbar-link.active {
             color: white;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15));
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.15), rgba(168, 0, 0, 0.15));
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);
         }
 
         .navbar-link svg {
@@ -158,7 +167,6 @@
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Rotate arrow when dropdown is open */
         .navbar-item.show .dropdown-arrow {
             transform: rotate(180deg);
         }
@@ -184,7 +192,6 @@
             pointer-events: none;
         }
 
-        /* Show dropdown when parent has 'show' class */
         .navbar-item.show .dropdown-menu-custom {
             opacity: 1;
             visibility: visible;
@@ -192,7 +199,6 @@
             pointer-events: auto;
         }
 
-        /* Desktop hover */
         @media (min-width: 993px) {
             .navbar-item:hover .dropdown-menu-custom {
                 opacity: 1;
@@ -200,7 +206,6 @@
                 transform: translateY(0) scale(1);
                 pointer-events: auto;
             }
-            
             .navbar-item:hover .dropdown-arrow {
                 transform: rotate(180deg);
             }
@@ -221,53 +226,23 @@
             overflow: hidden;
         }
 
-        .dropdown-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 3px;
-            height: 100%;
-            background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
-            transform: scaleY(0);
-            transition: transform 0.3s ease;
-        }
-
-        .dropdown-item:hover::before {
-            transform: scaleY(1);
-        }
-
         .dropdown-item:hover {
-            background: rgba(59, 130, 246, 0.15);
+            background: rgba(255, 0, 0, 0.15);
             color: white;
             transform: translateX(4px);
             text-decoration: none;
         }
 
-        .dropdown-item.active {
-            background: rgba(59, 130, 246, 0.2);
-            color: white;
-        }
-
         /* Mobile Menu Toggle */
         .mobile-menu-toggle {
             display: none;
-            background: rgba(59, 130, 246, 0.1);
+            background: rgba(255, 0, 0, 0.1);
             border: none;
             border-radius: 10px;
             color: white;
             cursor: pointer;
             padding: 10px;
             transition: all 0.3s ease;
-        }
-
-        .mobile-menu-toggle:hover {
-            background: rgba(59, 130, 246, 0.2);
-            transform: scale(1.05);
-        }
-
-        .mobile-menu-toggle:active {
-            transform: scale(0.95);
         }
 
         /* Responsive Mobile */
@@ -296,24 +271,6 @@
 
             .navbar-menu.show {
                 display: flex;
-                animation: slideDown 0.3s ease;
-            }
-
-            @keyframes slideDown {
-                from {
-                    opacity: 0;
-                    transform: translateY(-10px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            .navbar-link {
-                width: 100%;
-                padding: 14px 16px;
-                border-radius: 10px;
             }
 
             .dropdown-menu-custom {
@@ -333,13 +290,8 @@
                 max-height: 500px;
                 padding: 8px;
             }
-
-            .dropdown-item {
-                padding-left: 20px;
-            }
         }
 
-        /* Footer */
         footer {
             background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(20px);
@@ -350,46 +302,21 @@
             margin-top: auto;
         }
 
-        footer p {
-            margin: 0;
-            font-size: 14px;
-        }
-
-        /* Smooth Scrolling */
         html {
             scroll-behavior: smooth;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #1e293b;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
-            border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(to bottom, #2563eb, #7c3aed);
         }
     </style>
 </head>
 <body>
-    <!-- Modern TechStore Navbar -->
+    <!-- Modern MJA Tech Navbar -->
     <nav class="techstore-navbar">
         <div class="navbar-container">
             <a href="{{ url('/') }}" class="navbar-brand">
                 <div class="brand-icon">
-                    <svg fill="white" viewBox="0 0 20 20" width="22" height="22">
-                        <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-                    </svg>
+                    <!-- MENGGANTI ICON DENGAN LOGO-MJA.PNG -->
+                    <img src="{{ asset('storage/gambar/logo-mja.png') }}" alt="MJA Tech Logo">
                 </div>
-                <span class="brand-text">TechStore</span>
+                <span class="brand-text">Tech Store</span>
             </a>
 
             <button class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="Toggle menu">
@@ -422,11 +349,8 @@
                         <a href="{{ url('/products/hikvision') }}" class="dropdown-item">Hikvision</a>
                         <a href="{{ url('/products/dahua') }}" class="dropdown-item">Dahua</a>
                         <a href="{{ url('/products/hilook') }}" class="dropdown-item">HiLook</a>
-                    
                         <a href="{{ url('/products/unv') }}" class="dropdown-item">UNV</a>
-                        
                         <a href="{{ url('/products/hiview') }}" class="dropdown-item">HiView</a>
-                        
                     </div>
                 </li>
 
@@ -462,15 +386,15 @@
                         <a href="{{ url('/products/ruijie') }}" class="dropdown-item">RUIJIE/REYEE</a>
                         <a href="{{ url('/products/foreage') }}" class="dropdown-item">FOREAGES</a>
                     </div>
-                  <li class="navbar-item">
+                </li>
+
+                <li class="navbar-item">
                     <a href="{{ url('/about') }}" class="navbar-link">
                         <svg fill="currentColor" viewBox="0 0 20 20">
                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                         </svg>
                         Tentang Kami
                     </a>
-                </li>
-                </li>
                 </li>
             </ul>
         </div>
@@ -482,8 +406,8 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white text-center py-3 mt-5">
-        <p class="mb-0">&copy; 2024 TechStore. All rights reserved.</p>
+    <footer>
+        <p class="mb-0">&copy; 2026 MJA Tech. All rights reserved.</p>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -491,13 +415,9 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚀 Navbar script initialized');
-
-            // ========== DROPDOWN DELAY SETTINGS ==========
-            const DROPDOWN_CLOSE_DELAY = 800; // Waktu delay dalam milliseconds (800ms = 0.8 detik)
+            const DROPDOWN_CLOSE_DELAY = 800; 
             let closeTimeout = null;
 
-            // ========== MOBILE MENU TOGGLE ==========
             const mobileBtn = document.getElementById('mobileMenuBtn');
             const mainMenu = document.getElementById('mainMenu');
 
@@ -505,120 +425,60 @@
                 mobileBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     mainMenu.classList.toggle('show');
-                    console.log('📱 Mobile menu:', mainMenu.classList.contains('show') ? 'Open' : 'Closed');
                 });
             }
 
-            // ========== DROPDOWN TOGGLE (MOBILE CLICK) ==========
             const dropdownTriggers = document.querySelectorAll('.dropdown-trigger');
-            
-            console.log('🎯 Found dropdowns:', dropdownTriggers.length);
-
-            dropdownTriggers.forEach(function(trigger, index) {
+            dropdownTriggers.forEach(function(trigger) {
                 trigger.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
-                    
                     const parent = this.closest('.navbar-item');
-                    const isOpen = parent.classList.contains('show');
-                    
-                    console.log('🖱️ Dropdown #' + (index + 1) + ' clicked, currently:', isOpen ? 'OPEN' : 'CLOSED');
-                    
-                    // Close all other dropdowns
                     document.querySelectorAll('.navbar-item').forEach(function(item) {
-                        if (item !== parent) {
-                            item.classList.remove('show');
-                        }
+                        if (item !== parent) item.classList.remove('show');
                     });
-                    
-                    // Toggle current dropdown
                     parent.classList.toggle('show');
-                    
-                    console.log('✅ Dropdown #' + (index + 1) + ' now:', parent.classList.contains('show') ? 'OPEN' : 'CLOSED');
                 });
             });
 
-            // ========== DROPDOWN HOVER WITH DELAY (DESKTOP ONLY) ==========
             if (window.innerWidth > 992) {
                 const dropdownParents = document.querySelectorAll('.dropdown-parent');
-                
                 dropdownParents.forEach(function(parent) {
-                    // Mouse enter - buka dropdown
                     parent.addEventListener('mouseenter', function() {
-                        // Clear any pending close timeout
-                        if (closeTimeout) {
-                            clearTimeout(closeTimeout);
-                            closeTimeout = null;
-                        }
-                        
-                        // Close other dropdowns
+                        if (closeTimeout) { clearTimeout(closeTimeout); closeTimeout = null; }
                         document.querySelectorAll('.navbar-item').forEach(function(item) {
-                            if (item !== parent) {
-                                item.classList.remove('show');
-                            }
+                            if (item !== parent) item.classList.remove('show');
                         });
-                        
-                        // Open this dropdown
                         parent.classList.add('show');
                     });
-                    
-                    // Mouse leave - tutup dropdown dengan delay
                     parent.addEventListener('mouseleave', function() {
                         const currentParent = this;
-                        
-                        // Set timeout untuk menutup dropdown
                         closeTimeout = setTimeout(function() {
                             currentParent.classList.remove('show');
-                            console.log('⏱️ Dropdown closed after delay');
                         }, DROPDOWN_CLOSE_DELAY);
                     });
                 });
             }
 
-            // ========== CLOSE ON OUTSIDE CLICK ==========
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.navbar-container')) {
-                    // Clear any pending timeout
-                    if (closeTimeout) {
-                        clearTimeout(closeTimeout);
-                        closeTimeout = null;
-                    }
-                    
-                    // Close mobile menu
-                    if (mainMenu) {
-                        mainMenu.classList.remove('show');
-                    }
-                    
-                    // Close all dropdowns
+                    if (mainMenu) mainMenu.classList.remove('show');
                     document.querySelectorAll('.navbar-item').forEach(function(item) {
                         item.classList.remove('show');
                     });
                 }
             });
 
-            // ========== HANDLE RESIZE ==========
             window.addEventListener('resize', function() {
                 if (window.innerWidth > 992) {
-                    mainMenu.classList.remove('show');
+                    if (mainMenu) mainMenu.classList.remove('show');
                     document.querySelectorAll('.navbar-item').forEach(function(item) {
                         item.classList.remove('show');
                     });
                 }
             });
-
-            // ========== ACTIVE LINK ==========
-            const currentPath = window.location.pathname;
-            document.querySelectorAll('.navbar-link, .dropdown-item').forEach(function(link) {
-                const href = link.getAttribute('href');
-                if (href && href !== '#' && currentPath.includes(href)) {
-                    link.classList.add('active');
-                }
-            });
-
-            console.log('✅ Navbar ready! Dropdown close delay:', DROPDOWN_CLOSE_DELAY + 'ms');
         });
     </script>
-    
     @yield('scripts')
 </body>
 </html>

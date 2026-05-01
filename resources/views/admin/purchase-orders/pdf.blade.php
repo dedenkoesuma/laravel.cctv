@@ -73,7 +73,7 @@ body { font-family: 'DejaVu Sans', Arial, sans-serif; font-size: 11px; color: #1
     <div>
         <div class="company-name">🏢 TechStore Indonesia</div>
         <div class="company-sub">
-            Jl. Ahmad Yani No.45, Jakarta Selatan 12630<br>
+            Jl. Kalibaru Timur, RT.3/RW.2, Bungur, Kec. Senen, Kota Jakarta Pusat, Daerah Khusus Ibukota Jakarta 10460<br>
             📞 021-7891234 &nbsp;|&nbsp; 📧 admin@techstore.id<br>
             NPWP: 01.234.567.8-123.000
         </div>
