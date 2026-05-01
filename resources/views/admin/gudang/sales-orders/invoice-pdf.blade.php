@@ -120,16 +120,6 @@
         }
 
         /* ===== FOOTER ===== */
-        .footer {
-            border-top: 1px solid #e5e7eb;
-            margin-top: 20px;
-            padding-top: 10px;
-            display: table;
-            width: 100%;
-        }
-        .footer-left  { display: table-cell; width: 60%; font-size: 10px; color: #666; vertical-align: bottom; }
-        .footer-right { display: table-cell; width: 40%; text-align: center; vertical-align: bottom; }
-        .ttd-box { border-top: 1px solid #333; margin-top: 50px; padding-top: 4px; font-size: 10px; color: #444; font-weight: bold;}
         .page-wrap { padding: 28px 32px; }
     </style>
 </head>
@@ -142,10 +132,15 @@
             <!-- Gambar Logo MJA dipanggil dari folder public/images -->
             @php
                 $imagePath = storage_path('app/public/gambar/logo-mja.png');
-                $imageData = base64_encode(file_get_contents($imagePath));
-                $src = 'data:image/jpeg;base64,' . $imageData;
+                $src = '';
+                if(file_exists($imagePath)) {
+                    $imageData = base64_encode(file_get_contents($imagePath));
+                    $src = 'data:image/png;base64,' . $imageData;
+                }
             @endphp
-            <img src="{{ $src }}" class="logo" alt="Logo MJA">
+            @if($src)
+                <img src="{{ $src }}" class="logo" alt="Logo MJA">
+            @endif
             <div class="company-name">TechStore</div>
             <div class="company-sub">Solusi Teknologi & Networking Terpercaya</div>
         </div>
@@ -287,17 +282,61 @@
     </div>
     @endif
 
-    {{-- FOOTER --}}
-    <div class="footer">
-        <div class="footer-left">
-            <div>Dokumen ini diterbitkan secara resmi oleh <strong>Makmur Jaya Abadi</strong>.</div>
-            <div style="margin-top:3px">Terima kasih atas kepercayaan Anda.</div>
-        </div>
-        <div class="footer-right">
-            <div style="font-size:10px;color:#666;margin-bottom:4px">Hormat kami,</div>
-            <div class="ttd-box">Makmur Jaya Abadi</div>
-        </div>
-    </div>
+    {{-- FOOTER DENGAN TTD & STEMPEL (Versi Table DOMPDF Safe) --}}
+    <table style="width: 100%; border-top: 1px solid #e5e7eb; margin-top: 20px; padding-top: 10px; border-collapse: collapse;">
+        <tr>
+            <td style="width: 60%; vertical-align: bottom; font-size: 10px; color: #666;">
+                <div>Dokumen ini diterbitkan secara resmi oleh <strong>TechStore</strong>.</div>
+                <div style="margin-top:3px">Terima kasih atas kepercayaan Anda.</div>
+            </td>
+            <td style="width: 40%; text-align: center; vertical-align: bottom;">
+                <!-- Jarak kosong dilebarkan jadi 90px agar ada ruang muat untuk gambar -->
+                <div style="font-size:10px;color:#666; margin-bottom: 90px;">Hormat kami,</div>
+                
+                @php
+                    // Setup Base64 untuk Stempel
+                    $stempelPath = storage_path('app/public/gambar/stempel.png');
+                    $stempelBase64 = '';
+                    if(file_exists($stempelPath)){
+                        $stempelData = base64_encode(file_get_contents($stempelPath));
+                        $stempelBase64 = 'data:image/png;base64,' . $stempelData;
+                    }
+
+                    // Setup Base64 untuk Tanda Tangan
+                    $ttdPath = storage_path('app/public/gambar/ttd.png');
+                    $ttdBase64 = '';
+                    if(file_exists($ttdPath)){
+                        $ttdData = base64_encode(file_get_contents($ttdPath));
+                        $ttdBase64 = 'data:image/png;base64,' . $ttdData;
+                    }
+                @endphp
+
+                <!-- Container area TTD dan Garis -->
+                <div style="width: 160px; margin: 0 auto; text-align: center;">
+
+                    <!-- Stempel ditarik lebih jauh ke atas jadi -85px -->
+                    <div style="height: 0;">
+                        @if($stempelBase64)
+                            <img src="{{ $stempelBase64 }}" style="width: 90px; opacity: 0.7; margin-top: -85px; margin-left: -20px;">
+                        @endif
+                    </div>
+
+                    <!-- TTD ditarik lebih jauh ke atas jadi -115px -->
+                    <div style="height: 0;">
+                        @if($ttdBase64)
+                            <img src="{{ $ttdBase64 }}" style="width: 120px; margin-top: -115px; margin-left: 20px;">
+                        @endif
+                    </div>
+
+                    <!-- Garis TechStore akan tetap aman di posisinya -->
+                    <div style="border-top: 1px solid #333; padding-top: 4px; font-size: 10px; color: #444; font-weight: bold; width: 100%;">
+                        TechStore
+                    </div>
+
+                </div>
+            </td>
+        </tr>
+    </table>
 
 </div>
 </body>

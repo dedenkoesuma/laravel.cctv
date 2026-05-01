@@ -224,7 +224,11 @@
             <div class="col-lg-3 col-md-6">
                 <div class="access-card">
                     <div class="access-image">
-                        <img src="https://via.placeholder.com/200x200/f8f9fa/666?text={{ urlencode($device['name']) }}" alt="{{ $device['name'] }}" class="img-fluid" style="mix-blend-mode: multiply;">
+                        <!-- Perbaikan Gambar: Menggunakan image dari DB jika ada, jika tidak, pakai dummy image Access Control -->
+                        <img src="{{ isset($device['image']) ? asset($device['image']) : 'https://images.unsplash.com/photo-1558002038-1055907df827?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80' }}" 
+                             alt="{{ $device['name'] }}" 
+                             class="img-fluid" 
+                             style="max-height: 200px; object-fit: cover; border-radius: 8px;">
                     </div>
                     <div class="access-content">
                         <h5 class="access-name">{{ $device['name'] }}</h5>

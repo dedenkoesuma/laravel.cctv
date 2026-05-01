@@ -119,6 +119,30 @@
         line-height: 1.8;
     }
 
+    /* ===== NEW: Certificates Section ===== */
+    .certificates-section {
+        margin: 60px 0;
+        text-align: center;
+    }
+
+    .certificates-section h2 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 30px;
+    }
+
+    .certificates-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 16px;
+        transition: transform 0.3s ease;
+    }
+
+    .certificates-image:hover {
+        transform: translateY(-5px);
+    }
+
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -294,6 +318,10 @@
         .cta-wrapper {
             padding: 40px 20px;
         }
+
+        .certificates-section h2 {
+            font-size: 1.8rem;
+        }
     }
 </style>
 
@@ -320,6 +348,12 @@
                     <p>Kami bangga menjadi mitra tepercaya yang tidak hanya menjual produk, tetapi juga memberikan konsultasi menyeluruh dan dukungan purna jual yang responsif untuk memastikan keamanan Anda terjaga 24/7.</p>
                 </div>
             </div>
+        </div>
+
+        <!-- NEW: Certificates Section ditambahkan di bawah Siapa Kami -->
+        <div class="certificates-section">
+            <h2>Sertifikasi & Kemitraan Resmi</h2>
+            <img src="{{ asset('storage/gambar/watermarked_img_7031490200548243503.png') }}" alt="Sertifikat Resmi TechStore" class="certificates-image">
         </div>
 
         <div class="stats-grid">
