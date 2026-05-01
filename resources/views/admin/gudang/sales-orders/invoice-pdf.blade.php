@@ -220,7 +220,7 @@
     {{-- TEMPO WARNING --}}
     @if($invoice->tipe_bayar === 'tempo' && $invoice->status !== 'lunas')
     <div class="tempo-box">
-        <strong>⚠ Pembayaran Tempo:</strong>
+        <strong>Pembayaran Tempo:</strong>
         Harap melakukan pembayaran sebelum
         <strong>{{ \Carbon\Carbon::parse($invoice->jatuh_tempo)->format('d F Y') }}</strong>
         ({{ $invoice->tempo_hari }} hari dari tanggal invoice).
