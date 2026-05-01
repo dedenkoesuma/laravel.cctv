@@ -470,6 +470,7 @@ class SalesOrderController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            dd('TERNYATA INI ERRORNYA BANG: ' . $e->getMessage(), 'Terjadi di baris: ' . $e->getLine());
             return back()->with('error', 'Gagal membuat Invoice: ' . $e->getMessage());
         }
     }
