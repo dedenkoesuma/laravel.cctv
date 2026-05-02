@@ -269,6 +269,28 @@
                                                 <i class="bi bi-whatsapp"></i> Order Sekarang 
                                             </a>
                                         </div>
+                                        <script type="application/ld+json">
+                                    {
+                                      "@context": "https://schema.org/",
+                                      "@type": "Product",
+                                      "name": "{{ $product->nama_produk ?? $product->product_name }}",
+                                      "image": "{{ !empty($product->gambar) || !empty($product->image) ? asset('storage/' . ($product->gambar ?? $product->image)) : 'https://via.placeholder.com/200x200' }}",
+                                      "description": "{{ strip_tags($product->deskripsi ?? $product->description ?? 'Kamera CCTV ' . $brandName . ' berkualitas.') }}",
+                                      "sku": "{{ $product->sku ?? '' }}",
+                                      "brand": {
+                                        "@type": "Brand",
+                                        "name": "{{ $brandName }}"
+                                      },
+                                      "offers": {
+                                        "@type": "Offer",
+                                        "url": "{{ url()->current() }}",
+                                        "priceCurrency": "IDR",
+                                        "price": "{{ $displayPrice }}",
+                                        "availability": "https://schema.org/InStock",
+                                        "itemCondition": "https://schema.org/NewCondition"
+                                      }
+                                    }
+                                    </script>
                                     </div>
                                 </div>
                                 @empty

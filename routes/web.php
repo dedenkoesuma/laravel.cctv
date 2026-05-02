@@ -20,6 +20,7 @@ use App\Models\RuijieProduct;
 use App\Models\RuijiePageSettings;
 use App\Models\RuijieCategory;
 use App\Models\WiFiCamera; 
+use Spatie\Sitemap\SitemapGenerator;
 
 // ⭐ NEW: Bookkeeping Controller
 use App\Http\Controllers\BookkeepingController;
@@ -707,4 +708,11 @@ Route::group(['prefix' => 'admin/roles', 'as' => 'admin.roles.'], function() {
     Route::post('/', [App\Http\Controllers\Admin\RoleController::class, 'store'])->name('store');
     Route::get('/{id}/edit', [App\Http\Controllers\Admin\RoleController::class, 'edit'])->name('edit');
     Route::put('/{id}', [App\Http\Controllers\Admin\RoleController::class, 'update'])->name('update');
+});
+Route::get('/generate-sitemap', function () {
+    // Proses merayapi web kamu dan membuat sitemap
+    SitemapGenerator::create('https://techstorecctv.com')
+        ->writeToFile(public_path('sitemap.xml'));
+        
+    return 'Berhasil! Sitemap.xml sudah berhasil dibuat di folder public.';
 });

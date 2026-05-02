@@ -4,8 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Pembukuan - Admin TechStore</title>
+    <!-- Title Dinamis (Default jika tidak diisi) -->
+    <title>@yield('title', 'TechStore - Solusi CCTV & IT Security Terpercaya')</title>
     
+    <!-- Meta Description Dinamis -->
+    <meta name="description" content="@yield('meta_description', 'Pusat penjualan dan jasa instalasi perlengkapan CCTV, Ruijie, dan Access Control dengan harga terbaik.')">
+    
+    <!-- Meta Keywords (Opsional, tapi bagus ditambahkan) -->
+    <meta name="keywords" content="@yield('meta_keywords', 'CCTV, pasang cctv, hikvision, dahua, ruijie, access control')">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     

@@ -1,7 +1,6 @@
 @extends('layouts.simple')
 
-@section('title', 'Detail Produk - TechStore')
-
+@section('title', 'Detail Produk - TechStore' . ' Harga Terbaik di Jabodetabek')
 @section('content')
 <style>
 /* ===== DETAIL PAGE STYLES ===== */
