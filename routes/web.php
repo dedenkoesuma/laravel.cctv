@@ -671,6 +671,13 @@ Route::prefix('products')->group(function () {
 Route::post('/ai/chat',      [AiAssistantController::class, 'chat'])->name('ai.chat');
 Route::post('/ai/recommend', [AiAssistantController::class, 'recommend'])->name('ai.recommend');
 
+
+// =====================================
+// ⭐ KALKULATOR MODAL
+// =====================================
+Route::get('/admin/modal/kalkulator', [App\Http\Controllers\Admin\KalkulatorModalController::class, 'index'])
+    ->name('admin.modal.kalkulator');
+    
 // =====================================
 // FALLBACK (404)
 // =====================================
