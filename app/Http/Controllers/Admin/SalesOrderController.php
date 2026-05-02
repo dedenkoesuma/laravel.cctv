@@ -407,6 +407,7 @@ class SalesOrderController extends Controller
             }
         } catch (\Exception $e) {
             // Abaikan
+            dd('TERNYATA INI ERRORNYA BANG: ' . $e->getMessage(), 'Terjadi di baris: ' . $e->getLine());
         }
 
         DB::beginTransaction();

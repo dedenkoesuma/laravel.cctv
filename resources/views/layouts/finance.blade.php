@@ -17,6 +17,7 @@
             flex-direction: column;
             margin: 0;
             padding: 0;
+            background-color: #f8fafc; /* Warna background modern */
         }
 
         main {
@@ -299,80 +300,6 @@
         ::-webkit-scrollbar-track { background: #1e293b; }
         ::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #3b82f6, #8b5cf6); border-radius: 5px; }
         ::-webkit-scrollbar-thumb:hover { background: linear-gradient(to bottom, #2563eb, #7c3aed); }
-
-        /* ===== BELL NOTIFIKASI ===== */
-        .bell-wrapper { position: relative; margin-right: 8px; }
-
-        .bell-btn {
-            background: rgba(59,130,246,0.1);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            cursor: pointer;
-            padding: 10px;
-            position: relative;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .bell-btn:hover { background: rgba(59,130,246,0.25); transform: scale(1.05); }
-
-        .bell-badge {
-            display: none;
-            position: absolute;
-            top: 6px; right: 6px;
-            background: #ef4444;
-            color: white;
-            border-radius: 50%;
-            width: 18px; height: 18px;
-            font-size: 10px;
-            font-weight: 700;
-            line-height: 18px;
-            text-align: center;
-        }
-
-        .notif-dropdown {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: calc(100% + 8px);
-            width: 340px;
-            background: rgba(30,41,59,0.98);
-            backdrop-filter: blur(20px);
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            border: 1px solid rgba(148,163,184,0.1);
-            z-index: 99999;
-            overflow: hidden;
-        }
-
-        .notif-header {
-            padding: 16px 20px;
-            border-bottom: 1px solid rgba(148,163,184,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .notif-list { max-height: 360px; overflow-y: auto; }
-
-        .notif-item {
-            padding: 14px 20px;
-            border-bottom: 1px solid rgba(148,163,184,0.08);
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .notif-item:hover { background: rgba(59,130,246,0.08); }
-        .notif-item.unread { background: rgba(59,130,246,0.05); }
-
-        .notif-empty {
-            text-align: center;
-            padding: 40px 20px;
-            color: #64748b;
-        }
     </style>
 </head>
 <body>
@@ -388,28 +315,8 @@
                 <span class="brand-text">TechStore</span>
             </a>
 
-            {{-- ===== BELL NOTIFIKASI (Finance Only) ===== --}}
-            <div class="bell-wrapper" id="bellWrapper">
-                <button class="bell-btn" onclick="toggleNotifDropdown()" title="Notifikasi Jatuh Tempo">
-                    <svg width="22" height="22" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-2.83-2h5.66A3 3 0 0110 18z"/>
-                    </svg>
-                    <span class="bell-badge" id="bellBadge">0</span>
-                </button>
-
-                <div class="notif-dropdown" id="notifDropdown">
-                    <div class="notif-header">
-                        <span style="color:white;font-weight:700;font-size:.95rem;">🔔 Notifikasi Jatuh Tempo</span>
-                        <button onclick="tandaiSemuaDibaca()" style="background:none;border:none;color:#60a5fa;font-size:.75rem;cursor:pointer;font-weight:600;">Tandai semua dibaca</button>
-                    </div>
-                    <div class="notif-list" id="notifList">
-                        <div class="notif-empty">
-                            <div style="font-size:2rem">🔔</div>
-                            <div style="margin-top:8px;font-size:.85rem;">Tidak ada notifikasi</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {{-- ===== COMPONENT NOTIFIKASI DISISIPKAN DI SINI ===== --}}
+            @include('components.notification-bell')
 
             <button class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="Toggle menu">
                 <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
@@ -481,11 +388,11 @@
                 </li>
 
                 <li class="navbar-item">
-                    <a href="{{ url('/about') }}" class="navbar-link">
+                    <a href="{{ url('/admin/dashboard') }}" class="navbar-link">
                         <svg fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                         </svg>
-                        Tentang Kami
+                        Dashboard Admin
                     </a>
                 </li>
             </ul>
@@ -558,10 +465,6 @@
                         item.classList.remove('show');
                     });
                 }
-                // Tutup bell dropdown jika klik di luar
-                if (!document.getElementById('bellWrapper')?.contains(e.target)) {
-                    document.getElementById('notifDropdown').style.display = 'none';
-                }
             });
 
             window.addEventListener('resize', function() {
@@ -581,73 +484,6 @@
                 }
             });
         });
-
-        // ========== BELL NOTIFIKASI ==========
-        async function loadNotifikasi() {
-            try {
-                const res  = await fetch('/api/admin/notifikasi');
-                const data = await res.json();
-                const list = data.data || [];
-                const unread = list.filter(n => !n.dibaca).length;
-
-                const badge = document.getElementById('bellBadge');
-                badge.textContent = unread;
-                badge.style.display = unread > 0 ? 'block' : 'none';
-
-                const notifList = document.getElementById('notifList');
-                if (!list.length) {
-                    notifList.innerHTML = `<div class="notif-empty"><div style="font-size:2rem">🔔</div><div style="margin-top:8px;font-size:.85rem;">Tidak ada notifikasi</div></div>`;
-                    return;
-                }
-
-                const warna = { h3: '#f59e0b', h1: '#f97316', overdue: '#ef4444' };
-                notifList.innerHTML = list.map(n => `
-                    <div class="notif-item ${n.dibaca ? '' : 'unread'}" onclick="klikNotif(${n.id})">
-                        <div style="display:flex;gap:10px;align-items:flex-start;">
-                            <div style="width:8px;height:8px;border-radius:50%;background:${warna[n.tipe]||'#64748b'};margin-top:6px;flex-shrink:0;"></div>
-                            <div style="flex:1;">
-                                <div style="color:white;font-weight:${n.dibaca?'400':'600'};font-size:.85rem;">${n.judul}</div>
-                                <div style="color:#94a3b8;font-size:.78rem;margin-top:3px;">${n.pesan}</div>
-                                <div style="color:#64748b;font-size:.72rem;margin-top:4px;">${formatWaktu(n.created_at)}</div>
-                            </div>
-                        </div>
-                    </div>`).join('');
-            } catch(e) { console.error('Notifikasi error:', e); }
-        }
-
-        function toggleNotifDropdown() {
-            const dd = document.getElementById('notifDropdown');
-            const isOpen = dd.style.display === 'block';
-            dd.style.display = isOpen ? 'none' : 'block';
-            if (!isOpen) loadNotifikasi();
-        }
-
-        async function klikNotif(id) {
-            await fetch(`/api/admin/notifikasi/${id}/baca`, {
-                method: 'PATCH',
-                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
-            });
-            loadNotifikasi();
-        }
-
-        async function tandaiSemuaDibaca() {
-            await fetch('/api/admin/notifikasi/baca-semua', {
-                method: 'PATCH',
-                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
-            });
-            loadNotifikasi();
-        }
-
-        function formatWaktu(str) {
-            if (!str) return '';
-            return new Date(str).toLocaleDateString('id-ID', {
-                day: 'numeric', month: 'short', year: 'numeric',
-                hour: '2-digit', minute: '2-digit'
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', loadNotifikasi);
-        setInterval(loadNotifikasi, 60000);
     </script>
 
     @yield('scripts')

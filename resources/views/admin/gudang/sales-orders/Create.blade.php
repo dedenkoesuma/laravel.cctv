@@ -78,7 +78,7 @@
 <body>
 
 <div class="topbar">
-  <h2>📄 Buat Surat Order</h2>
+  <h2>Buat Surat Order</h2>
   <button class="btn-back" onclick="window.location.href='{{ url('admin/gudang/sales-orders') }}'">← Kembali ke Gudang</button>
 </div>
 

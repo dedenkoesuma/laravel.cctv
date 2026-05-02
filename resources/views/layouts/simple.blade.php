@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'MJA Tech')</title>
-    
+    <title>@yield('title', 'Tech Store')</title>
+    <link rel="icon" href="/storage/gambar/logo-mja.png" type="image/png">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
@@ -292,18 +292,87 @@
             }
         }
 
-        footer {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(20px);
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* ===== MODERN FOOTER ===== */
+        .techstore-footer {
+            background: rgba(15, 23, 42, 0.95);
             border-top: 1px solid rgba(148, 163, 184, 0.1);
-            color: #94a3b8;
-            text-align: center;
-            padding: 32px 24px;
+            padding: 60px 0 20px 0;
             margin-top: auto;
         }
 
-        html {
-            scroll-behavior: smooth;
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .footer-heading {
+            color: #f8fafc;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .footer-text {
+            color: #cbd5e1;
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .footer-links a:hover {
+            color: #ff3333;
+            transform: translateX(4px);
+        }
+
+        .footer-divider {
+            border-color: rgba(148, 163, 184, 0.2);
+            margin: 30px 0 20px 0;
+        }
+
+        /* Back to Top Button */
+        .btn-back-to-top {
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-back-to-top:hover {
+            background: #ef4444;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.5);
+            color: white;
         }
     </style>
 </head>
@@ -313,7 +382,6 @@
         <div class="navbar-container">
             <a href="{{ url('/') }}" class="navbar-brand">
                 <div class="brand-icon">
-                    <!-- MENGGANTI ICON DENGAN LOGO-MJA.PNG -->
                     <img src="{{ asset('storage/gambar/logo-mja.png') }}" alt="MJA Tech Logo">
                 </div>
                 <span class="brand-text">Tech Store</span>
@@ -405,9 +473,72 @@
         @yield('content')
     </main>
 
-    <!-- Footer -->
-    <footer>
-        <p class="mb-0">&copy; 2026 MJA Tech. All rights reserved.</p>
+    <!-- Modern Footer -->
+    <footer class="techstore-footer">
+        <div class="footer-container">
+            <div class="row gy-4 w-100 m-0">
+                <!-- Kolom 1: Logo & Nama Perusahaan -->
+                <div class="col-lg-4 col-md-6 ps-0">
+                    <a href="{{ url('/') }}" class="navbar-brand d-inline-flex align-items-center mb-3">
+                        <div class="brand-icon me-2">
+                            <img src="{{ asset('storage/gambar/logo-mja.png') }}" alt="MJA Tech Logo">
+                        </div>
+                        <div class="d-flex flex-column">
+                            <span class="brand-text fs-4 mb-0" style="line-height: 1;">Tech Store</span>
+                            <small class="fw-bold mt-1" style="color: #cbd5e1; font-size: 0.75rem; letter-spacing: 0.5px;">PT. MJA TEKNOLOGI</small>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Kolom 2: Alamat -->
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="footer-heading">Head Office</h5>
+                    <p class="footer-text mb-0">
+                        Jl. Kalibaru Timur, RT.3/RW.2, Bungur,<br>
+                        Kec. Senen, Kota Jakarta Pusat,<br>
+                        Daerah Khusus Ibukota Jakarta 10460
+                    </p>
+                </div>
+
+                <!-- Kolom 3: Navigasi Menu -->
+                <div class="col-lg-2 col-md-6">
+                    <ul class="footer-links">
+                        <li><a href="{{ url('/') }}">Beranda</a></li>
+                        <li><a href="{{ url('/products/cctv') }}">Kamera CCTV</a></li>
+                        <li><a href="{{ url('/access-control') }}">Akses Kontrol</a></li>
+                        <li><a href="{{ url('/contact') }}">Kontak</a></li>
+                        <li><a href="{{ url('/about') }}">Tentang Kami</a></li>
+                    </ul>
+                </div>
+
+                <!-- Kolom 4: Kontak & Sosmed -->
+                <div class="col-lg-3 col-md-6 pe-0">
+                    <ul class="footer-links">
+                        <li>
+                            <a href="#"><i class="bi bi-instagram me-3 fs-5"></i> Instagram</a>
+                        </li>
+                        <li>
+                            <a href="mailto:admin@techstore.com"><i class="bi bi-envelope me-3 fs-5"></i> Email</a>
+                        </li>
+                        <li>
+                            <a href="tel:+6281234567890"><i class="bi bi-telephone me-3 fs-5"></i> Telfon</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr class="footer-divider">
+
+            <!-- Baris Copyright & Tombol Back to Top -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                <p class="footer-text mb-0 text-center text-md-start">
+                    &copy; 2021 MJA Tech. All rights reserved. 
+                </p>
+                <button onclick="scrollToTop()" class="btn-back-to-top mt-3 mt-md-0" aria-label="Back to top">
+                    <i class="bi bi-arrow-up fs-5"></i>
+                </button>
+            </div>
+        </div>
     </footer>
 
     <!-- Bootstrap JS -->
@@ -478,6 +609,14 @@
                 }
             });
         });
+
+        // Fungsi untuk tombol Back to Top
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
     </script>
     @yield('scripts')
 </body>
