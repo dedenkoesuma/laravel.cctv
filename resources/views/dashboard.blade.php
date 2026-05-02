@@ -119,6 +119,9 @@
         {{-- NEW: Finance Staff di Sidebar --}}
         <a href="/admin/finance" class="menu-item"><i class="bi bi-receipt"></i><span>Finance Staff</span></a>
 
+        {{-- NEW: Kalkulator Modal di Sidebar --}}
+        <a href="{{ route('admin.modal.kalkulator') }}" class="menu-item"><i class="bi bi-calculator"></i><span>Kalkulator Modal</span></a>
+
         <div class="menu-section-title">Products Management</div>
         @if($canAccess('view_ruijie'))
         <a href="/admin/ruijie" class="menu-item"><i class="bi bi-router"></i><span>Ruijie Networks</span></a>
@@ -307,6 +310,20 @@
             </div>
         </div>
 
+        {{-- NEW MODULE: Kalkulator Modal --}}
+        <div class="product-category-card" style="border-left: 4px solid #d53f8c;">
+            <div class="category-header">
+                <div class="category-icon" style="background: linear-gradient(135deg, #ed64a6 0%, #d53f8c 100%);"><i class="bi bi-calculator" style="color: white;"></i></div>
+                <div class="category-info">
+                    <h3>Kalkulator Modal</h3>
+                    <p class="category-count">Hitung estimasi modal & margin profit</p>
+                </div>
+            </div>
+            <div class="category-actions">
+                <a href="{{ route('admin.modal.kalkulator') }}" class="btn btn-primary"><i class="bi bi-calculator-fill"></i><span>Buka Kalkulator</span></a>
+            </div>
+        </div>
+
         @if($canAccess('view_ruijie'))
         <div class="product-category-card" style="border-left: 4px solid #4299e1;">
             <div class="category-header">
@@ -460,7 +477,7 @@ async function loadAllStatistics() {
 
 function hapusJejakBrowser(event) {
     event.preventDefault();
-    localStorage.clear();
+    localStorage.clear(); 
     sessionStorage.clear();
     window.location.href = '/admin/logout';
 }

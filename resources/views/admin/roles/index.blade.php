@@ -80,6 +80,9 @@
 
         <a href="/admin/finance" class="menu-item"><i class="bi bi-receipt"></i><span>Finance Staff</span></a>
 
+        {{-- NEW: Kalkulator Modal di Sidebar --}}
+        <a href="{{ route('admin.modal.kalkulator') }}" class="menu-item"><i class="bi bi-calculator"></i><span>Kalkulator Modal</span></a>
+
         <div class="menu-section-title">Products Management</div>
         @if($canAccess('view_ruijie'))
         <a href="/admin/ruijie" class="menu-item"><i class="bi bi-router"></i><span>Ruijie Networks</span></a>

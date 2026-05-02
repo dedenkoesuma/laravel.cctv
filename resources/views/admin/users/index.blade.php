@@ -61,6 +61,15 @@
 </head>
 <body>
 
+@php
+    $adminRoleName = strtolower(session('admin_role'));
+    $currentRole = \Spatie\Permission\Models\Role::where('name', $adminRoleName)->first();
+    
+    $canAccess = function($permissionName) use ($currentRole) {
+        return $currentRole ? $currentRole->hasPermissionTo($permissionName) : false;
+    };
+@endphp
+
 <div class="sidebar">
     <div class="sidebar-header">
         <h2>🏢 PT Trac</h2>
@@ -70,37 +79,58 @@
     <div class="sidebar-menu">
         <a href="/dashboard" class="menu-item"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
 
-        <div class="menu-section-title">Inventory Management</div>
-        <a href="/admin/inventory" class="menu-item"><i class="bi bi-box-seam"></i><span>Dashboard</span></a>
-        <a href="/admin/inventory/incoming-continuous" class="menu-item"><i class="bi bi-box-arrow-in-down"></i><span>Barang Masuk</span><span class="badge">NEW</span></a>
-        <a href="/admin/inventory/outgoing" class="menu-item"><i class="bi bi-box-arrow-up"></i><span>Barang Keluar</span></a>
+        <div class="menu-section-title">Operations Management</div>
+        
+        @if($canAccess('view_inventory'))
+        <a href="/admin/gudang" class="menu-item"><i class="bi bi-box-seam"></i><span>Gudang</span></a>
+        @endif
+
+        <a href="{{ route('admin.po.index') }}" class="menu-item"><i class="bi bi-cart-check"></i><span>Purchase Order</span></a>
+        
+        @if($canAccess('view_sales_documents'))
+        <a href="/admin/gudang/sales-orders" class="menu-item"><i class="bi bi-file-earmark-check"></i><span>Sales Order</span></a>
+        @endif
+
+        <a href="{{ route('admin.quotation.index') }}" class="menu-item"><i class="bi bi-file-text"></i><span>Quotation</span></a>
+
+        @if($canAccess('view_bookkeeping'))
+        <a href="/admin/keuangan" class="menu-item"><i class="bi bi-wallet2"></i><span>Keuangan Boss</span></a>
+        @endif
+
+        <a href="/admin/finance" class="menu-item"><i class="bi bi-receipt"></i><span>Finance Staff</span></a>
+
+        {{-- NEW: Kalkulator Modal di Sidebar --}}
+        <a href="{{ route('admin.modal.kalkulator') }}" class="menu-item"><i class="bi bi-calculator"></i><span>Kalkulator Modal</span></a>
 
         <div class="menu-section-title">Products Management</div>
+        @if($canAccess('view_ruijie'))
         <a href="/admin/ruijie" class="menu-item"><i class="bi bi-router"></i><span>Ruijie Networks</span></a>
+        @endif
+        
+        @if($canAccess('view_wifi_cameras'))
         <a href="/admin/wifi-cameras" class="menu-item"><i class="bi bi-camera-video"></i><span>WiFi Cameras</span></a>
+        @endif
+        
+        @if($canAccess('view_access_control'))
         <a href="/admin/access-control" class="menu-item"><i class="bi bi-shield-lock"></i><span>Access Control</span></a>
+        @endif
+        
+        @if($canAccess('view_static_products'))
         <a href="/admin/static-products" class="menu-item"><i class="bi bi-box"></i><span>Static Products</span></a>
-
-        <div class="menu-section-title">Business Documents</div>
-        <a href="/admin/bookkeeping" class="menu-item"><i class="bi bi-calculator"></i><span>Pembukuan</span></a>
-        <a href="/admin/sales-documents" class="menu-item"><i class="bi bi-file-earmark-text"></i><span>Surat Order & Penawaran</span></a>
+        @endif
 
         <div class="menu-section-title">System</div>
-        <a href="#" class="menu-item"><i class="bi bi-graph-up"></i><span>Analytics</span></a>
         
-        <a href="{{ route('admin.users.index') }}" class="menu-item active">
-            <i class="bi bi-people"></i><span>Users Account</span>
-        </a>
+        @if($canAccess('view_users'))
+        <a href="{{ route('admin.users.index') }}" class="menu-item active"><i class="bi bi-people"></i><span>Users Account</span></a>
+        <a href="{{ route('admin.roles.index') }}" class="menu-item"><i class="bi bi-shield-lock"></i><span>Roles & Permissions</span><span class="badge">SECURE</span></a>
+        @endif
         
-        <a href="{{ route('admin.roles.index') }}" class="menu-item">
-            <i class="bi bi-shield-lock"></i><span>Roles & Permissions</span>
-            <span class="badge">SECURE</span>
-        </a>
-        
-        <a href="#" class="menu-item"><i class="bi bi-gear"></i><span>Settings</span></a>
     </div>
     
-    <a href="{{ route('admin.logout') }}" class="logout-btn"><i class="bi bi-box-arrow-right"></i><span>Logout</span></a>
+    <a href="{{ route('admin.logout') }}" class="logout-btn" onclick="hapusJejakBrowser(event)">
+        <i class="bi bi-box-arrow-right"></i><span>Logout</span>
+    </a>
 </div>
 
 <div class="main-content">
@@ -252,6 +282,14 @@
         if (event.target.classList.contains('modal')) {
             event.target.classList.remove('show');
         }
+    }
+
+    // Fungsi untuk hapus jejak login
+    function hapusJejakBrowser(event) {
+        event.preventDefault();
+        localStorage.clear();
+        sessionStorage.clear();
+        window.location.href = '/admin/logout'; 
     }
 </script>
 
