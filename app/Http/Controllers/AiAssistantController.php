@@ -4,28 +4,51 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class AiAssistantController extends Controller
 {
+    private string $groqUrl = 'https://api.groq.com/openai/v1/chat/completions';
+    private string $model   = 'llama-3.3-70b-versatile'; // Model terbaru & gratis di Groq
+    
     public function chat(Request $request)
     {
+        $request->validate([
+            'messages'          => 'required|array|min:1',
+            'messages.*.role'   => 'required|in:user,assistant',
+            'messages.*.content'=> 'required|string|max:4000',
+        ]);
+
         $messages = $request->input('messages', []);
-        $reply = $this->callGroq($messages, $this->chatSystemPrompt());
+        $reply    = $this->callGroq($messages, $this->chatSystemPrompt());
+
         return response()->json(['reply' => $reply]);
     }
 
     public function recommend(Request $request)
     {
+        $request->validate([
+            'lokasi'      => 'required|string',
+            'budget'      => 'required|numeric|min:500000',
+            'jumlah_cam'  => 'required|integer|min:1|max:64',
+            'fitur_khusus'=> 'nullable|array',
+        ]);
+
         $lokasi    = $request->input('lokasi');
         $budget    = $request->input('budget');
         $jumlahCam = $request->input('jumlah_cam');
         $fitur     = $request->input('fitur_khusus', []);
 
-        $userMessage = "Rekomendasikan produk CCTV untuk:
-- Lokasi: {$lokasi}
-- Budget: Rp " . number_format($budget, 0, ',', '.') . "
-- Jumlah kamera: {$jumlahCam}
-- Fitur khusus: " . implode(', ', $fitur);
+        $fiturText   = !empty($fitur) ? implode(', ', $fitur) : 'Tidak ada';
+        $budgetFormat = 'Rp ' . number_format($budget, 0, ',', '.');
+
+        $userMessage = <<<MSG
+Rekomendasikan produk CCTV untuk kebutuhan berikut:
+- Lokasi        : {$lokasi}
+- Budget        : {$budgetFormat}
+- Jumlah kamera : {$jumlahCam} unit
+- Fitur khusus  : {$fiturText}
+MSG;
 
         $reply = $this->callGroq(
             [['role' => 'user', 'content' => $userMessage]],
@@ -37,77 +60,69 @@ class AiAssistantController extends Controller
 
     private function callGroq(array $messages, string $systemPrompt): string
     {
-        // Mengambil key Groq dari .env
-        $apiKey = env('GROQ_API_KEY');
+        $apiKey = config('services.groq.key'); // Ambil dari config, bukan env() langsung
 
         if (empty($apiKey)) {
-            return 'Konfigurasi API Groq belum lengkap. Hubungi administrator.';
+            Log::error('GROQ_API_KEY tidak ditemukan di konfigurasi.');
+            return 'Konfigurasi AI belum lengkap. Hubungi administrator. 🙏';
         }
 
-        // Endpoint Groq yang kompatibel dengan format OpenAI
-        $url = "https://api.groq.com/openai/v1/chat/completions";
-
-        // Susun messages: System prompt harus selalu di urutan pertama
+        // Susun messages: system prompt selalu di posisi pertama
         $formattedMessages = [
-            ['role' => 'system', 'content' => $systemPrompt]
+            ['role' => 'system', 'content' => $systemPrompt],
         ];
 
-        // Masukkan riwayat chat dari user
         foreach ($messages as $msg) {
+            $role = ($msg['role'] === 'assistant') ? 'assistant' : 'user';
             $formattedMessages[] = [
-                'role'  => $msg['role'] === 'assistant' ? 'assistant' : 'user',
-                'content' => $msg['content']
-            ];
-        }
-
-        // Pastikan ada pesan jika kosong
-        if (count($formattedMessages) === 1) {
-            $formattedMessages[] = [
-                'role' => 'user',
-                'content' => 'halo'
+                'role'    => $role,
+                'content' => trim($msg['content']),
             ];
         }
 
         $payload = [
-            'model'       => 'llama-3.1-8b-instant', // Model Llama 3 gratis dan sangat cepat dari Groq
+            'model'       => $this->model,
             'messages'    => $formattedMessages,
             'temperature' => 0.7,
             'max_tokens'  => 1024,
+            'stream'      => false,
         ];
 
         try {
-            $response = Http::withToken($apiKey) 
-                ->timeout(15)
-                ->withoutVerifying()
-                ->post($url, $payload);
+            $response = Http::withToken($apiKey)
+                ->timeout(20)
+                ->retry(2, 500) // Otomatis retry 2x jika gagal
+                ->post($this->groqUrl, $payload);
 
             if ($response->failed()) {
-                $status = $response->status();
-                \Log::error('Groq HTTP Error: ' . $status . ' - ' . $response->body());
-
-                if ($status === 429) {
-                    return 'AI sedang memproses terlalu banyak permintaan. Silakan tunggu sebentar. 🙏';
-                }
-                if ($status === 401) {
-                    return 'API Key Groq tidak valid.';
-                }
-
-                return 'Layanan AI sedang tidak tersedia (HTTP ' . $status . ').';
+                return $this->handleGroqError($response->status(), $response->body());
             }
 
             $data = $response->json();
 
-            // Cara mengambil teks balasan 
-            if (isset($data['choices'][0]['message']['content'])) {
-                return $data['choices'][0]['message']['content'];
-            }
+            return $data['choices'][0]['message']['content']
+                ?? 'Maaf, format balasan dari AI tidak sesuai.';
 
-            return 'Maaf, format balasan dari AI tidak sesuai.';
-
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            Log::error('Groq Connection Error: ' . $e->getMessage());
+            return 'Koneksi ke layanan AI gagal. Periksa koneksi internet server. 🔌';
         } catch (\Exception $e) {
-            \Log::error('Groq Exception: ' . $e->getMessage());
-            return 'Koneksi gagal: ' . $e->getMessage();
+            Log::error('Groq Exception: ' . $e->getMessage());
+            return 'Terjadi kesalahan tak terduga: ' . $e->getMessage();
         }
+    }
+
+    private function handleGroqError(int $status, string $body): string
+    {
+        Log::error("Groq HTTP Error [{$status}]: {$body}");
+
+        return match ($status) {
+            400 => 'Permintaan tidak valid. Coba ulangi dengan pertanyaan berbeda.',
+            401 => 'API Key Groq tidak valid atau sudah kedaluwarsa. Hubungi administrator. 🔑',
+            429 => 'AI sedang sibuk (rate limit). Tunggu beberapa detik lalu coba lagi. ⏳',
+            500, 503 => 'Server Groq sedang gangguan. Coba lagi nanti. 🛠️',
+            default => "Layanan AI tidak tersedia saat ini (HTTP {$status}).",
+        };
     }
 
     private function chatSystemPrompt(): string
@@ -118,8 +133,10 @@ Tugasmu membantu customer memilih produk CCTV, akses kontrol, dan networking.
 
 Brand yang kami jual: Hikvision, Dahua, HiLook, EZVIZ, UNV, Ruijie, Foreage.
 
-Jawab dalam Bahasa Indonesia, ramah, singkat, dan informatif.
-Jika ada pertanyaan harga, selalu sebutkan estimasi harga dalam Rupiah.
+Aturan:
+- Jawab selalu dalam Bahasa Indonesia yang ramah, singkat, dan informatif.
+- Jika ditanya harga, sebutkan estimasi dalam Rupiah.
+- Jika pertanyaan di luar topik CCTV/networking, tolak dengan sopan.
 PROMPT;
     }
 
@@ -127,12 +144,15 @@ PROMPT;
     {
         return <<<PROMPT
 Kamu adalah AI specialist CCTV di TechStore Indonesia.
-Berikan rekomendasi paket CCTV yang detail berdasarkan kebutuhan customer.
+Tugasmu memberikan rekomendasi paket CCTV yang detail dan sesuai kebutuhan customer.
 
 Brand yang tersedia: Hikvision, Dahua, HiLook, EZVIZ, UNV, Foreage.
 
-Berikan 2-3 rekomendasi produk utama beserta estimasi total biaya.
-Jawab dalam Bahasa Indonesia yang ramah, ringkas, dan profesional.
+Format rekomendasi:
+1. Berikan 2-3 opsi paket (Budget / Standar / Premium).
+2. Setiap opsi wajib mencantumkan: nama produk, spesifikasi singkat, dan estimasi harga.
+3. Tambahkan total estimasi biaya di akhir setiap opsi.
+4. Jawab dalam Bahasa Indonesia yang ramah dan profesional.
 PROMPT;
     }
 }

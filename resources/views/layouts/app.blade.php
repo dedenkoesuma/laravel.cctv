@@ -1,10 +1,19 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18137062204"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-18137062204');
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <!-- Title Dinamis (Default jika tidak diisi) -->
+   <!-- Title Dinamis (Default jika tidak diisi) -->
     <title>@yield('title', 'TechStore - Solusi CCTV & IT Security Terpercaya')</title>
     
     <!-- Meta Description Dinamis -->
@@ -12,331 +21,619 @@
     
     <!-- Meta Keywords (Opsional, tapi bagus ditambahkan) -->
     <meta name="keywords" content="@yield('meta_keywords', 'CCTV, pasang cctv, hikvision, dahua, ruijie, access control')">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="icon" href="/storage/gambar/logo-mja.png" type="image/png">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7fa;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+            padding: 0;
         }
-        
-        .bookkeeping-container { padding: 30px; max-width: 1400px; margin: 0 auto; }
-        
-        .page-header {
-            background: white; padding: 24px; border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 30px;
-            display: flex; justify-content: space-between; align-items: center;
-            flex-wrap: wrap; gap: 16px;
+
+        main {
+            flex: 1;
         }
-        
-        .page-title { font-size: 1.75rem; font-weight: 700; color: #333; display: flex; align-items: center; gap: 12px; }
-        
-        .btn-add-transaction {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; padding: 12px 24px; border-radius: 8px; border: none;
-            font-weight: 600; cursor: pointer; transition: all 0.3s ease;
-            display: flex; align-items: center; gap: 8px; text-decoration: none;
+
+        /* ===== MODERN NAVBAR ===== */
+        .techstore-navbar {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 9999;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
-        .btn-add-transaction:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        
-        .stat-card {
-            background: white; padding: 24px; border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s ease; border-left: 4px solid;
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
         }
-        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 16px rgba(0,0,0,0.12); }
-        .stat-card.modal   { border-left-color: #dc3545; }
-        .stat-card.selling { border-left-color: #28a745; }
-        .stat-card.shipping{ border-left-color: #ffc107; }
-        .stat-card.profit  { border-left-color: #667eea; }
-        
-        .stat-icon {
-            width: 48px; height: 48px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; margin-bottom: 16px;
+
+        /* Brand Logo */
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            text-decoration: none;
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
-        .stat-card.modal   .stat-icon { background: rgba(220,53,69,.1);  color: #dc3545; }
-        .stat-card.selling .stat-icon { background: rgba(40,167,69,.1);  color: #28a745; }
-        .stat-card.shipping.stat-icon { background: rgba(255,193,7,.1);  color: #ffc107; }
-        .stat-card.profit  .stat-icon { background: rgba(102,126,234,.1);color: #667eea; }
-        
-        .stat-label   { font-size: .875rem; color: #6c757d; margin-bottom: 8px; font-weight: 500; }
-        .stat-value   { font-size: 1.75rem; font-weight: 700; color: #333; margin-bottom: 4px; }
-        .stat-subtext { font-size: .8rem; color: #6c757d; }
-        
-        .filter-card {
-            background: white; padding: 20px; border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 30px;
+
+        .brand-icon {
+            width: 45px; 
+            height: 45px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+            padding: 5px;
         }
-        .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; align-items: end; }
-        .form-group  { margin: 0; }
-        .form-label  { font-size: .875rem; font-weight: 600; color: #495057; margin-bottom: 8px; display: block; }
-        .form-control {
-            width: 100%; padding: 10px 14px; border: 2px solid #e9ecef;
-            border-radius: 8px; font-size: .9rem; transition: all .3s ease;
+
+        .brand-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
-        .form-control:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,.1); }
-        .btn-filter {
-            padding: 10px 24px; background: #667eea; color: white; border: none;
-            border-radius: 8px; font-weight: 600; cursor: pointer; transition: all .3s ease;
+
+        .navbar-brand:hover {
+            color: #ff3333;
+            transform: translateY(-2px);
         }
-        .btn-filter:hover { background: #5568d3; }
-        
-        .transactions-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
-        .card-header {
-            padding: 20px 24px; border-bottom: 2px solid #f1f3f5;
-            display: flex; justify-content: space-between; align-items: center;
+
+        .navbar-brand:hover .brand-icon {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(255, 0, 0, 0.4);
         }
-        .card-title { font-size: 1.25rem; font-weight: 700; color: #333; margin: 0; }
-        .table-responsive { overflow-x: auto; }
-        
-        .transactions-table { width: 100%; border-collapse: collapse; }
-        .transactions-table thead { background: #f8f9fa; }
-        .transactions-table th {
-            padding: 16px; text-align: left; font-size: .875rem; font-weight: 600;
-            color: #495057; text-transform: uppercase; letter-spacing: .5px;
+
+        /* Warna Teks Brand Disesuaikan dengan Logo Merah */
+        .brand-text {
+            background: linear-gradient(135deg, #f50000 0%, #e2e1ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            filter: drop-shadow(0 2px 4px rgba(255, 0, 0, 0.2));
         }
-        .transactions-table td { padding: 16px; border-bottom: 1px solid #f1f3f5; font-size: .9rem; color: #495057; }
-        .transactions-table tbody tr:hover { background: #f8f9fa; }
-        
-        .badge { padding: 6px 12px; border-radius: 20px; font-size: .75rem; font-weight: 600; display: inline-block; }
-        .badge-success { background: #d4edda; color: #155724; }
-        .badge-warning { background: #fff3cd; color: #856404; }
-        .badge-danger  { background: #f8d7da; color: #721c24; }
-        
-        .text-success { color: #28a745 !important; font-weight: 600; }
-        .text-danger  { color: #dc3545 !important; font-weight: 600; }
-        
-        .btn-sm { padding: 6px 12px; border-radius: 6px; border: none; font-size: .8rem; font-weight: 600; cursor: pointer; transition: all .3s ease; }
-        .btn-primary       { background: #667eea; color: white; }
-        .btn-primary:hover { background: #5568d3; }
-        .btn-danger        { background: #dc3545; color: white; }
-        .btn-danger:hover  { background: #c82333; }
-        
-        .action-buttons { display: flex; gap: 8px; }
-        
-        .empty-state     { text-align: center; padding: 60px 20px; }
-        .empty-state i   { font-size: 4rem; color: #dee2e6; margin-bottom: 16px; }
-        .empty-state h3  { color: #6c757d; margin-bottom: 8px; }
-        .empty-state p   { color: #adb5bd; }
-        
-        .btn-back {
-            background: #6c757d; color: white; padding: 10px 20px; border-radius: 8px;
-            text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
-            margin-bottom: 20px; font-weight: 600; transition: all .3s ease;
+
+        /* Navigation Menu */
+        .navbar-menu {
+            display: flex;
+            list-style: none;
+            gap: 4px;
+            margin: 0;
+            padding: 0;
         }
-        .btn-back:hover { background: #5a6268; }
-        
-        @media (max-width: 768px) {
-            .bookkeeping-container { padding: 16px; }
-            .page-header { flex-direction: column; align-items: stretch; }
-            .btn-add-transaction { width: 100%; justify-content: center; }
-            .stats-grid  { grid-template-columns: 1fr; }
-            .filter-grid { grid-template-columns: 1fr; }
+
+        .navbar-item {
+            position: relative;
+        }
+
+        .navbar-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #cbd5e1;
+            text-decoration: none;
+            padding: 10px 20px;
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .navbar-link::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(168, 0, 0, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .navbar-link:hover::before {
+            opacity: 1;
+        }
+
+        .navbar-link:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .navbar-link.active {
+            color: white;
+            background: linear-gradient(135deg, rgba(255, 0, 0, 0.15), rgba(168, 0, 0, 0.15));
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);
+        }
+
+        .navbar-link svg {
+            width: 18px;
+            height: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .navbar-link:hover svg {
+            transform: scale(1.1);
+        }
+
+        .dropdown-arrow {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .navbar-item.show .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        /* Dropdown Menu */
+        .dropdown-menu-custom {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            min-width: 260px;
+            border-radius: 16px;
+            padding: 8px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px) scale(0.95);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 10000;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            pointer-events: none;
+        }
+
+        .navbar-item.show .dropdown-menu-custom {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
+
+        @media (min-width: 993px) {
+            .navbar-item:hover .dropdown-menu-custom {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0) scale(1);
+                pointer-events: auto;
+            }
+            .navbar-item:hover .dropdown-arrow {
+                transform: rotate(180deg);
+            }
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #e2e8f0;
+            padding: 12px 16px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 0, 0, 0.15);
+            color: white;
+            transform: translateX(4px);
+            text-decoration: none;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: rgba(255, 0, 0, 0.1);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            padding: 10px;
+            transition: all 0.3s ease;
+        }
+
+        /* Responsive Mobile */
+        @media (max-width: 992px) {
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .navbar-menu {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(15, 23, 42, 0.98);
+                backdrop-filter: blur(20px);
+                flex-direction: column;
+                gap: 0;
+                display: none;
+                padding: 16px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+                border-bottom-left-radius: 16px;
+                border-bottom-right-radius: 16px;
+            }
+
+            .navbar-menu.show {
+                display: flex;
+            }
+
+            .dropdown-menu-custom {
+                position: static;
+                transform: none;
+                box-shadow: none;
+                background: rgba(30, 41, 59, 0.5);
+                margin-top: 8px;
+                margin-left: 16px;
+                max-height: 0;
+                padding: 0;
+                overflow: hidden;
+                transition: all 0.3s ease;
+            }
+
+            .navbar-item.show .dropdown-menu-custom {
+                max-height: 500px;
+                padding: 8px;
+            }
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* ===== MODERN FOOTER ===== */
+        .techstore-footer {
+            background: rgba(15, 23, 42, 0.95);
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+            padding: 60px 0 20px 0;
+            margin-top: auto;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .footer-heading {
+            color: #f8fafc;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .footer-text {
+            color: #cbd5e1;
+            line-height: 1.8;
+            font-size: 0.95rem;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+
+        .footer-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+
+        .footer-links a:hover {
+            color: #ff3333;
+            transform: translateX(4px);
+        }
+
+        .footer-divider {
+            border-color: rgba(148, 163, 184, 0.2);
+            margin: 30px 0 20px 0;
+        }
+
+        /* Back to Top Button */
+        .btn-back-to-top {
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-back-to-top:hover {
+            background: #ef4444;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.5);
+            color: white;
         }
     </style>
 </head>
 <body>
-    <div class="bookkeeping-container">
-
-        <!-- Back Button -->
-        <a href="/admin/dashboard" class="btn-back">
-            <i class="bi bi-arrow-left"></i>
-            <span>Kembali ke Dashboard</span>
-        </a>
-
-        <!-- Page Header -->
-        <div class="page-header">
-            <h1 class="page-title">
-                <i class="bi bi-calculator"></i>
-                <span>Pembukuan & Laporan</span>
-            </h1>
-            <a href="/admin/bookkeeping/create" class="btn-add-transaction">
-                <i class="bi bi-plus-circle"></i>
-                <span>Tambah Transaksi</span>
+    <!-- Modern MJA Tech Navbar -->
+    <nav class="techstore-navbar">
+        <div class="navbar-container">
+            <a href="{{ url('/') }}" class="navbar-brand">
+                <div class="brand-icon">
+                    <img src="{{ asset('storage/gambar/logo-mja.png') }}" alt="MJA Tech Logo">
+                </div>
+                <span class="brand-text">Tech Store</span>
             </a>
-        </div>
 
-        <!-- Statistics Cards -->
-        <div class="stats-grid">
-            <div class="stat-card modal">
-                <div class="stat-icon"><i class="bi bi-wallet2"></i></div>
-                <div class="stat-label">Total Modal</div>
-                <div class="stat-value">Rp {{ number_format($statistics['total_modal'] ?? 0, 0, ',', '.') }}</div>
-                <div class="stat-subtext">{{ $statistics['total_transactions'] ?? 0 }} transaksi</div>
-            </div>
-            <div class="stat-card selling">
-                <div class="stat-icon"><i class="bi bi-graph-up-arrow"></i></div>
-                <div class="stat-label">Total Penjualan</div>
-                <div class="stat-value">Rp {{ number_format($statistics['total_selling'] ?? 0, 0, ',', '.') }}</div>
-                <div class="stat-subtext">Periode saat ini</div>
-            </div>
-            <div class="stat-card shipping">
-                <div class="stat-icon"><i class="bi bi-truck"></i></div>
-                <div class="stat-label">Total Ongkir</div>
-                <div class="stat-value">Rp {{ number_format($statistics['total_shipping'] ?? 0, 0, ',', '.') }}</div>
-                <div class="stat-subtext">Biaya pengiriman</div>
-            </div>
-            <div class="stat-card profit">
-                <div class="stat-icon"><i class="bi bi-currency-dollar"></i></div>
-                <div class="stat-label">Total Keuntungan</div>
-                <div class="stat-value">Rp {{ number_format($statistics['total_profit'] ?? 0, 0, ',', '.') }}</div>
-                <div class="stat-subtext">
-                    @php
-                        $margin = ($statistics['total_selling'] ?? 0) > 0
-                            ? (($statistics['total_profit'] ?? 0) / $statistics['total_selling']) * 100
-                            : 0;
-                    @endphp
-                    Margin {{ number_format($margin, 1) }}%
-                </div>
-            </div>
-        </div>
+            <button class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="Toggle menu">
+                <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                </svg>
+            </button>
 
-        <!-- Filter Section -->
-        <div class="filter-card">
-            <form method="GET" action="{{ url('/admin/bookkeeping') }}">
-                <div class="filter-grid">
-                    <div class="form-group">
-                        <label class="form-label">Tanggal Mulai</label>
-                        <input type="date" name="start_date" class="form-control" value="{{ $startDate ?? date('Y-m-01') }}">
+            <ul class="navbar-menu" id="mainMenu">
+                <li class="navbar-item">
+                    <a href="{{ url('/') }}" class="navbar-link">
+                        <svg fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                        </svg>
+                        Home
+                    </a>
+                </li>
+                
+                <li class="navbar-item dropdown-parent">
+                    <a href="#" class="navbar-link dropdown-trigger">
+                        <svg fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
+                        </svg>
+                        Produk Paket
+                        <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </a>
+                    <div class="dropdown-menu-custom">
+                        <a href="{{ url('/products/hikvision') }}" class="dropdown-item">Hikvision</a>
+                        <a href="{{ url('/products/dahua') }}" class="dropdown-item">Dahua</a>
+                        <a href="{{ url('/products/hilook') }}" class="dropdown-item">HiLook</a>
+                        <a href="{{ url('/products/unv') }}" class="dropdown-item">UNV</a>
+                        <a href="{{ url('/products/hiview') }}" class="dropdown-item">HiView</a>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Tanggal Akhir</label>
-                        <input type="date" name="end_date" class="form-control" value="{{ $endDate ?? date('Y-m-t') }}">
+                </li>
+
+                <li class="navbar-item">
+                    <a href="{{ url('/access-control') }}" class="navbar-link">
+                        <svg fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                        </svg>
+                        Akses Kontrol
+                    </a>
+                </li>
+
+                <li class="navbar-item">
+                    <a href="{{ url('/wifi-cam') }}" class="navbar-link">
+                        <svg fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+                        </svg>
+                        WiFi Cam
+                    </a>
+                </li>
+
+                <li class="navbar-item dropdown-parent">
+                    <a href="#" class="navbar-link dropdown-trigger">
+                        <svg fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                        </svg>
+                        Produk Networking
+                        <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </a>
+                    <div class="dropdown-menu-custom">
+                        <a href="{{ url('/products/ruijie') }}" class="dropdown-item">RUIJIE/REYEE</a>
+                        <a href="{{ url('/products/foreage') }}" class="dropdown-item">FOREAGES</a>
                     </div>
-                    <div class="form-group">
-                        <button type="submit" class="btn-filter">
-                            <i class="bi bi-funnel"></i> Filter
-                        </button>
-                    </div>
-                </div>
-            </form>
+                </li>
+
+                <li class="navbar-item">
+                    <a href="{{ url('/about') }}" class="navbar-link">
+                        <svg fill="currentColor" viewBox="0 0 20 20">
+                           <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
+                        </svg>
+                        Tentang Kami
+                    </a>
+                </li>
+            </ul>
         </div>
+    </nav>
 
-        <!-- Transactions Table -->
-        <div class="transactions-card">
-            <div class="card-header">
-                <h3 class="card-title">Daftar Transaksi</h3>
-                <div class="action-buttons">
-                    <button class="btn-sm btn-primary" onclick="exportData()">
-                        <i class="bi bi-download"></i> Export
-                    </button>
-                </div>
-            </div>
+    <!-- Main Content -->
+    <main>
+        @yield('content')
+    </main>
 
-            <div class="table-responsive">
-                @if(isset($transactions) && $transactions->count() > 0)
-                <table class="transactions-table">
-                    <thead>
-                        <tr>
-                            <th>Tanggal</th>
-                            <th>Invoice</th>
-                            <th>Produk</th>
-                            <th>Customer</th>
-                            <th>Qty</th>
-                            <th>Modal</th>
-                            <th>Penjualan</th>
-                            <th>Ongkir</th>
-                            <th>Profit</th>
-                            <th>Status</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($transactions as $transaction)
-                        <tr>
-                            <td>{{ $transaction->transaction_date->format('d/m/Y') }}</td>
-                            <td><strong>{{ $transaction->invoice_number }}</strong></td>
-                            <td>{{ $transaction->product_name }}</td>
-                            <td>
-                                {{ $transaction->customer_name }}
-                                @if($transaction->customer_phone)
-                                    <br><small style="color:#6c757d">{{ $transaction->customer_phone }}</small>
-                                @endif
-                            </td>
-                            <td>{{ $transaction->quantity }}</td>
-                            <td>Rp {{ number_format($transaction->total_modal,   0, ',', '.') }}</td>
-                            <td>Rp {{ number_format($transaction->total_selling, 0, ',', '.') }}</td>
-                            <td>Rp {{ number_format($transaction->shipping_cost, 0, ',', '.') }}</td>
-                            <td class="{{ $transaction->profit >= 0 ? 'text-success' : 'text-danger' }}">
-                                Rp {{ number_format($transaction->profit, 0, ',', '.') }}
-                            </td>
-                            <td>
-                                <span class="badge badge-{{ $transaction->status_badge ?? 'warning' }}">
-                                    {{ $transaction->status_label ?? $transaction->payment_status }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn-sm btn-primary" onclick="editTransaction({{ $transaction->id }})">
-                                        <i class="bi bi-pencil"></i>
-                                    </button>
-                                    <button class="btn-sm btn-danger" onclick="deleteTransaction({{ $transaction->id }})">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-                <div style="padding: 20px;">
-                    {{ $transactions->links() }}
-                </div>
-                @else
-                <div class="empty-state">
-                    <i class="bi bi-inbox"></i>
-                    <h3>Belum Ada Transaksi</h3>
-                    <p>Mulai tambahkan transaksi pertama Anda</p>
-                    <a href="/admin/bookkeeping/create" class="btn-add-transaction" style="display:inline-flex;margin-top:20px">
-                        <i class="bi bi-plus-circle"></i>
-                        <span>Tambah Transaksi</span>
+    <!-- Modern Footer -->
+    <footer class="techstore-footer">
+        <div class="footer-container">
+            <div class="row gy-4 w-100 m-0">
+                <!-- Kolom 1: Logo & Nama Perusahaan -->
+                <div class="col-lg-4 col-md-6 ps-0">
+                    <a href="{{ url('/') }}" class="navbar-brand d-inline-flex align-items-center mb-3">
+                        <div class="brand-icon me-2">
+                            <img src="{{ asset('storage/gambar/logo-mja.png') }}" alt="MJA Tech Logo">
+                        </div>
+                        <div class="d-flex flex-column">
+                            <span class="brand-text fs-4 mb-0" style="line-height: 1;">Tech Store</span>
+                            <small class="fw-bold mt-1" style="color: #cbd5e1; font-size: 0.75rem; letter-spacing: 0.5px;">PT. MJA TEKNOLOGI</small>
+                        </div>
                     </a>
                 </div>
-                @endif
+
+                <!-- Kolom 2: Alamat -->
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="footer-heading">Head Office</h5>
+                    <p class="footer-text mb-0">
+                        Jl. Kalibaru Timur, RT.3/RW.2, Bungur,<br>
+                        Kec. Senen, Kota Jakarta Pusat,<br>
+                        Daerah Khusus Ibukota Jakarta 10460
+                    </p>
+                </div>
+
+                <!-- Kolom 3: Navigasi Menu -->
+                <div class="col-lg-2 col-md-6">
+                    <ul class="footer-links">
+                        <li><a href="{{ url('/') }}">Beranda</a></li>
+                        <li><a href="{{ url('/products/cctv') }}">Kamera CCTV</a></li>
+                        <li><a href="{{ url('/access-control') }}">Akses Kontrol</a></li>
+                        <li><a href="{{ url('/contact') }}">Kontak</a></li>
+                        <li><a href="{{ url('/about') }}">Tentang Kami</a></li>
+                    </ul>
+                </div>
+
+                <!-- Kolom 4: Kontak & Sosmed -->
+                <div class="col-lg-3 col-md-6 pe-0">
+                    <ul class="footer-links">
+                        <li>
+                            <a href="#"><i class="bi bi-instagram me-3 fs-5"></i> Instagram</a>
+                        </li>
+                        <li>
+                            <a href="mailto:admin@techstore.com"><i class="bi bi-envelope me-3 fs-5"></i> Email</a>
+                        </li>
+                        <li>
+                            <a href="tel:+6281234567890"><i class="bi bi-telephone me-3 fs-5"></i> Telfon</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr class="footer-divider">
+
+            <!-- Baris Copyright & Tombol Back to Top -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+                <p class="footer-text mb-0 text-center text-md-start">
+                    &copy; 2021 MJA Tech. All rights reserved. 
+                </p>
+                <button onclick="scrollToTop()" class="btn-back-to-top mt-3 mt-md-0" aria-label="Back to top">
+                    <i class="bi bi-arrow-up fs-5"></i>
+                </button>
             </div>
         </div>
+    </footer>
 
-    </div>{{-- /bookkeeping-container --}}
-
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
-    function editTransaction(id) {
-        window.location.href = `/admin/bookkeeping/${id}/edit`;
-    }
+        document.addEventListener('DOMContentLoaded', function() {
+            const DROPDOWN_CLOSE_DELAY = 800; 
+            let closeTimeout = null;
 
-    function deleteTransaction(id) {
-        if (confirm('Yakin ingin menghapus transaksi ini?')) {
-            fetch(`/admin/bookkeeping/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json',
-                }
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Transaksi berhasil dihapus!');
-                    location.reload();
+            const mobileBtn = document.getElementById('mobileMenuBtn');
+            const mainMenu = document.getElementById('mainMenu');
+
+            if (mobileBtn) {
+                mobileBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    mainMenu.classList.toggle('show');
+                });
+            }
+
+            const dropdownTriggers = document.querySelectorAll('.dropdown-trigger');
+            dropdownTriggers.forEach(function(trigger) {
+                trigger.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const parent = this.closest('.navbar-item');
+                    document.querySelectorAll('.navbar-item').forEach(function(item) {
+                        if (item !== parent) item.classList.remove('show');
+                    });
+                    parent.classList.toggle('show');
+                });
+            });
+
+            if (window.innerWidth > 992) {
+                const dropdownParents = document.querySelectorAll('.dropdown-parent');
+                dropdownParents.forEach(function(parent) {
+                    parent.addEventListener('mouseenter', function() {
+                        if (closeTimeout) { clearTimeout(closeTimeout); closeTimeout = null; }
+                        document.querySelectorAll('.navbar-item').forEach(function(item) {
+                            if (item !== parent) item.classList.remove('show');
+                        });
+                        parent.classList.add('show');
+                    });
+                    parent.addEventListener('mouseleave', function() {
+                        const currentParent = this;
+                        closeTimeout = setTimeout(function() {
+                            currentParent.classList.remove('show');
+                        }, DROPDOWN_CLOSE_DELAY);
+                    });
+                });
+            }
+
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.navbar-container')) {
+                    if (mainMenu) mainMenu.classList.remove('show');
+                    document.querySelectorAll('.navbar-item').forEach(function(item) {
+                        item.classList.remove('show');
+                    });
                 }
             });
+
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 992) {
+                    if (mainMenu) mainMenu.classList.remove('show');
+                    document.querySelectorAll('.navbar-item').forEach(function(item) {
+                        item.classList.remove('show');
+                    });
+                }
+            });
+        });
+
+        // Fungsi untuk tombol Back to Top
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
         }
-    }
-
-    function exportData() {
-        const startDate = '{{ $startDate ?? date("Y-m-01") }}';
-        const endDate   = '{{ $endDate   ?? date("Y-m-t")  }}';
-        window.location.href = `/admin/bookkeeping/export?start_date=${startDate}&end_date=${endDate}`;
-    }
     </script>
-
-    {{-- ⭐ AI Assistant Component --}}
-    <x-ai-assistant />
-
+    @yield('scripts')
 </body>
 </html>
