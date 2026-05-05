@@ -11,35 +11,10 @@ use Illuminate\Support\Facades\DB;
 
 class KeuanganController extends Controller
 {
-    // Konstan untuk membedakan ID dari tabel staff agar tidak bentrok dengan ID tabel bos
-    const FINANCE_ID_OFFSET = 1000000;
-
     // ===== DASHBOARD =====
     public function index()
     {
         return view('admin.keuangan.index');
-    }
-
-    // ===== HELPER: MENGGABUNGKAN KALKULASI 2 TABEL =====
-    private function sumData($tipe, $status = null, $bulan = null, $tahun = null, $kategori = null)
-    {
-        $qBos   = DB::table('keuangan_transaksi')->where('tipe', $tipe);
-        $qStaff = DB::table('finances')->where('tipe', $tipe);
-
-        if ($status) {
-            $qBos->where('status', $status);
-            $qStaff->where('status', $status);
-        }
-        if ($bulan && $tahun) {
-            $qBos->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun);
-            $qStaff->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun);
-        }
-        if ($kategori) {
-            $qBos->where('kategori', $kategori);
-            $qStaff->where('kategori', $kategori);
-        }
-
-        return $qBos->sum('jumlah') + $qStaff->sum('jumlah');
     }
 
     // ===== API: SUMMARY CARDS =====
@@ -48,71 +23,62 @@ class KeuanganController extends Controller
         $bulan = $request->bulan ?? date('m');
         $tahun = $request->tahun ?? date('Y');
 
-        $pemasukan            = $this->sumData('pemasukan', 'lunas', $bulan, $tahun);
-        $pengeluaran          = $this->sumData('pengeluaran', 'lunas', $bulan, $tahun);
-        $totalPemasukan       = $this->sumData('pemasukan', 'lunas');
-        $totalPengeluaran     = $this->sumData('pengeluaran', 'lunas');
-        
-        $penjualanOnline      = $this->sumData('pemasukan', 'lunas', $bulan, $tahun, 'Penjualan Online');
-        
-        $piutangPending       = $this->sumData('piutang', 'pending');
-        $piutangLunasBulanIni = $this->sumData('piutang', 'lunas', $bulan, $tahun);
-        $piutangBulanIni      = $this->sumData('piutang', null, $bulan, $tahun);
+        // Pemasukan Sah = Tipe Pemasukan & Status Lunas
+        $pemasukan = DB::table('keuangan_transaksi')
+            ->where('tipe', 'pemasukan')->where('status', 'lunas')
+            ->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)
+            ->sum('jumlah');
 
-        // Hitung pending & jumlah transaksi (gabungan)
-        $pendingBos   = DB::table('keuangan_transaksi')->where('status', 'pending')->sum('jumlah');
-        $pendingStaff = DB::table('finances')->where('status', 'pending')->sum('jumlah');
-        
-        $countBos   = DB::table('keuangan_transaksi')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->count();
-        $countStaff = DB::table('finances')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->count();
+        // Pengeluaran = Tipe Pengeluaran & Status Lunas
+        $pengeluaran = DB::table('keuangan_transaksi')
+            ->where('tipe', 'pengeluaran')->where('status', 'lunas')
+            ->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)
+            ->sum('jumlah');
+
+        // Total Saldo Keseluruhan
+        $totalPemasukan   = DB::table('keuangan_transaksi')->where('tipe', 'pemasukan')->where('status', 'lunas')->sum('jumlah');
+        $totalPengeluaran = DB::table('keuangan_transaksi')->where('tipe', 'pengeluaran')->where('status', 'lunas')->sum('jumlah');
+
+        // Piutang (Dari Staff) = Tipe Pemasukan & Status Pending
+        $piutangPending = DB::table('keuangan_transaksi')
+            ->where('tipe', 'pemasukan')->where('status', 'pending')
+            ->sum('jumlah');
+
+        $piutangLunasBulanIni = DB::table('keuangan_transaksi')
+            ->where('tipe', 'pemasukan')->where('status', 'lunas')
+            ->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)
+            ->sum('jumlah'); // *Catatan: Ini akan sama dengan total pemasukan jika semua pemasukan dianggap pelunasan piutang
+
+        $jumlahTransaksi = DB::table('keuangan_transaksi')
+            ->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)
+            ->count();
 
         return response()->json([
             'pemasukan_bulan'       => $pemasukan,
             'pengeluaran_bulan'     => $pengeluaran,
             'laba_bulan'            => $pemasukan - $pengeluaran,
             'saldo_total'           => $totalPemasukan - $totalPengeluaran,
-            'pending'               => $pendingBos + $pendingStaff,
-            'jumlah_transaksi'      => $countBos + $countStaff,
-            'penjualan_online'      => $penjualanOnline,
+            'jumlah_transaksi'      => $jumlahTransaksi,
             'piutang_pending'       => $piutangPending,
             'piutang_lunas_bulan'   => $piutangLunasBulanIni,
-            'piutang_bulan'         => $piutangBulanIni,
+            'pending'               => $piutangPending,
         ]);
     }
 
     // ===== API: LIST TRANSAKSI =====
     public function getTransaksi(Request $request)
     {
-        // 1. Ambil data dari tabel Bos (keuangan_transaksi)
-        $qBos = DB::table('keuangan_transaksi');
-        $this->applyFilters($qBos, $request);
-        $bosData = $qBos->get();
+        $query = DB::table('keuangan_transaksi');
 
-        // 2. Ambil data dari tabel Staff (finances)
-        $qStaff = DB::table('finances');
-        $this->applyFilters($qStaff, $request);
+        // Mapping filter Tipe untuk Bos agar sesuai dengan DB Staff
+        if ($request->tipe) {
+            if ($request->tipe === 'piutang') {
+                $query->where('tipe', 'pemasukan')->where('status', 'pending');
+            } else {
+                $query->where('tipe', $request->tipe);
+            }
+        }
         
-        $staffData = $qStaff->get()->map(function($item) {
-            // Shift ID agar tidak bentrok dengan ID dari tabel bos saat edit/lihat detail
-            $item->id = $item->id + self::FINANCE_ID_OFFSET; 
-            
-            // Beri label di kode transaksi agar bos tahu ini dari staff
-            $item->kode_transaksi = $item->kode_transaksi ?? 'FIN-'.$item->id;
-            return $item;
-        });
-
-        // 3. Gabungkan dan urutkan berdasarkan tanggal terbaru
-        $transaksi = $bosData->concat($staffData)
-            ->sortByDesc('id')
-            ->sortByDesc('tanggal')
-            ->values();
-
-        return response()->json(['success' => true, 'data' => $transaksi]);
-    }
-
-    private function applyFilters($query, Request $request)
-    {
-        if ($request->tipe)      $query->where('tipe', $request->tipe);
         if ($request->kategori)  $query->where('kategori', $request->kategori);
         if ($request->status)    $query->where('status', $request->status);
         if ($request->platform)  $query->where('platform', $request->platform);
@@ -121,8 +87,21 @@ class KeuanganController extends Controller
         if ($request->search)    $query->where(function ($q) use ($request) {
             $q->where('deskripsi', 'like', '%' . $request->search . '%')
               ->orWhere('kode_transaksi', 'like', '%' . $request->search . '%')
-              ->orWhere('pihak_terkait', 'like', '%' . $request->search . '%');
+              ->orWhere('pihak_terkait', 'like', '%' . $request->search . '%')
+              ->orWhere('no_order', 'like', '%' . $request->search . '%');
         });
+
+        $transaksi = $query->orderByDesc('tanggal')->orderByDesc('id')->get();
+
+        // Penyesuaian label tipe untuk frontend Bos
+        $transaksi->transform(function ($t) {
+            if ($t->tipe === 'pemasukan' && $t->status === 'pending') {
+                $t->tipe = 'piutang'; // Ubah label saat ditampilkan
+            }
+            return $t;
+        });
+
+        return response()->json(['success' => true, 'data' => $transaksi]);
     }
 
     // ===== API: CHART DATA =====
@@ -132,16 +111,21 @@ class KeuanganController extends Controller
         $data = [];
         
         for ($m = 1; $m <= 12; $m++) {
-            $pemasukan    = $this->sumData('pemasukan', 'lunas', $m, $tahun);
-            $pengeluaran  = $this->sumData('pengeluaran', 'lunas', $m, $tahun);
-            $piutangLunas = $this->sumData('piutang', 'lunas', $m, $tahun);
+            $pemasukan = DB::table('keuangan_transaksi')
+                ->where('tipe', 'pemasukan')->where('status', 'lunas')
+                ->whereMonth('tanggal', $m)->whereYear('tanggal', $tahun)
+                ->sum('jumlah');
+
+            $pengeluaran = DB::table('keuangan_transaksi')
+                ->where('tipe', 'pengeluaran')->where('status', 'lunas')
+                ->whereMonth('tanggal', $m)->whereYear('tanggal', $tahun)
+                ->sum('jumlah');
 
             $data[] = [
-                'bulan'         => date('M', mktime(0, 0, 0, $m, 1)),
-                'pemasukan'     => (float) $pemasukan,
-                'pengeluaran'   => (float) $pengeluaran,
-                'piutang_lunas' => (float) $piutangLunas,
-                'laba'          => (float) ($pemasukan + $piutangLunas - $pengeluaran),
+                'bulan'        => date('M', mktime(0, 0, 0, $m, 1)),
+                'pemasukan'    => (float) $pemasukan,
+                'pengeluaran'  => (float) $pengeluaran,
+                'laba'         => (float) ($pemasukan - $pengeluaran),
             ];
         }
 
@@ -155,24 +139,20 @@ class KeuanganController extends Controller
         $tahun = $request->tahun ?? date('Y');
         $tipe  = $request->tipe  ?? 'pengeluaran';
 
-        // Gabung data dulu di memori agar bisa di-group berdasarkan kategori (menghindari error UNION SQL)
-        $qBos   = DB::table('keuangan_transaksi')->where('tipe', $tipe)->where('status', 'lunas')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->get();
-        $qStaff = DB::table('finances')->where('tipe', $tipe)->where('status', 'lunas')->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)->get();
-
-        $merged = $qBos->concat($qStaff);
-        
-        $data = $merged->groupBy('kategori')->map(function($row, $key) {
-            return [
-                'kategori'         => $key,
-                'total'            => $row->sum('jumlah'),
-                'jumlah_transaksi' => $row->count()
-            ];
-        })->sortByDesc('total')->values();
+        $data = DB::table('keuangan_transaksi')
+            ->selectRaw('kategori, SUM(jumlah) as total, COUNT(*) as jumlah_transaksi')
+            ->where('tipe', $tipe)
+            ->where('status', 'lunas')
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->groupBy('kategori')
+            ->orderByDesc('total')
+            ->get();
 
         return response()->json(['success' => true, 'data' => $data]);
     }
 
-    // ===== SIMPAN TRANSAKSI (HANYA MASUK KE TABEL BOS) =====
+    // ===== SIMPAN TRANSAKSI DARI BOS =====
     public function store(Request $request)
     {
         $request->validate([
@@ -184,18 +164,21 @@ class KeuanganController extends Controller
             'metode_bayar' => 'required|in:cash,transfer,qris,kartu_kredit',
         ]);
 
-        $kode = $this->generateKode();
+        $kode   = $this->generateKode();
+        // Sesuaikan dengan format DB
+        $tipeDb = $request->tipe === 'piutang' ? 'pemasukan' : $request->tipe;
+        $status = $request->tipe === 'piutang' ? 'pending' : ($request->status ?? 'lunas');
 
         DB::table('keuangan_transaksi')->insert([
             'kode_transaksi' => $kode,
-            'tipe'           => $request->tipe,
+            'tipe'           => $tipeDb,
             'kategori'       => $request->kategori,
             'jumlah'         => $request->jumlah,
             'tanggal'        => $request->tanggal,
             'deskripsi'      => $request->deskripsi,
             'referensi'      => $request->referensi,
             'metode_bayar'   => $request->metode_bayar,
-            'status'         => $request->status ?? 'pending',
+            'status'         => $status,
             'pihak_terkait'  => $request->pihak_terkait,
             'catatan'        => $request->catatan,
             'platform'       => $request->kategori === 'Penjualan Online' ? $request->platform : null,
@@ -207,7 +190,7 @@ class KeuanganController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Transaksi Private Bos (' . $kode . ') berhasil disimpan!',
+            'message' => 'Transaksi berhasil disimpan!',
             'kode'    => $kode,
         ]);
     }
@@ -215,13 +198,10 @@ class KeuanganController extends Controller
     // ===== UPDATE TRANSAKSI =====
     public function update(Request $request, $id)
     {
-        // Proteksi: Jika ID melebihi batas offset, berarti ini data dari tabel Staff
-        if ($id >= self::FINANCE_ID_OFFSET) {
-            return response()->json(['success' => false, 'message' => '⚠️ Ditolak: Ini adalah transaksi operasional staff. Harap ubah data ini melalui menu Staff Finance agar log tetap terjaga.'], 403);
-        }
+        $tipeDb = $request->tipe === 'piutang' ? 'pemasukan' : $request->tipe;
 
         DB::table('keuangan_transaksi')->where('id', $id)->update([
-            'tipe'          => $request->tipe,
+            'tipe'          => $tipeDb,
             'kategori'      => $request->kategori,
             'jumlah'        => $request->jumlah,
             'tanggal'       => $request->tanggal,
@@ -236,41 +216,47 @@ class KeuanganController extends Controller
             'updated_at'    => now(),
         ]);
 
-        return response()->json(['success' => true, 'message' => 'Transaksi Bos berhasil diupdate!']);
+        return response()->json(['success' => true, 'message' => 'Transaksi berhasil diupdate!']);
     }
 
-    // ===== HAPUS TRANSAKSI =====
+    // ===== HAPUS =====
     public function destroy($id)
     {
-        if ($id >= self::FINANCE_ID_OFFSET) {
-            return response()->json(['success' => false, 'message' => '⚠️ Ditolak: Transaksi operasional staff tidak boleh dihapus dari dashboard Bos.'], 403);
-        }
-
         DB::table('keuangan_transaksi')->where('id', $id)->delete();
         return response()->json(['success' => true, 'message' => 'Transaksi dihapus!']);
     }
 
-    // ===== DETAIL TRANSAKSI =====
+    // ===== DETAIL =====
     public function show($id)
     {
-        // Deteksi dari tabel mana data ini harus ditarik
-        if ($id >= self::FINANCE_ID_OFFSET) {
-            $realId = $id - self::FINANCE_ID_OFFSET;
-            $trx = DB::table('finances')->where('id', $realId)->first();
-        } else {
-            $trx = DB::table('keuangan_transaksi')->where('id', $id)->first();
-        }
-
+        $trx = DB::table('keuangan_transaksi')->where('id', $id)->first();
         if (!$trx) return response()->json(['success' => false, 'message' => 'Data tidak ditemukan'], 404);
         
+        // Sesuaikan tipe untuk form edit Bos
+        if ($trx->tipe === 'pemasukan' && $trx->status === 'pending') {
+            $trx->tipe = 'piutang';
+        }
+
         return response()->json(['success' => true, 'data' => $trx]);
     }
 
-    // ===== GENERATE KODE =====
+    // ===== UPDATE STATUS (TANDAI LUNAS) =====
+    public function updateStatus(Request $request, $id)
+    {
+        DB::table('keuangan_transaksi')->where('id', $id)->update([
+            'status'     => $request->status,
+            'updated_at' => now(),
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Status transaksi berhasil diperbarui.']);
+    }
+
+    // ===== GENERATE KODE KHUSUS BOS =====
     private function generateKode(): string
     {
         $tahun = date('Y');
         $count = DB::table('keuangan_transaksi')->whereYear('created_at', $tahun)->count();
+        // Pakai prefix BOS- agar tahu ini diinput dari halaman Bos
         return 'BOS-' . $tahun . '-' . str_pad($count + 1, 4, '0', STR_PAD_LEFT);
     }
 }
