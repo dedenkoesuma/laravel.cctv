@@ -192,7 +192,10 @@ class FinanceController extends Controller
         $kode   = $this->generateKode($request->tipe);
         $tipeDb = $request->tipe === 'piutang' ? 'pemasukan' : 'pengeluaran';
         $defaultStatus = $request->tipe === 'piutang' ? 'pending' : 'lunas';
-
+        $allowedMetode = ['cash', 'transfer', 'qris', 'kartu_kredit'];
+        $metode = in_array($request->metode_bayar, $allowedMetode) 
+            ? $request->metode_bayar 
+            : 'transfer';
         // 1. Simpan data Piutang / Pengeluaran ke database
         DB::table('keuangan_transaksi')->insert([
             'kode_transaksi' => $kode,
@@ -203,10 +206,13 @@ class FinanceController extends Controller
             'jatuh_tempo'    => $request->jatuh_tempo ?: null,
             'deskripsi'      => $request->deskripsi,
             'referensi'      => $request->referensi,
-            'metode_bayar'   => $request->metode_bayar ?? 'transfer',
+            'metode_bayar'   => $metode,
             'status'         => $request->status ?? $defaultStatus,
             'pihak_terkait'  => $request->pihak_terkait,
-            'catatan'        => $request->catatan,
+            'catatan'        => $request->catatan 
+    . ($request->metode_bayar && !in_array($request->metode_bayar, $allowedMetode) 
+        ? ' | Tipe bayar: ' . $request->metode_bayar 
+        : ''),
             'created_by'     => session('admin_id', 1),
             'created_at'     => now(),
             'updated_at'     => now(),

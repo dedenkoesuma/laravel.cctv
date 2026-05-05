@@ -12,7 +12,7 @@
 /* ===== SUMMARY CARDS ===== */
 .summary-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* ← diubah dari 4 ke 5 */
+    grid-template-columns: repeat(5, 1fr);
     gap: 16px; margin-bottom: 24px;
 }
 .sum-card {
@@ -26,7 +26,7 @@
 .sum-card.pengeluaran{ border-left-color: #ef4444; }
 .sum-card.laba       { border-left-color: #3b82f6; }
 .sum-card.saldo      { border-left-color: #f59e0b; }
-.sum-card.piutang    { border-left-color: #f59e0b; } /* ← BARU */
+.sum-card.piutang    { border-left-color: #f59e0b; }
 .sum-icon {
     width: 44px; height: 44px; border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
@@ -75,7 +75,7 @@
 }
 .tipe-badge.pemasukan   { background: #d1fae5; color: #065f46; }
 .tipe-badge.pengeluaran { background: #fee2e2; color: #991b1b; }
-.tipe-badge.piutang     { background: #fef3c7; color: #92400e; } /* ← BARU */
+.tipe-badge.piutang     { background: #fef3c7; color: #92400e; }
 .status-badge { padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
 .status-badge.lunas   { background: #d1fae5; color: #065f46; }
 .status-badge.pending { background: #fef3c7; color: #92400e; }
@@ -170,7 +170,6 @@
                 <button class="btn btn-light fw-bold" onclick="bukaModal('pemasukan')">
                     <i class="bi bi-plus-circle me-1"></i>Pemasukan
                 </button>
-                {{-- ✅ TOMBOL PENJUALAN ONLINE - Buka tab baru ke /penjualan-online/staff --}}
                 <button class="btn fw-bold" style="background:#f97316;color:white;"
                         onclick="bukaModalOnline()">
                     🛒 Penjualan Online
@@ -222,7 +221,6 @@
             <div class="sum-value text-warning" id="sumSaldo">-</div>
             <div class="sum-label">Total Saldo Keseluruhan</div>
         </div>
-        {{-- ✅ CARD PIUTANG BARU --}}
         <div class="sum-card piutang">
             <div class="sum-icon" style="background:#fef9c3;">🧾</div>
             <div class="sum-value" style="color:#b45309;" id="sumPiutangPending">-</div>
@@ -252,7 +250,7 @@
             <option value="">Semua Tipe</option>
             <option value="pemasukan">💚 Pemasukan</option>
             <option value="pengeluaran">❤️ Pengeluaran</option>
-            <option value="piutang">🧾 Piutang</option> {{-- ← BARU --}}
+            <option value="piutang">🧾 Piutang</option>
         </select>
         <select id="filterPlatform" onchange="loadTransaksi()">
             <option value="">Semua Platform</option>
@@ -417,69 +415,6 @@
         </div>
     </div>
 </div>
-{{-- ===== MODAL KELOLA LINK ===== --}}
-<div class="modal fade" id="modalKelolaLink" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header" style="background:linear-gradient(135deg,#1e40af,#3b82f6);color:white;">
-                <h5 class="modal-title fw-bold">🔗 Buat & Kelola Link Penjualan</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="p-3 mb-4" style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:12px;">
-                    <div class="fw-bold mb-3" style="color:#1e40af;">➕ Buat Link Baru</div>
-                    <div class="row g-2">
-                        <div class="col-md-4">
-                            <label class="form-label">Label Link</label>
-                            <input type="text" class="form-control" id="linkLabel" placeholder="Contoh: Link Staff A">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Untuk (Nama Admin/Staff)</label>
-                            <input type="text" class="form-control" id="linkNamaAdmin" placeholder="Nama penerima link">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Berlaku (hari)</label>
-                            <input type="number" class="form-control" id="linkExpiredDays" value="30" min="1" max="90">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Maks Pakai</label>
-                            <input type="number" class="form-control" id="linkMaxPakai" value="0" min="0" placeholder="0=∞">
-                            <div class="form-text">0 = tidak terbatas</div>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary fw-bold mt-3" onclick="generateLink()">
-                        <i class="bi bi-plus-circle me-1"></i>Generate Link
-                    </button>
-                </div>
-                <div id="hasilLinkBox" style="display:none;"
-                     class="alert alert-success d-flex align-items-center gap-2 mb-4 flex-wrap">
-                    <i class="bi bi-check-circle-fill fs-5"></i>
-                    <div class="flex-grow-1">
-                        <div class="fw-bold mb-1">✅ Link berhasil dibuat! Salin dan bagikan ke staff:</div>
-                        <div class="d-flex gap-2">
-                            <input type="text" class="form-control form-control-sm" id="urlHasil" readonly
-                                   style="font-family:monospace;font-size:0.82rem;">
-                            <button class="btn btn-sm btn-success fw-bold" onclick="copyLink()">
-                                <i class="bi bi-clipboard me-1"></i>Copy
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <div class="fw-bold">📋 Daftar Link</div>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="loadLinks()">
-                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
-                    </button>
-                </div>
-                <div id="listLink">
-                    <div class="text-center text-muted py-4">
-                        <div class="spinner-border spinner-border-sm me-2 text-primary"></div>Memuat daftar link...
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 let debounceTimer;
@@ -541,7 +476,7 @@ function toggleOnlineSection() {
         document.getElementById('inputNoOrder').value  = '';
     }
 }
-// ===== LOAD SUMMARY (updated: include piutang) =====
+// ===== LOAD SUMMARY =====
 async function loadSummary() {
     const res  = await fetch(`/api/admin/keuangan/summary?bulan=${getBulan()}&tahun=${getTahun()}`);
     const data = await res.json();
@@ -552,7 +487,6 @@ async function loadSummary() {
     const labaEl = document.getElementById('sumLaba');
     labaEl.textContent = (laba >= 0 ? '+' : '') + formatRp(laba);
     labaEl.className   = 'sum-value ' + (laba >= 0 ? 'text-success' : 'text-danger');
-    // ✅ Piutang
     if (document.getElementById('sumPiutangPending')) {
         document.getElementById('sumPiutangPending').textContent = formatRp(data.piutang_pending);
     }
@@ -584,7 +518,6 @@ function renderTransaksi(list) {
         return;
     }
     tbody.innerHTML = list.map(t => {
-        // ✅ updated: support piutang
         const isPemasukan = t.tipe === 'pemasukan';
         const isPiutang   = t.tipe === 'piutang';
         const jumlahStr   = (isPemasukan ? '+' : (isPiutang ? '🧾 ' : '-')) + formatRp(t.jumlah);
@@ -613,8 +546,8 @@ function renderTransaksi(list) {
                 <div class="d-flex gap-1 justify-content-center">
                     <button class="btn btn-xs btn-outline-primary py-0 px-2" onclick="lihatDetail(${t.id})"><i class="bi bi-eye"></i></button>
                     <button class="btn btn-xs btn-outline-warning py-0 px-2" onclick="editTransaksi(${t.id})"><i class="bi bi-pencil"></i></button>
-                    ${isPiutang && t.status === 'pending'
-                        ? `<button class="btn btn-xs btn-outline-success py-0 px-2" title="Tandai Lunas" onclick="tandaiLunas(${t.id})"><i class="bi bi-check-lg"></i></button>`
+                    ${t.status === 'pending'
+                        ? `<button class="btn btn-xs btn-outline-success py-0 px-2" title="Tandai Lunas" onclick="tandaiLunas(${t.id}, '${t.tipe}')"><i class="bi bi-check-lg"></i></button>`
                         : ''}
                     <button class="btn btn-xs btn-outline-danger py-0 px-2" onclick="hapusTransaksi(${t.id}, '${t.kode_transaksi}')"><i class="bi bi-trash"></i></button>
                 </div>
@@ -622,9 +555,10 @@ function renderTransaksi(list) {
         </tr>`;
     }).join('');
 }
-// ===== TANDAI PIUTANG LUNAS =====
-async function tandaiLunas(id) {
-    if (!confirm('Tandai piutang ini sebagai Lunas?')) return;
+// ===== TANDAI PIUTANG/HUTANG LUNAS =====
+async function tandaiLunas(id, tipe) {
+    const jenis = (tipe === 'pengeluaran') ? 'Hutang / Pengeluaran' : 'Piutang';
+    if (!confirm(`Tandai ${jenis} ini sebagai Lunas?`)) return;
     try {
         const res  = await fetch(`/api/admin/keuangan/transaksi/${id}/status`, {
             method : 'PATCH',
@@ -632,7 +566,7 @@ async function tandaiLunas(id) {
             body   : JSON.stringify({ status: 'lunas' }),
         });
         const data = await res.json();
-        if (data.success) { showToast('✅ Piutang ditandai lunas!', 'success'); loadAll(); }
+        if (data.success) { showToast('✅ ' + jenis + ' ditandai lunas!', 'success'); loadAll(); }
         else showToast('❌ ' + (data.message || 'Gagal'), 'danger');
     } catch (e) {
         showToast('❌ Error: ' + e.message, 'danger');
@@ -714,152 +648,8 @@ function bukaModal(tipe = 'pemasukan') {
     new bootstrap.Modal(document.getElementById('modalTransaksi')).show();
 }
 // ===== BUKA PENJUALAN ONLINE =====
-function bukaModalOnline() {
-    window.open('{{ url("/penjualan-online/staff") }}', '_blank');
-}
-// ===== SALIN LINK STAFF =====
-function salinLinkStaff() {
-    const url = '{{ url("/penjualan-online/staff") }}';
-    navigator.clipboard.writeText(url)
-        .then(() => showToast('📋 Link staff berhasil disalin!', 'success'))
-        .catch(() => {
-            const el = document.createElement('input');
-            el.value = url;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            showToast('📋 Link staff berhasil disalin!', 'success');
-        });
-}
-// ===== GENERATE LINK BARU =====
-async function generateLink() {
-    const label       = document.getElementById('linkLabel').value.trim() || 'Link Penjualan';
-    const namaAdmin   = document.getElementById('linkNamaAdmin').value.trim() || 'Admin';
-    const expiredDays = parseInt(document.getElementById('linkExpiredDays').value) || 30;
-    const maxPakai    = parseInt(document.getElementById('linkMaxPakai').value) || 0;
-    if (expiredDays < 1 || expiredDays > 90) {
-        showToast('❌ Berlaku harus antara 1-90 hari', 'danger');
-        return;
-    }
-    try {
-        const res = await fetch('/api/admin/keuangan/generate-link', {
-            method : 'POST',
-            headers: { 'Content-Type':'application/json', 'Accept':'application/json', 'X-CSRF-TOKEN':csrfToken },
-            body: JSON.stringify({ label, nama_admin:namaAdmin, expired_days:expiredDays, max_penggunaan:maxPakai }),
-        });
-        const data = await res.json();
-        if (data.success) {
-            document.getElementById('urlHasil').value = data.url;
-            document.getElementById('hasilLinkBox').style.display = 'flex';
-            showToast('✅ Link berhasil dibuat!', 'success');
-            loadLinks();
-        } else {
-            showToast('❌ ' + (data.message || 'Gagal membuat link'), 'danger');
-        }
-    } catch (e) {
-        showToast('❌ Error: ' + e.message, 'danger');
-    }
-}
-// ===== COPY LINK =====
-function copyLink() {
-    const input = document.getElementById('urlHasil');
-    input.select();
-    input.setSelectionRange(0, 99999);
-    try {
-        document.execCommand('copy');
-        showToast('📋 Link berhasil disalin!', 'success');
-    } catch (e) {
-        navigator.clipboard.writeText(input.value)
-            .then(() => showToast('📋 Link berhasil disalin!', 'success'))
-            .catch(() => showToast('❌ Gagal menyalin, salin manual', 'warning'));
-    }
-}
-// ===== LOAD DAFTAR LINK =====
-async function loadLinks() {
-    document.getElementById('listLink').innerHTML =
-        `<div class="text-center text-muted py-4">
-            <div class="spinner-border spinner-border-sm me-2 text-primary"></div>Memuat...
-         </div>`;
-    try {
-        const res  = await fetch('/api/admin/keuangan/links');
-        const data = await res.json();
-        if (!data.data || !data.data.length) {
-            document.getElementById('listLink').innerHTML =
-                `<div class="text-center text-muted py-4">
-                    <i class="bi bi-link-45deg fs-2 d-block mb-2"></i>Belum ada link yang dibuat.
-                 </div>`;
-            return;
-        }
-        document.getElementById('listLink').innerHTML = data.data.map(link => {
-            const isExpired  = link.is_expired;
-            const isInactive = !link.is_active;
-            const statusBadge = isExpired
-                ? `<span class="badge bg-danger">Expired</span>`
-                : (isInactive ? `<span class="badge bg-secondary">Nonaktif</span>` : `<span class="badge bg-success">Aktif</span>`);
-            return `
-            <div class="link-card ${isInactive || isExpired ? 'nonaktif' : ''}">
-                <div class="d-flex justify-content-between align-items-start gap-2">
-                    <div class="flex-grow-1">
-                        <div class="d-flex align-items-center gap-2 mb-1">
-                            <span class="fw-bold">${link.label}</span>${statusBadge}
-                        </div>
-                        <div class="link-url mb-1">${link.url}</div>
-                        <div class="small text-muted">
-                            👤 ${link.nama_admin} &nbsp;·&nbsp;
-                            ⏳ Exp: ${link.expired_label} &nbsp;·&nbsp;
-                            🔢 Dipakai: ${link.jumlah_penggunaan}x
-                            ${link.max_penggunaan > 0 ? ' / ' + link.max_penggunaan + 'x' : ' (∞)'}
-                        </div>
-                    </div>
-                    <div class="d-flex gap-1 flex-shrink-0">
-                        <button class="btn btn-sm btn-outline-secondary py-0 px-2" title="Salin link"
-                                onclick="navigator.clipboard.writeText('${link.url}').then(()=>showToast('📋 Link disalin!','success'))">
-                            <i class="bi bi-clipboard"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-warning py-0 px-2"
-                                title="${link.is_active ? 'Nonaktifkan' : 'Aktifkan kembali'}"
-                                onclick="toggleLink(${link.id})">
-                            <i class="bi bi-${link.is_active ? 'pause-circle' : 'play-circle'}"></i>
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger py-0 px-2" title="Hapus link"
-                                onclick="hapusLink(${link.id})">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>`;
-        }).join('');
-    } catch (e) {
-        document.getElementById('listLink').innerHTML =
-            `<p class="text-danger small text-center py-3">❌ Gagal memuat daftar link: ${e.message}</p>`;
-    }
-}
-// ===== TOGGLE LINK =====
-async function toggleLink(id) {
-    try {
-        const res  = await fetch(`/api/admin/keuangan/links/${id}/toggle`, {
-            method: 'POST',
-            headers: { 'Accept':'application/json', 'X-CSRF-TOKEN':csrfToken },
-        });
-        const data = await res.json();
-        if (data.success) { showToast('✅ ' + data.message, 'success'); loadLinks(); }
-        else showToast('❌ ' + (data.message || 'Gagal'), 'danger');
-    } catch (e) { showToast('❌ Error: ' + e.message, 'danger'); }
-}
-// ===== HAPUS LINK =====
-async function hapusLink(id) {
-    if (!confirm('Hapus link ini? Tindakan tidak dapat dibatalkan.')) return;
-    try {
-        const res  = await fetch(`/api/admin/keuangan/links/${id}`, {
-            method: 'DELETE',
-            headers: { 'Accept':'application/json', 'X-CSRF-TOKEN':csrfToken },
-        });
-        const data = await res.json();
-        if (data.success) { showToast('✅ Link dihapus.', 'success'); loadLinks(); }
-        else showToast('❌ ' + (data.message || 'Gagal menghapus'), 'danger');
-    } catch (e) { showToast('❌ Error: ' + e.message, 'danger'); }
-}
+function bukaModalOnline() { window.open('{{ url("/penjualan-online/staff") }}', '_blank'); }
+
 function resetModal() {
     document.getElementById('editId').value         = '';
     document.getElementById('inputJumlah').value    = '';
@@ -874,8 +664,7 @@ function resetModal() {
     document.getElementById('inputNoOrder').value   = '';
     document.getElementById('onlineSection').style.display = 'none';
     const btn = document.getElementById('btnSimpan');
-    btn.style.background = '';
-    btn.style.color = '';
+    btn.style.background = ''; btn.style.color = '';
 }
 function updateKategori() {
     const tipe = document.getElementById('inputTipe').value;
@@ -902,18 +691,11 @@ async function simpanTransaksi() {
     if (kategori === 'Penjualan Online') {
         payload.platform = document.getElementById('inputPlatform').value;
         payload.no_order = document.getElementById('inputNoOrder').value;
-        if (!payload.platform) {
-            showToast('❌ Platform toko online wajib dipilih!', 'danger');
-            return;
-        }
+        if (!payload.platform) { showToast('❌ Platform toko online wajib dipilih!', 'danger'); return; }
     }
-    if (!payload.jumlah || !payload.deskripsi) {
-        showToast('❌ Jumlah dan deskripsi wajib diisi!', 'danger');
-        return;
-    }
+    if (!payload.jumlah || !payload.deskripsi) { showToast('❌ Jumlah dan deskripsi wajib diisi!', 'danger'); return; }
     const btn = document.getElementById('btnSimpan');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan...';
+    btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan...';
     try {
         const url    = editId ? `/api/admin/keuangan/transaksi/${editId}` : '/api/admin/keuangan/transaksi';
         const method = editId ? 'PUT' : 'POST';
@@ -925,17 +707,10 @@ async function simpanTransaksi() {
         const data = await res.json();
         if (data.success) {
             bootstrap.Modal.getInstance(document.getElementById('modalTransaksi')).hide();
-            showToast('✅ ' + data.message, 'success');
-            loadAll();
-        } else {
-            showToast('❌ ' + (data.message || 'Gagal menyimpan'), 'danger');
-        }
-    } catch (e) {
-        showToast('❌ Error: ' + e.message, 'danger');
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-save me-1"></i>Simpan';
-    }
+            showToast('✅ ' + data.message, 'success'); loadAll();
+        } else { showToast('❌ ' + (data.message || 'Gagal menyimpan'), 'danger'); }
+    } catch (e) { showToast('❌ Error: ' + e.message, 'danger'); } 
+    finally { btn.disabled = false; btn.innerHTML = '<i class="bi bi-save me-1"></i>Simpan'; }
 }
 // ===== EDIT TRANSAKSI =====
 async function editTransaksi(id) {
@@ -959,8 +734,7 @@ async function editTransaksi(id) {
     document.getElementById('inputPlatform').value  = t.platform || '';
     document.getElementById('inputNoOrder').value   = t.no_order || '';
     const header = document.getElementById('modalHeader');
-    header.style.background = '#1f2937';
-    header.style.color = 'white';
+    header.style.background = '#1f2937'; header.style.color = 'white';
     document.getElementById('modalTitle').textContent = '✏️ Edit Transaksi';
     new bootstrap.Modal(document.getElementById('modalTransaksi')).show();
 }
@@ -1019,25 +793,14 @@ function exportLaporan() {
     showToast('📥 Export sedang diproses...', 'info');
 }
 // ===== HELPERS =====
-function formatRp(num) {
-    return 'Rp ' + parseInt(num || 0).toLocaleString('id-ID');
-}
-function formatDate(str) {
-    if (!str) return '-';
-    return new Date(str).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
-}
-function metodeLabel(m) {
-    const map = { cash:'💵 Cash', transfer:'🏦 Transfer', qris:'📱 QRIS', kartu_kredit:'💳 Kartu' };
-    return map[m] || m;
-}
+function formatRp(num) { return 'Rp ' + parseInt(num || 0).toLocaleString('id-ID'); }
+function formatDate(str) { if (!str) return '-'; return new Date(str).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }); }
+function metodeLabel(m) { const map = { cash:'💵 Cash', transfer:'🏦 Transfer', qris:'📱 QRIS', kartu_kredit:'💳 Kartu' }; return map[m] || m; }
 function showToast(msg, type) {
     const el = document.createElement('div');
     el.className = `alert alert-${type} position-fixed bottom-0 end-0 m-3 shadow`;
-    el.style.zIndex = 9999;
-    el.style.minWidth = '260px';
-    el.textContent = msg;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 3500);
+    el.style.zIndex = 9999; el.style.minWidth = '260px'; el.textContent = msg;
+    document.body.appendChild(el); setTimeout(() => el.remove(), 3500);
 }
 </script>
 @endsection

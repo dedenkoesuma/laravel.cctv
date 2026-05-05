@@ -398,8 +398,7 @@
             </div>
             <div class="modal-body text-center py-4">
                 <div style="font-size:3rem">💰</div>
-                <p class="mt-2 mb-1">Tandai piutang ini sebagai <strong>LUNAS</strong>?</p>
-                <p class="text-muted small" id="lunasKeterangan"></p>
+                <div id="lunasKeterangan"></div>
                 <input type="hidden" id="lunasId">
             </div>
             <div class="modal-footer">
@@ -573,7 +572,7 @@ function renderInvoice(list) {
 
         const btnLunas = inv.status === 'pending'
             ? `<button class="btn btn-xs btn-outline-success py-0 px-2"
-                onclick="bukaModalLunas(${inv.id},'${inv.invoice_number}','${inv.pihak_terkait}',${inv.jumlah})"
+                onclick="bukaModalLunas(${inv.id},'${inv.invoice_number}','${inv.pihak_terkait}',${inv.jumlah},'piutang')"
                 title="Tandai Lunas">✅</button>` : '';
 
         return `<tr>
@@ -636,7 +635,6 @@ async function lihatDetailInv(id) {
         </tr>`;
     }).join('');
 
-    // ✅ Baris DP & Sisa Tagihan di tfoot
     const dpRows = (inv.dp_nominal > 0) ? `
         <tr>
             <td colspan="3" class="text-end text-muted">DP / Uang Muka</td>
@@ -647,7 +645,6 @@ async function lihatDetailInv(id) {
             <td colspan="2" class="fw-bold text-danger fs-6">${formatRp(inv.sisa_tagihan)}</td>
         </tr>` : '';
 
-    // ✅ Baris DP di Info Invoice
     const dpInfoRows = (inv.dp_nominal > 0) ? `
         <tr><td class="text-muted">DP / Uang Muka</td><td><strong class="text-warning">${formatRp(inv.dp_nominal)}</strong></td></tr>
         <tr><td class="text-muted">Sisa Tagihan</td><td><strong class="text-danger">${formatRp(inv.sisa_tagihan)}</strong></td></tr>` : '';
@@ -693,19 +690,15 @@ async function lihatDetailInv(id) {
             </table>
         </div>`;
 
-    document.getElementById('btnLunasInv').setAttribute('data-id', id);
+    // Kita passing 'piutang' default karena ini tab invoice
+    document.getElementById('btnLunasInv').setAttribute('onclick', `bukaModalLunas(${id},'${inv.invoice_number||inv.kode_transaksi}','${inv.pihak_terkait||'-'}',${inv.jumlah},'piutang')`);
     new bootstrap.Modal(document.getElementById('modalDetailInv')).show();
 }
 
 // ===== TANDAI LUNAS DARI DETAIL MODAL =====
 function tandaiLunasInv() {
-    const id  = document.getElementById('btnLunasInv').getAttribute('data-id');
     bootstrap.Modal.getInstance(document.getElementById('modalDetailInv')).hide();
-    setTimeout(() => {
-        document.getElementById('lunasId').value = id;
-        document.getElementById('lunasKeterangan').textContent = 'Invoice akan ditandai LUNAS dan masuk ke pembukuan bos.';
-        new bootstrap.Modal(document.getElementById('modalLunas')).show();
-    }, 400);
+    // Logic modal lunas sudah di-handle oleh onclick dari btnLunasInv
 }
 
 function downloadInv() {
@@ -748,9 +741,14 @@ async function konfirmasiLunas() {
 }
 
 // ===== BUKA MODAL LUNAS DARI TABEL =====
-function bukaModalLunas(id, kode, pihak, jumlah) {
+function bukaModalLunas(id, kode, pihak, jumlah, tipe) {
     document.getElementById('lunasId').value = id;
-    document.getElementById('lunasKeterangan').textContent = `${kode} — ${pihak} — ${formatRp(jumlah)}`;
+    const jenis = (tipe === 'pengeluaran') ? 'HUTANG (Pengeluaran)' : 'PIUTANG';
+    document.getElementById('lunasKeterangan').innerHTML = `
+        <span class="badge bg-dark mb-1">${jenis}</span><br>
+        ${kode} — ${pihak} — <strong>${formatRp(jumlah)}</strong><br>
+        <small class="text-muted">Akan ditandai sebagai Lunas.</small>
+    `;
     new bootstrap.Modal(document.getElementById('modalLunas')).show();
 }
 
@@ -779,8 +777,10 @@ function renderTransaksi(list) {
     }
     tbody.innerHTML = list.map(t => {
         const isPiutang = t.tipe === 'piutang';
-        const btnLunas = (isPiutang && t.status === 'pending')
-            ? `<button class="btn btn-xs btn-outline-success py-0 px-2" onclick="bukaModalLunas(${t.id},'${t.kode_transaksi}','${t.pihak_terkait}',${t.jumlah})" title="Tandai Lunas">✅</button>` : '';
+        const isPending = t.status === 'pending';
+        // Hapus (isPiutang &&) agar tombol lunas muncul di hutang pending juga
+        const btnLunas = isPending
+            ? `<button class="btn btn-xs btn-outline-success py-0 px-2" onclick="bukaModalLunas(${t.id},'${t.kode_transaksi}','${t.pihak_terkait}',${t.jumlah},'${t.tipe}')" title="Tandai Lunas">✅</button>` : '';
         return `<tr>
             <td><span class="badge bg-light text-dark border" style="font-family:monospace">${t.kode_transaksi}</span></td>
             <td>${formatDate(t.tanggal)}</td>

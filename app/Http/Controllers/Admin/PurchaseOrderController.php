@@ -40,6 +40,7 @@ class PurchaseOrderController extends Controller
     }
 
     // ===== SIMPAN PO BARU =====
+    // ===== SIMPAN PO BARU =====
     public function store(Request $request)
     {
         $request->validate([
@@ -99,13 +100,36 @@ class PurchaseOrderController extends Controller
                 ]);
             }
 
+            // ===== INTEGRASI KE FINANCE (SEBAGAI PIUTANG DAGANG) =====
+            // Generate Kode Transaksi Finance (Pakai Prefix PIU)
+            $countFinance = DB::table('keuangan_transaksi')->whereYear('created_at', date('Y'))->where('tipe', 'pemasukan')->count();
+            $kodeFinance = 'PIU-' . date('Y') . '-' . str_pad($countFinance + 1, 4, '0', STR_PAD_LEFT);
+
+            DB::table('keuangan_transaksi')->insert([
+                'kode_transaksi' => $kodeFinance,
+                'tipe'           => 'pemasukan', // Di sistemmu, piutang disimpan sbg pemasukan + pending
+                'kategori'       => 'Piutang Dagang', // <-- Berubah ke Piutang Dagang
+                'jumlah'         => $calc['total'],
+                'tanggal'        => $request->po_date,
+                'deskripsi'      => 'Pembayaran PO: ' . $poNum,
+                'referensi'      => $poNum,
+                'no_order'       => $poNum,
+                'metode_bayar'   => $request->payment_method ?? 'transfer',
+                'status'         => 'pending', 
+                'pihak_terkait'  => $request->supplier_name,
+                'created_by'     => session('admin_id', 1),
+                'created_at'     => now(),
+                'updated_at'     => now(),
+            ]);
+            // ========================================================
+
             // Log
             $this->log($poId, 'created', "Draft PO {$poNum} dibuat", session('admin_name', 'Admin'));
 
             DB::commit();
             return response()->json([
                 'success'   => true,
-                'message'   => "PO {$poNum} berhasil disimpan sebagai Draft!",
+                'message'   => "PO {$poNum} berhasil disimpan dan disinkronisasi!",
                 'po_number' => $poNum,
                 'po_id'     => $poId,
             ]);
@@ -153,6 +177,7 @@ class PurchaseOrderController extends Controller
             foreach ($request->items as $item) {
                 $sub = ($item['qty'] * $item['unit_price']) - ($item['discount_item'] ?? 0);
                 DB::table('purchase_order_items')->insert([
+                    // ... (Isi field items tetap sama persis seperti aslinya) ...
                     'purchase_order_id'  => $id,
                     'product_name'       => $item['product_name'],
                     'product_description'=> $item['product_description'] ?? null,
@@ -166,6 +191,16 @@ class PurchaseOrderController extends Controller
                     'updated_at'         => now(),
                 ]);
             }
+
+            // ===== SYNC UPDATE KE FINANCE =====
+            DB::table('keuangan_transaksi')->where('no_order', $po->po_number)->update([
+                'jumlah'        => $calc['total'],
+                'tanggal'       => $request->po_date,
+                'pihak_terkait' => $request->supplier_name,
+                'metode_bayar'  => $request->payment_method,
+                'updated_at'    => now(),
+            ]);
+            // ===================================
 
             $this->log($id, 'edited', "PO diupdate oleh " . session('admin_name', 'Admin'));
             DB::commit();
@@ -194,6 +229,16 @@ class PurchaseOrderController extends Controller
             'updated_at' => now(),
         ]);
 
+        // ===== SYNC BATAL KE FINANCE =====
+        // Jika PO dibatalkan, batalkan juga hutangnya di finance
+        if ($status === 'cancelled') {
+            DB::table('keuangan_transaksi')->where('no_order', $po->po_number)->update([
+                'status' => 'batal',
+                'updated_at' => now()
+            ]);
+        }
+        // ==================================
+
         $labels = [
             'sent'      => 'PO dikirim ke supplier',
             'confirmed' => 'PO dikonfirmasi supplier',
@@ -215,6 +260,9 @@ class PurchaseOrderController extends Controller
         if ($po->status !== 'draft') {
             return response()->json(['success' => false, 'message' => 'Hanya Draft yang bisa dihapus!'], 422);
         }
+
+        // Hapus data finance terkait
+        DB::table('keuangan_transaksi')->where('no_order', $po->po_number)->delete();
 
         DB::table('purchase_order_items')->where('purchase_order_id', $id)->delete();
         DB::table('purchase_order_logs')->where('purchase_order_id', $id)->delete();
