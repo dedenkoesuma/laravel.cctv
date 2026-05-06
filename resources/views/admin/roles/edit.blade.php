@@ -21,7 +21,7 @@
         .menu-item.active { background: rgba(255,255,255,0.2); border-left-color: white; }
         .menu-item i { width: 24px; text-align: center; font-size: 18px; }
         .menu-item .badge { margin-left: auto; background: rgba(255,255,255,0.3); padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
-        .logout-btn { position: fixed; bottom: 20px; left: 20px; width: 240px; padding: 12px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; text-decoration: none; transition: 0.3s;}
+        .logout-btn { position: fixed; bottom: 20px; left: 20px; width: 240px; padding: 12px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: gap: 8px; font-weight: 600; text-decoration: none; transition: 0.3s;}
         .logout-btn:hover { background: rgba(255,255,255,0.3); }
         
         .main-content { margin-left: 280px; padding: 30px; min-height: 100vh; }
@@ -41,29 +41,29 @@
 
         <div class="menu-section-title">Operations Management</div>
         
-        @can('view_inventory')
+        @canany(['view_inventory', 'manage_inventory'])
         <a href="/admin/gudang" class="menu-item"><i class="bi bi-box-seam"></i><span>Gudang</span></a>
-        @endcan
+        @endcanany
 
-        @can('view_purchase_orders')
+        @canany(['view_purchase_orders', 'manage_purchase_orders'])
         <a href="{{ route('admin.po.index') }}" class="menu-item"><i class="bi bi-cart-check"></i><span>Purchase Order</span></a>
-        @endcan
+        @endcanany
         
-        @can('view_sales_orders')
+        @canany(['view_sales_orders', 'manage_sales_orders'])
         <a href="/admin/gudang/sales-orders" class="menu-item"><i class="bi bi-file-earmark-check"></i><span>Sales Order</span></a>
-        @endcan
+        @endcanany
 
-        @can('view_quotations')
+        @canany(['view_quotation', 'manage_quotation'])
         <a href="{{ route('admin.quotation.index') }}" class="menu-item"><i class="bi bi-file-text"></i><span>Quotation</span></a>
-        @endcan
+        @endcanany
 
-        @can('view_bookkeeping')
+        @canany(['view_bookkeeping', 'manage_bookkeeping'])
         <a href="/admin/keuangan" class="menu-item"><i class="bi bi-wallet2"></i><span>Keuangan Boss</span></a>
-        @endcan
+        @endcanany
 
-        @can('view_finance')
+        @canany(['view_finance', 'manage_finance'])
         <a href="/admin/finance" class="menu-item"><i class="bi bi-receipt"></i><span>Finance Staff</span></a>
-        @endcan
+        @endcanany
 
         @can('view_kalkulator')
         <a href="{{ route('admin.modal.kalkulator') }}" class="menu-item"><i class="bi bi-calculator"></i><span>Kalkulator Modal</span></a>
@@ -71,26 +71,29 @@
 
         <div class="menu-section-title">Products Management</div>
         
-        @can('view_ruijie')
+        @canany(['view_ruijie', 'manage_ruijie'])
         <a href="/admin/ruijie" class="menu-item"><i class="bi bi-router"></i><span>Ruijie Networks</span></a>
-        @endcan
+        @endcanany
         
-        @can('view_wifi_cameras')
+        @canany(['view_wifi_cameras', 'manage_wifi_cameras'])
         <a href="/admin/wifi-cameras" class="menu-item"><i class="bi bi-camera-video"></i><span>WiFi Cameras</span></a>
-        @endcan
+        @endcanany
         
-        @can('view_access_control')
+        @canany(['view_access_control', 'manage_access_control'])
         <a href="/admin/access-control" class="menu-item"><i class="bi bi-shield-lock"></i><span>Access Control</span></a>
-        @endcan
+        @endcanany
         
-        @can('view_static_products')
+        @canany(['view_static_products', 'manage_static_products'])
         <a href="/admin/static-products" class="menu-item"><i class="bi bi-box"></i><span>Static Products</span></a>
-        @endcan
+        @endcanany
 
         <div class="menu-section-title">System</div>
         
-        @can('view_users')
+        @canany(['view_users', 'manage_users'])
         <a href="{{ route('admin.users.index') }}" class="menu-item"><i class="bi bi-people"></i><span>Users Account</span></a>
+        @endcanany
+
+        @can('manage_roles')
         <a href="{{ route('admin.roles.index') }}" class="menu-item active"><i class="bi bi-shield-lock"></i><span>Roles & Permissions</span><span class="badge">SECURE</span></a>
         @endcan
         
@@ -118,14 +121,12 @@
             
             @foreach($permissions as $groupName => $groupItems)
             @php
-                // SUDAH DIPERBAIKI: Menambahkan 'view_finance' ke dalam array izin yang disembunyikan
                 $hiddenPerms = [
                     'view_bookkeeping', 'create_bookkeeping', 'edit_bookkeeping', 'delete_bookkeeping',
                     'view_sales_documents', 'create_sales_documents', 'edit_sales_documents', 'delete_sales_documents', 'manage_sales_documents',
                     'view_finance' 
                 ];
                 
-                // Filter array/collection agar membuang izin yang duplikat/disembunyikan
                 $filteredItems = collect($groupItems)->reject(function($item) use ($hiddenPerms) {
                     return in_array($item->name, $hiddenPerms);
                 });
@@ -162,11 +163,9 @@
                             </div>
                             
                             @php
-                                // Translasi otomatis
                                 $permLabel = ucwords(str_replace('_', ' ', $perm->name));
                                 $permLabel = str_ireplace('Bookkeeping', 'Keuangan', $permLabel);
                                 $permLabel = str_ireplace('Inventory', 'Gudang', $permLabel);
-                                
                                 $permLabel = str_ireplace('Delete Sales Orders', 'Batalkan Sales Order', $permLabel);
                                 $permLabel = str_ireplace('Delete Sales Order', 'Batalkan Sales Order', $permLabel);
                             @endphp
@@ -196,6 +195,28 @@
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // JS Pintar: Jika kotak "Manage..." dicentang, otomatis centang View, Create, Edit, Delete di modul yang sama
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][name="permissions[]"]');
+    
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            // Cek apakah permission yang diklik mengandung kata "manage_"
+            if (this.value.includes('manage_')) {
+                // Cari area card pembungkusnya
+                const cardBody = this.closest('.card-body');
+                if (cardBody) {
+                    const relatedCheckboxes = cardBody.querySelectorAll('input[type="checkbox"]');
+                    relatedCheckboxes.forEach(cb => {
+                        // Samakan status checked dengan kotak "manage_"
+                        cb.checked = this.checked;
+                    });
+                }
+            }
+        });
+    });
+});
+
 function hapusJejakBrowser(event) {
     event.preventDefault();
     localStorage.clear(); 

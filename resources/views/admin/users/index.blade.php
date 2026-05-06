@@ -120,7 +120,7 @@
 
         <div class="menu-section-title">System</div>
         
-        @can('view_users')
+        @canany(['view_users', 'manage_users'])
         <a href="{{ route('admin.users.index') }}" class="menu-item active"><i class="bi bi-people"></i><span>Users Account</span></a>
         @endcan
 
@@ -147,7 +147,7 @@
             <p>Kelola akun dan role Administrator untuk sistem dashboard.</p>
         </div>
         {{-- SINKRONISASI: Menggunakan create_users (Sesuai database kamu) --}}
-        @can('create_users')
+        @canany(['create_users', 'manage_users'])
         <button class="btn btn-primary" onclick="openModal('addModal')">
             <i class="bi bi-person-plus-fill"></i> Tambah User Baru
         </button>
@@ -181,14 +181,14 @@
                         <td>
                             <div class="d-flex gap-1">
                                 {{-- SINKRONISASI: Menggunakan edit_users --}}
-                                @can('edit_users')
+                                @canany(['edit_users', 'manage_users'])
                                 <button class="btn btn-outline" style="padding: 6px 12px;" onclick='openEditModal(@json($user), "{{ $userRole }}")'>
                                     <i class="bi bi-pencil" style="color: #ed8936;"></i> Edit
                                 </button>
                                 @endcan
 
                                 {{-- SINKRONISASI: Menggunakan delete_users --}}
-                                @can('delete_users')
+                                @canany(['delete_users', 'manage_users'])
                                 <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Hapus user ini secara permanen?')">
                                     @csrf @method('DELETE')
                                     <button class="btn btn-outline" style="padding: 6px 12px;">
