@@ -137,17 +137,17 @@
                 <p class="mb-0 opacity-75">Kontrol inventaris, stok masuk, dan integrasi Sales Order PT Trac.</p>
             </div>
             <div class="d-flex gap-2">
-                @can('view_sales_orders')
+                @canany(['view_sales_orders', 'manage_sales_orders'])
                 <a href="{{ route('admin.sales-orders.index') }}" class="btn btn-light text-primary fw-bold px-4 shadow-sm" style="border-radius:12px;">
                     <i class="bi bi-file-earmark-check me-2"></i>Sales Order
                 </a>
-                @endcan
+                @endcanany
 
-                @can('create_inventory')
+                @canany(['create_inventory', 'manage_inventory'])
                 <button class="btn btn-warning fw-bold px-4 shadow-sm" style="border-radius:12px;" data-bs-toggle="modal" data-bs-target="#modalBarangMasuk">
                     <i class="bi bi-plus-circle me-2"></i>Barang Masuk
                 </button>
-                @endcan
+                @endcanany
             </div>
         </div>
     </div>
@@ -211,9 +211,7 @@
             <p class="mt-2 text-muted">Sinkronisasi data...</p>
         </div>
         <div id="tableContainer" style="display:none;">
-            <!-- DITAMBAHKAN DIV TABLE-RESPONSIVE DI SINI AGAR BISA SCROLL HP -->
             <div class="table-responsive">
-                <!-- DITAMBAHKAN CLASS TEXT-NOWRAP AGAR TEKS TIDAK BERANTAKAN -->
                 <table class="table mb-0 text-nowrap">
                     <thead>
                         <tr>
@@ -233,7 +231,7 @@
 </div>
 
 {{-- MODAL BARANG MASUK --}}
-@can('create_inventory')
+@canany(['create_inventory', 'manage_inventory'])
 <div class="modal fade" id="modalBarangMasuk" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -290,7 +288,7 @@
         </div>
     </div>
 </div>
-@endcan
+@endcanany
 
 {{-- MODAL HISTORY --}}
 <div class="modal fade" id="modalHistory" tabindex="-1">
@@ -311,9 +309,9 @@
 let debounceTimer;
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
 
-// VARIABEL PROTEKSI JAVASCRIPT
-const canCreateSales = @json(auth()->check() && auth()->user()->can('create_sales_orders'));
-const canDeleteInventory = @json(auth()->check() && auth()->user()->can('delete_inventory'));
+// VARIABEL PROTEKSI JAVASCRIPT: Menambahkan 'manage' sebagai opsi master
+const canCreateSales = @json(auth()->check() && (auth()->user()->can('create_sales_orders') || auth()->user()->can('manage_sales_orders')));
+const canDeleteInventory = @json(auth()->check() && (auth()->user()->can('delete_inventory') || auth()->user()->can('manage_inventory')));
 
 document.addEventListener('DOMContentLoaded', () => {
     loadProducts();
@@ -391,7 +389,7 @@ function renderProducts(products) {
             </a>`;
         }
 
-        // Tombol Riwayat (Bisa diakses siapa saja yang punya hak view_inventory)
+        // Tombol Riwayat (Bisa diakses siapa saja yang punya hak view_inventory atau manage_inventory)
         actionButtons += `
         <button class="btn btn-sm btn-outline-primary shadow-sm" style="border-radius:8px" onclick="showHistory(${p.id}, '${p.nama_produk.replace(/'/g, "\\'")}')" title="Lihat Riwayat">
             <i class="bi bi-clock-history"></i>
@@ -461,7 +459,6 @@ function showHistory(id, name) {
     });
 }
 
-// SN Logic Simplified for brevity
 document.getElementById('toggleUseSn')?.addEventListener('change', function() {
     document.getElementById('snSection').style.display = this.checked ? 'block' : 'none';
     document.getElementById('productUseSn').value = this.checked ? '1' : '0';
@@ -472,7 +469,6 @@ function simpanBarangMasuk() {
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
     
-    // Add SN if active
     if(document.getElementById('productUseSn').value === '1') {
         const snText = document.getElementById('snBulkTextarea').value;
         data.serial_numbers = snText.split('\n').filter(s => s.trim() !== '');
