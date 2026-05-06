@@ -43,9 +43,14 @@
                 <a href="{{ route('admin.po.history') }}" class="btn btn-warning fw-bold text-dark">
                     <i class="bi bi-clock-history me-1"></i>History Tracking
                 </a>
+                
+                {{-- HANYA MUNCUL JIKA PUNYA IZIN CREATE ATAU MANAGE PO --}}
+                @canany(['create_purchase_orders', 'manage_purchase_orders'])
                 <a href="{{ route('admin.po.create') }}" class="btn btn-light fw-bold">
                     <i class="bi bi-plus-circle me-1"></i>Buat PO Baru
                 </a>
+                @endcanany
+
                 <button class="btn btn-outline-light fw-bold" onclick="exportExcel()">
                     <i class="bi bi-download me-1"></i>Export
                 </button>
@@ -53,7 +58,6 @@
         </div>
     </div>
 
-    {{-- FILTER & SUMMARY SAMA SEPERTI SEBELUMNYA --}}
     <div class="d-flex gap-2 mb-3 flex-wrap align-items-center">
         <select id="filterBulan" class="form-select" style="width:auto" onchange="loadAll()">
             @for($m=1;$m<=12;$m++)
@@ -109,7 +113,6 @@
     </div>
 </div>
 
-{{-- MODAL SAMA SEPERTI SEBELUMNYA --}}
 <div class="modal fade" id="modalDetail" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content" style="border-radius:14px;border:none;box-shadow:0 20px 60px rgba(0,0,0,.2)">
@@ -123,8 +126,11 @@
 </div>
 
 <script>
-// SCRIPT SAMA PERSIS DENGAN YANG SEBELUMNYA
 let debounceTimer; const csrf = document.querySelector('meta[name="csrf-token"]')?.content||'';
+
+// PERBAIKAN: Set Variabel untuk izin Edit di Javascript
+const canEdit = @json(auth()->check() && (auth()->user()->can('edit_purchase_orders') || auth()->user()->can('manage_purchase_orders')));
+
 document.addEventListener('DOMContentLoaded', loadAll);
 function debounceLoad(){clearTimeout(debounceTimer);debounceTimer=setTimeout(loadList,400)}
 function getBulan(){return document.getElementById('filterBulan').value}
@@ -168,7 +174,10 @@ function renderTable(list){
         <td class="text-center">
             <div class="d-flex gap-1 justify-content-center flex-wrap">
                 <button class="btn btn-xs btn-outline-primary py-0 px-2" onclick="lihatDetail(${po.id})"><i class="bi bi-eye"></i></button>
-                ${po.status==='draft'?`<a href="/admin/purchase-orders/${po.id}/edit" class="btn btn-xs btn-outline-warning py-0 px-2"><i class="bi bi-pencil"></i></a>`:''}
+                
+                {{-- Tombol Edit hanya di-render di JS jika canEdit bernilai true --}}
+                ${(po.status==='draft' && canEdit) ? `<a href="/admin/purchase-orders/${po.id}/edit" class="btn btn-xs btn-outline-warning py-0 px-2"><i class="bi bi-pencil"></i></a>`:''}
+                
                 <a href="/admin/purchase-orders/${po.id}/pdf" target="_blank" class="btn btn-xs btn-outline-secondary py-0 px-2"><i class="bi bi-filetype-pdf"></i></a>
             </div>
         </td>

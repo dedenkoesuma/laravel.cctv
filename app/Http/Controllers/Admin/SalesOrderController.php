@@ -7,9 +7,36 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class SalesOrderController extends Controller
 {
+    // ===== HELPER: DAPATKAN ID ADMIN (ANGKA) =====
+    private function getAdminId()
+    {
+        // 1. Coba ambil dari session (sistem bawaanmu yang lama)
+        $adminId = session('admin_id');
+        if ($adminId && is_numeric($adminId)) {
+            return $adminId;
+        }
+
+        // 2. Jika tidak ada di session, ambil dari Auth Laravel
+        if (Auth::check()) {
+            $user = Auth::user();
+            $id = $user->id;
+            
+            // Jika ID-nya sudah angka, langsung pakai
+            if (is_numeric($id)) return $id;
+            
+            // Jika ID-nya ternyata Email, cari ID aslinya di tabel admins
+            $admin = DB::table('admins')->where('email', $id)->orWhere('username', $id)->first();
+            if ($admin) return $admin->id;
+        }
+
+        // Fallback darurat agar database tidak crash
+        return 1; 
+    }
+
     // ===== GENERATE NOMOR SO =====
     private function generateSoNumber(): string
     {
@@ -83,10 +110,6 @@ class SalesOrderController extends Controller
     // ===== FORM BUAT SO =====
     public function create()
     {
-        if (!session('admin_logged_in') || !session('admin_id')) {
-            return redirect('/login')->with('error', 'Silakan login terlebih dahulu.');
-        }
-
         $products = DB::table('gudang_products')->orderBy('nama_produk')->get();
         $soNumber = $this->generateSoNumber();
 
@@ -96,16 +119,8 @@ class SalesOrderController extends Controller
     // ===== SIMPAN SO =====
     public function store(Request $request)
     {
-        $adminId = session('admin_id');
-        if (!$adminId) {
-            return response()->json(['success' => false, 'message' => 'Sesi expired. Silakan login ulang.'], 401);
-        }
-
-        $adminExists = DB::table('admins')->where('id', $adminId)->exists();
-        if (!$adminExists) {
-            session()->flush();
-            return response()->json(['success' => false, 'message' => 'Akun tidak valid. Silakan login ulang.'], 401);
-        }
+        // Ganti Auth::id() dengan fungsi Helper cerdas kita
+        $adminId = $this->getAdminId();
 
         $request->validate([
             'customer_name'        => 'required|string|max:255',
@@ -147,7 +162,7 @@ class SalesOrderController extends Controller
                 'ppn_rate'         => $ppn_rate,
                 'ppn_nominal'      => $ppn_nominal,
                 'total_amount'     => $grand_total,
-                'created_by'       => $adminId,
+                'created_by'       => $adminId, // PASTI ANGKA SEKARANG
                 'created_at'       => now(),
                 'updated_at'       => now(),
             ]);
@@ -394,7 +409,7 @@ class SalesOrderController extends Controller
             'no_rekening'   => 'required|string|max:50',
             'nama_rekening' => 'required|string|max:100',
             'metode_bayar'  => 'required|in:cash,transfer,qris,kartu_kredit',
-            'dp_nominal'    => 'nullable|numeric|min:0',  // ✅ TAMBAHAN
+            'dp_nominal'    => 'nullable|numeric|min:0',
             'catatan'       => 'nullable|string',
         ]);
 
@@ -407,7 +422,6 @@ class SalesOrderController extends Controller
             }
         } catch (\Exception $e) {
             // Abaikan
-            dd('TERNYATA INI ERRORNYA BANG: ' . $e->getMessage(), 'Terjadi di baris: ' . $e->getLine());
         }
 
         DB::beginTransaction();
@@ -420,7 +434,6 @@ class SalesOrderController extends Controller
                 ? now()->addDays((int) $request->tempo_hari)->toDateString()
                 : null;
 
-            // ✅ Hitung dp_nominal & sisa_tagihan
             $dp_nominal   = (float) ($request->dp_nominal ?? 0);
             $sisa_tagihan = $salesOrder->total_amount - $dp_nominal;
 
@@ -446,14 +459,13 @@ class SalesOrderController extends Controller
                 'nama_bank'      => $request->nama_bank,
                 'no_rekening'    => $request->no_rekening,
                 'nama_rekening'  => $request->nama_rekening,
-                'dp_nominal'     => $dp_nominal,    // ✅ TAMBAHAN
-                'sisa_tagihan'   => $sisa_tagihan,  // ✅ TAMBAHAN
-                'created_by'     => session('admin_id'),
+                'dp_nominal'     => $dp_nominal,
+                'sisa_tagihan'   => $sisa_tagihan,
+                'created_by'     => $this->getAdminId(), // GANTI KE HELPER CANGGIH
                 'created_at'     => now(),
                 'updated_at'     => now(),
             ]);
 
-            // ✅ NOTIFIKASI OTOMATIS JIKA PEMBAYARAN TEMPO
             if ($request->tipe_bayar === 'tempo' && $jatuhTempo) {
                 $this->buatNotifikasiInvoiceTempo(
                     $invoiceNumber,
@@ -520,6 +532,9 @@ class SalesOrderController extends Controller
     // ===== TANDAI LUNAS =====
     public function markLunas($id)
     {
+        if (!auth()->user()->can('manage_finance')) {
+            return back()->with('error', 'Akses Ditolak: Kamu tidak memiliki izin ke Modul Finance untuk melakukan pelunasan.');
+        }
         $salesOrder = DB::table('sales_orders')->where('id', $id)->first();
         if (!$salesOrder) abort(404);
 

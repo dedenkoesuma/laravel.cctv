@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Product - {{ $product->name }}</title>
+    <link rel="icon" href="/storage/gambar/logo-mja.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -12,7 +13,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
-                    <a href="{{ route('admin.ruijie.products') }}" class="flex items-center space-x-3">
+                    <a href="{{ route('admin.ruijie.products') }}" class="flex items-center space-x-3 hover:opacity-80 transition">
                         <div class="bg-white p-2 rounded-lg">
                             <i class="fas fa-arrow-left text-indigo-600"></i>
                         </div>
@@ -143,11 +144,11 @@
                     <p class="text-xs text-gray-500 mt-1">Format: Key: Value (Satu per baris dengan Enter)</p>
                 </div>
 
-                @if($product->image)
+                @if($product->image_url)
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-2">Current Image</label>
                     <div class="border border-gray-300 rounded-lg p-4 bg-gray-50 inline-block">
-                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="max-h-48 rounded shadow-sm">
+                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="max-h-48 rounded shadow-sm">
                     </div>
                 </div>
                 @endif

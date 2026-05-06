@@ -9,11 +9,15 @@
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 class="mb-0"><i class="fas fa-file-invoice me-2 text-primary"></i>Daftar Sales Order</h4>
         <div class="d-flex gap-2">
+            {{-- Tombol muncul jika punya izin create ATAU manage --}}
+            @canany(['create_sales_orders', 'manage_sales_orders'])
             <a href="{{ route('admin.sales-orders.create') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus me-1"></i>Buat SO Baru
             </a>
-            <a href="/admin/gudang" class="btn btn-secondary btn-sm">
-                <i class="bi bi-arrow-left me-1"></i>Kembali ke Gudang
+            @endcanany
+            
+            <a href="/admin/dashboard" class="btn btn-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Kembali ke Dashboard
             </a>
         </div>
     </div>
@@ -109,7 +113,7 @@
     <div class="card shadow-sm">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover mb-0">
+                <table class="table table-hover mb-0 text-nowrap">
                     <thead class="table-light">
                         <tr>
                             <th>No. SO</th>
@@ -163,24 +167,31 @@
                             </td>
                             <td>
                                 <div class="d-flex gap-1 flex-wrap">
+                                    {{-- Tombol Detail / View (selalu muncul jika bisa buka halaman ini) --}}
                                     <a href="{{ route('admin.sales-orders.show', $so->id) }}"
                                         class="btn btn-info btn-sm" title="Detail">
                                         <i class="fas fa-eye me-1"></i>Detail
                                     </a>
 
+                                    {{-- Tombol Approve (butuh izin edit ATAU manage) --}}
                                     @if($so->status === 'draft')
+                                        @canany(['edit_sales_orders', 'manage_sales_orders'])
                                         <a href="{{ route('admin.sales-orders.approve-form', $so->id) }}"
                                             class="btn btn-success btn-sm" title="Approve">
                                             <i class="fas fa-check me-1"></i>Approve
                                         </a>
+                                        @endcanany
                                     @endif
 
+                                    {{-- PDF Document (Anggap aman untuk yang bisa View) --}}
                                     <a href="{{ route('admin.sales-orders.pdf', $so->id) }}"
                                         class="btn btn-dark btn-sm" title="Download PDF" target="_blank">
                                         <i class="fas fa-file-pdf me-1"></i>PDF
                                     </a>
 
+                                    {{-- Tombol Batalkan (butuh izin delete ATAU manage) --}}
                                     @if(!in_array($so->status, ['delivered','cancelled']))
+                                        @canany(['delete_sales_orders', 'manage_sales_orders'])
                                         <form action="{{ route('admin.sales-orders.cancel', $so->id) }}" method="POST"
                                             onsubmit="return confirm('Yakin batalkan SO {{ $so->so_number }}?')">
                                             @csrf
@@ -188,6 +199,7 @@
                                                 <i class="fas fa-ban me-1"></i>Batalkan
                                             </button>
                                         </form>
+                                        @endcanany
                                     @endif
                                 </div>
                             </td>
@@ -198,9 +210,12 @@
                                 <i class="fas fa-inbox fa-3x mb-3 d-block"></i>
                                 Belum ada Sales Order.
                                 <br>
+                                {{-- Tombol muncul jika punya izin create ATAU manage --}}
+                                @canany(['create_sales_orders', 'manage_sales_orders'])
                                 <a href="{{ route('admin.sales-orders.create') }}" class="btn btn-primary btn-sm mt-2">
                                     <i class="fas fa-plus me-1"></i>Buat SO Pertama
                                 </a>
+                                @endcanany
                             </td>
                         </tr>
                         @endforelse

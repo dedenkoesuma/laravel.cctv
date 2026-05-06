@@ -3,15 +3,6 @@
 @section('title', 'Access Control Management - Admin')
 
 @section('content')
-@php
-    $adminRoleName = session('admin_role');
-    $currentRole = \Spatie\Permission\Models\Role::where('name', $adminRoleName)->first();
-    
-    // Fungsi ngecek izin murni HANYA dari centangan di database
-    $canAccess = function($permissionName) use ($currentRole) {
-        return $currentRole ? $currentRole->hasPermissionTo($permissionName) : false;
-    };
-@endphp
 <div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col-12">
@@ -26,9 +17,13 @@
                     <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">
                         <i class="bi bi-speedometer2"></i> Dashboard
                     </a>
+                    
+                    {{-- PERBAIKAN: Gunakan canany agar tombol muncul jika punya izin Create ATAU Manage --}}
+                    @canany(['create_access_control', 'manage_access_control'])
                     <button class="btn btn-primary" onclick="openAddModal()">
                         <i class="bi bi-plus-circle"></i> Add Product
                     </button>
+                    @endcanany
                 </div>
             </div>
         </div>
@@ -107,34 +102,35 @@
 
     <div class="row mb-4">
         <div class="col-md-3">
-            <select class="form-select" id="filterBrand">
+            <select class="form-select" id="filterBrand" onchange="renderTable()">
+                <option value="">All Brands</option>
                 <option value="hikvision">HIKVISION</option>
                 <option value="dahua">Dahua</option>
                 <option value="zkteco">ZKTeco</option>
             </select>
         </div>
         <div class="col-md-3">
-            <select class="form-select" id="filterStatus">
+            <select class="form-select" id="filterStatus" onchange="renderTable()">
                 <option value="">All Status</option>
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
             </select>
         </div>
         <div class="col-md-3">
-            <select class="form-select" id="filterFeatured">
+            <select class="form-select" id="filterFeatured" onchange="renderTable()">
                 <option value="">All Products</option>
                 <option value="1">Featured Only</option>
             </select>
         </div>
         <div class="col-md-3">
-            <input type="text" class="form-control" id="searchInput" placeholder="Search products...">
+            <input type="text" class="form-control" id="searchInput" placeholder="Search products..." oninput="renderTable()">
         </div>
     </div>
 
     <div class="card border-0 shadow-sm">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-hover" id="productsTable">
+                <table class="table table-hover text-nowrap" id="productsTable">
                     <thead>
                         <tr>
                             <th>Image</th>
@@ -148,7 +144,7 @@
                         </tr>
                     </thead>
                     <tbody id="productsTableBody">
-                        <tr>
+                        <tr id="loadingRow">
                             <td colspan="8" class="text-center py-4">
                                 <div class="spinner-border text-primary" role="status">
                                     <span class="visually-hidden">Loading...</span>
@@ -163,11 +159,12 @@
     </div>
 </div>
 
+{{-- MODAL (Digunakan bersama untuk Add & Edit) --}}
 <div class="modal fade" id="productModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle">Add Product</h5>
+            <div class="modal-header shadow-sm">
+                <h5 class="modal-title fw-bold" id="modalTitle">Add Product</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -176,11 +173,11 @@
                     
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Product Name *</label>
+                            <label class="form-label">Product Name <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="nama_produk" required>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Brand *</label>
+                            <label class="form-label">Brand <span class="text-danger">*</span></label>
                             <select class="form-select" id="brand" required>
                                 <option value="">Select Brand</option>
                                 <option value="hikvision">HIKVISION</option>
@@ -192,7 +189,7 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">SKU *</label>
+                            <label class="form-label">SKU <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" id="sku" required>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -208,11 +205,11 @@
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
-                            <label class="form-label">Cost Price (Rp) *</label>
+                            <label class="form-label">Cost Price (Rp) <span class="text-danger">*</span></label>
                             <input type="number" class="form-control" id="harga_modal" required min="0">
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label class="form-label">Sell Price (Rp) *</label>
+                            <label class="form-label">Sell Price (Rp) <span class="text-danger">*</span></label>
                             <input type="number" class="form-control" id="harga_jual" required min="0">
                         </div>
                         <div class="col-md-4 mb-3">
@@ -223,11 +220,11 @@
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
-                            <label class="form-label">Stock *</label>
+                            <label class="form-label">Stock <span class="text-danger">*</span></label>
                             <input type="number" class="form-control" id="stok" required min="0">
                         </div>
                         <div class="col-md-4 mb-3">
-                            <label class="form-label">Status *</label>
+                            <label class="form-label">Status <span class="text-danger">*</span></label>
                             <select class="form-select" id="status" required>
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
@@ -235,7 +232,7 @@
                         </div>
                         <div class="col-md-4 mb-3">
                             <label class="form-label d-block">Featured</label>
-                            <div class="form-check form-switch">
+                            <div class="form-check form-switch mt-2">
                                 <input class="form-check-input" type="checkbox" id="is_featured">
                                 <label class="form-check-label" for="is_featured">Mark as featured</label>
                             </div>
@@ -244,18 +241,18 @@
 
                     <div class="mb-3">
                         <label class="form-label">Main Image</label>
-                        <input type="file" class="form-control" id="gambar" accept="image/*">
+                        <input type="file" class="form-control" id="gambar" accept="image/*" onchange="previewImage(this)">
                         <small class="text-muted">Max 2MB. JPG, PNG, GIF</small>
                         <div id="currentImagePreview" class="mt-2" style="display:none;">
-                            <img id="currentImage" src="" alt="Current" style="max-width: 200px; border-radius: 8px;">
+                            <img id="currentImage" src="" alt="Preview" style="max-width: 150px; border-radius: 8px; border: 2px solid #eee;">
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer bg-light">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-primary" onclick="saveProduct()">
-                    <i class="bi bi-check-circle"></i> Save Product
+                    <i class="bi bi-save me-1"></i> Save Product
                 </button>
             </div>
         </div>
@@ -326,42 +323,28 @@
 <script>
 let productsData = [];
 let currentEditId = null;
-let modal; // Declare modal variable
+let modal; 
+
+// PERBAIKAN: Jika user punya 'manage_access_control', izinkan juga Edit dan Delete di Javascript!
+const canEdit = @json(auth()->check() && (auth()->user()->can('edit_access_control') || auth()->user()->can('manage_access_control')));
+const canDelete = @json(auth()->check() && (auth()->user()->can('delete_access_control') || auth()->user()->can('manage_access_control')));
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded');
-    console.log('Bootstrap available:', typeof bootstrap !== 'undefined');
-    
-    // Initialize modal AFTER DOM is ready
     const modalElement = document.getElementById('productModal');
-    console.log('Modal element:', modalElement);
-    
     if (typeof bootstrap !== 'undefined' && modalElement) {
         modal = new bootstrap.Modal(modalElement);
-        console.log('Modal initialized successfully');
-    } else {
-        console.error('Bootstrap or modal element not found!');
     }
     
     loadProducts();
     loadStatistics();
-    
-    // Setup filters
-    document.getElementById('filterBrand').addEventListener('change', loadProducts);
-    document.getElementById('filterStatus').addEventListener('change', loadProducts);
-    document.getElementById('filterFeatured').addEventListener('change', loadProducts);
-    
-    // Setup search with debounce
-    let searchTimeout;
-    document.getElementById('searchInput').addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(loadProducts, 500);
-    });
 });
 
 async function loadStatistics() {
     try {
-        const response = await fetch('/api/admin/access-control/statistics');
+        const response = await fetch('/api/admin/access-control/statistics', {
+            headers: { 'Accept': 'application/json' },
+            cache: 'no-store'
+        });
         const data = await response.json();
         
         if (data.success) {
@@ -376,87 +359,112 @@ async function loadStatistics() {
 }
 
 async function loadProducts() {
-    const brand = document.getElementById('filterBrand').value;
-    const status = document.getElementById('filterStatus').value;
-    const featured = document.getElementById('filterFeatured').value;
-    const search = document.getElementById('searchInput').value;
-    
-    let url = '/api/admin/access-control?';
-    if (brand) url += `brand=${brand}&`;
-    if (status) url += `status=${status}&`;
-    if (featured) url += `featured=${featured}&`;
-    if (search) url += `search=${search}&`;
+    const loadingRow = document.getElementById('loadingRow');
+    if(loadingRow) loadingRow.style.display = 'table-row';
     
     try {
-        const response = await fetch(url);
+        const response = await fetch('/api/admin/access-control', {
+            headers: { 'Accept': 'application/json' },
+            cache: 'no-store'
+        });
+        
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") === -1) {
+            throw new Error('Server mengembalikan HTML, bukan JSON. Cek Network/Console (F12).');
+        }
+
         const data = await response.json();
         
         if (data.success) {
-            productsData = data.products;
-            displayProducts(data.products);
+            productsData = data.products || [];
+            renderTable();
+        } else {
+            alert('Gagal mengambil data dari API.');
         }
     } catch (error) {
         console.error('Error loading products:', error);
-        showError('Failed to load products');
+        alert('Failed to load products: ' + error.message);
     }
 }
 
-function displayProducts(products) {
+function renderTable() {
     const tbody = document.getElementById('productsTableBody');
-    
-    if (products.length === 0) {
+    tbody.innerHTML = '';
+
+    const brandVal = document.getElementById('filterBrand').value.toLowerCase();
+    const statusVal = document.getElementById('filterStatus').value;
+    const featuredVal = document.getElementById('filterFeatured').value;
+    const searchVal = document.getElementById('searchInput').value.toLowerCase();
+
+    const filteredProducts = productsData.filter(product => {
+        const namaProdukSafe = product.name ? product.name.toLowerCase() : "";
+        const skuSafe = product.sku ? product.sku.toLowerCase() : "";
+        const brandSafe = product.brand ? product.brand.toLowerCase() : "";
+
+        const matchBrand = brandVal === "" || brandSafe === brandVal;
+        const matchStatus = statusVal === "" || product.status === statusVal;
+        const matchFeatured = featuredVal === "" || product.is_featured == featuredVal;
+        const matchSearch = namaProdukSafe.includes(searchVal) || skuSafe.includes(searchVal);
+        
+        return matchBrand && matchStatus && matchFeatured && matchSearch;
+    });
+
+    if (filteredProducts.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="8" class="text-center py-4">
+                <td colspan="8" class="text-center py-5">
                     <i class="bi bi-inbox" style="font-size: 3rem; color: #ddd;"></i>
-                    <p class="mt-2 mb-0">No products found</p>
+                    <p class="mt-2 mb-0">No products found matching your filters</p>
                 </td>
-            </tr>
-        `;
+            </tr>`;
         return;
     }
-    
-    tbody.innerHTML = products.map(product => `
-        <tr>
-            <td>
-                <img src="${product.gambar ? '/storage/' + product.gambar : 'https://via.placeholder.com/60x60'}" 
-                     class="product-image-thumb" 
-                     alt="${product.nama_produk}">
-            </td>
-            <td>
-                <div class="fw-bold">${product.nama_produk}</div>
-                ${product.is_featured ? '<span class="badge badge-featured">Featured</span>' : ''}
-            </td>
-            <td>${product.brand.toUpperCase()}</td>
-            <td><code>${product.sku}</code></td>
-            <td>Rp ${parseInt(product.harga_jual).toLocaleString('id-ID')}</td>
-            <td>${product.stok}</td>
-            <td>
-                <span class="badge bg-${product.status === 'active' ? 'success' : 'secondary'}">
-                    ${product.status}
-                </span>
-            </td>
-            <td>
-                <button class="btn btn-sm btn-primary btn-action" onclick="editProduct(${product.id})" title="Edit">
+
+    filteredProducts.forEach(product => {
+        let actionButtons = '';
+        
+        // Tombol akan muncul karena variabel canEdit dan canDelete sudah di-update di atas
+        if (canEdit) {
+            actionButtons += `
+                <button class="btn btn-sm btn-primary btn-action me-1" onclick="editProduct(${product.id})" title="Edit">
                     <i class="bi bi-pencil"></i>
-                </button>
+                </button>`;
+        }
+        
+        if (canDelete) {
+            actionButtons += `
                 <button class="btn btn-sm btn-danger btn-action" onclick="deleteProduct(${product.id})" title="Delete">
                     <i class="bi bi-trash"></i>
-                </button>
-            </td>
-        </tr>
-    `).join('');
+                </button>`;
+        }
+
+        tbody.innerHTML += `
+            <tr>
+                <td>
+                    <img src="${product.main_image ? '/storage/' + product.main_image : 'https://via.placeholder.com/60x60'}" 
+                         class="product-image-thumb" 
+                         alt="${product.name || 'No Name'}">
+                </td>
+                <td>
+                    <div class="fw-bold text-wrap" style="max-width: 250px;">${product.name || '-'}</div>
+                    ${product.is_featured ? '<span class="badge badge-featured mt-1">Featured</span>' : ''}
+                </td>
+                <td><span class="badge bg-secondary">${product.brand ? product.brand.toUpperCase() : '-'}</span></td>
+                <td><code>${product.sku || '-'}</code></td>
+                <td class="fw-bold text-success">Rp ${parseFloat(product.sell_price || 0).toLocaleString('id-ID')}</td>
+                <td><span class="badge bg-${product.stock > 0 ? 'info' : 'danger'}">${product.stock || 0}</span></td>
+                <td>
+                    <span class="badge bg-${product.status === 'active' ? 'success' : 'secondary'}">
+                        ${product.status ? product.status.toUpperCase() : 'UNKNOWN'}
+                    </span>
+                </td>
+                <td>${actionButtons}</td>
+            </tr>`;
+    });
 }
 
 function openAddModal() {
-    console.log('openAddModal called');
-    console.log('Modal object:', modal);
-    
-    if (!modal) {
-        console.error('Modal not initialized!');
-        alert('Error: Modal not initialized. Please refresh the page.');
-        return;
-    }
+    if (!modal) return alert('Error: Modal not initialized.');
     
     currentEditId = null;
     document.getElementById('modalTitle').textContent = 'Add Product';
@@ -464,69 +472,94 @@ function openAddModal() {
     document.getElementById('productId').value = '';
     document.getElementById('currentImagePreview').style.display = 'none';
     
-    try {
-        modal.show();
-        console.log('Modal shown');
-    } catch (error) {
-        console.error('Error showing modal:', error);
-        alert('Error opening modal: ' + error.message);
-    }
+    modal.show();
 }
 
-async function editProduct(id) {
+function editProduct(id) {
     const product = productsData.find(p => p.id === id);
     if (!product) return;
     
     currentEditId = id;
     document.getElementById('modalTitle').textContent = 'Edit Product';
     document.getElementById('productId').value = id;
-    document.getElementById('nama_produk').value = product.nama_produk;
-    document.getElementById('brand').value = product.brand;
-    document.getElementById('sku').value = product.sku;
-    document.getElementById('kategori').value = product.kategori || '';
-    document.getElementById('deskripsi').value = product.deskripsi || '';
-    document.getElementById('harga_modal').value = product.harga_modal;
-    document.getElementById('harga_jual').value = product.harga_jual;
-    document.getElementById('original_price').value = product.original_price || '';
-    document.getElementById('stok').value = product.stok;
-    document.getElementById('status').value = product.status;
-    document.getElementById('is_featured').checked = product.is_featured;
     
-    if (product.gambar) {
-        document.getElementById('currentImage').src = '/storage/' + product.gambar;
+    document.getElementById('nama_produk').value = product.name || '';
+    document.getElementById('brand').value = product.brand ? product.brand.toLowerCase() : '';
+    document.getElementById('sku').value = product.sku || '';
+    document.getElementById('kategori').value = product.category || '';
+    document.getElementById('deskripsi').value = product.description || '';
+    
+    document.getElementById('harga_modal').value = product.cost_price ? Math.floor(product.cost_price) : 0;
+    document.getElementById('harga_jual').value = product.sell_price ? Math.floor(product.sell_price) : 0;
+    document.getElementById('original_price').value = product.original_price ? Math.floor(product.original_price) : '';
+    
+    document.getElementById('stok').value = product.stock || 0;
+    document.getElementById('status').value = product.status || 'active';
+    document.getElementById('is_featured').checked = product.is_featured == 1;
+    
+    if (product.main_image) {
+        document.getElementById('currentImage').src = '/storage/' + product.main_image;
         document.getElementById('currentImagePreview').style.display = 'block';
+    } else {
+        document.getElementById('currentImagePreview').style.display = 'none';
     }
     
     modal.show();
 }
 
+function previewImage(input) {
+    const preview = document.getElementById('currentImagePreview');
+    const img = document.getElementById('currentImage');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            img.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
 async function saveProduct() {
+    const form = document.getElementById('productForm');
+    
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
     const formData = new FormData();
     
-    formData.append('nama_produk', document.getElementById('nama_produk').value);
+    formData.append('name', document.getElementById('nama_produk').value);
     formData.append('brand', document.getElementById('brand').value);
     formData.append('sku', document.getElementById('sku').value);
-    formData.append('kategori', document.getElementById('kategori').value);
-    formData.append('deskripsi', document.getElementById('deskripsi').value);
-    formData.append('harga_modal', document.getElementById('harga_modal').value);
-    formData.append('harga_jual', document.getElementById('harga_jual').value);
+    formData.append('category', document.getElementById('kategori').value);
+    formData.append('description', document.getElementById('deskripsi').value);
+    formData.append('cost_price', document.getElementById('harga_modal').value);
+    formData.append('sell_price', document.getElementById('harga_jual').value);
     formData.append('original_price', document.getElementById('original_price').value);
-    formData.append('stok', document.getElementById('stok').value);
+    formData.append('stock', document.getElementById('stok').value);
     formData.append('status', document.getElementById('status').value);
     formData.append('is_featured', document.getElementById('is_featured').checked ? 1 : 0);
     
     const imageFile = document.getElementById('gambar').files[0];
     if (imageFile) {
-        formData.append('gambar', imageFile);
+        formData.append('main_image', imageFile);
     }
     
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    
+    const submitBtn = document.querySelector('#productModal .btn-primary');
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+    submitBtn.disabled = true;
     
     try {
         const url = currentEditId ? `/api/admin/access-control/${currentEditId}` : '/api/admin/access-control';
         
         const response = await fetch(url, {
-            method: 'POST',
+            method: 'POST', 
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
                 'Accept': 'application/json'
@@ -534,19 +567,33 @@ async function saveProduct() {
             body: formData
         });
         
+        if (!response.ok) {
+            const err = await response.json();
+            let errMsg = 'Failed to save product:\n';
+            if (err.errors) {
+                for (let key in err.errors) errMsg += `- ${err.errors[key][0]}\n`;
+            } else {
+                errMsg = err.message || 'Error occurred';
+            }
+            alert(errMsg);
+            throw new Error('Validation failed');
+        }
+        
         const data = await response.json();
         
         if (data.success) {
             modal.hide();
             loadProducts();
             loadStatistics();
-            showSuccess(currentEditId ? 'Product updated successfully!' : 'Product created successfully!');
+            document.getElementById('gambar').value = ""; 
         } else {
-            showError(data.message || 'Failed to save product');
+            alert(data.message || 'Failed to save product');
         }
     } catch (error) {
         console.error('Error saving product:', error);
-        showError('Failed to save product');
+    } finally {
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
     }
 }
 
@@ -567,25 +614,15 @@ async function deleteProduct(id) {
         const data = await response.json();
         
         if (data.success) {
-            loadProducts();
-            loadStatistics();
-            showSuccess('Product deleted successfully!');
+            loadProducts(); 
+            loadStatistics(); 
         } else {
-            showError(data.message || 'Failed to delete product');
+            alert(data.message || 'Failed to delete product');
         }
     } catch (error) {
         console.error('Error deleting product:', error);
-        showError('Failed to delete product');
+        alert('Failed to delete product');
     }
 }
-
-function showSuccess(message) {
-    alert(message); // Replace with toast notification
-}
-
-function showError(message) {
-    alert('Error: ' + message); // Replace with toast notification
-}
 </script>
-
 @endsection

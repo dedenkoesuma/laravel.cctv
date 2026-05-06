@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management - TechStore</title>
-     <link rel="icon" href="/storage/gambar/logo-mja.png" type="image/png">
+    <link rel="icon" href="/storage/gambar/logo-mja.png" type="image/png">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
         /* CSS GLOBAL & SIDEBAR */
@@ -61,15 +61,6 @@
 </head>
 <body>
 
-@php
-    $adminRoleName = strtolower(session('admin_role'));
-    $currentRole = \Spatie\Permission\Models\Role::where('name', $adminRoleName)->first();
-    
-    $canAccess = function($permissionName) use ($currentRole) {
-        return $currentRole ? $currentRole->hasPermissionTo($permissionName) : false;
-    };
-@endphp
-
 <div class="sidebar">
     <div class="sidebar-header">
         <h2>🏢 PT Trac</h2>
@@ -81,50 +72,62 @@
 
         <div class="menu-section-title">Operations Management</div>
         
-        @if($canAccess('view_inventory'))
+        @canany(['view_inventory', 'manage_inventory'])
         <a href="/admin/gudang" class="menu-item"><i class="bi bi-box-seam"></i><span>Gudang</span></a>
-        @endif
+        @endcanany
 
+        @canany(['view_purchase_orders', 'manage_purchase_orders'])
         <a href="{{ route('admin.po.index') }}" class="menu-item"><i class="bi bi-cart-check"></i><span>Purchase Order</span></a>
+        @endcanany
         
-        @if($canAccess('view_sales_documents'))
+        @canany(['view_sales_orders', 'manage_sales_orders'])
         <a href="/admin/gudang/sales-orders" class="menu-item"><i class="bi bi-file-earmark-check"></i><span>Sales Order</span></a>
-        @endif
+        @endcanany
 
+        @canany(['view_quotation', 'manage_quotation'])
         <a href="{{ route('admin.quotation.index') }}" class="menu-item"><i class="bi bi-file-text"></i><span>Quotation</span></a>
+        @endcanany
 
-        @if($canAccess('view_bookkeeping'))
+        @canany(['view_bookkeeping', 'manage_bookkeeping'])
         <a href="/admin/keuangan" class="menu-item"><i class="bi bi-wallet2"></i><span>Keuangan Boss</span></a>
-        @endif
+        @endcanany
 
+        @can('manage_finance')
         <a href="/admin/finance" class="menu-item"><i class="bi bi-receipt"></i><span>Finance Staff</span></a>
+        @endcan
 
-        {{-- NEW: Kalkulator Modal di Sidebar --}}
+        @can('view_kalkulator')
         <a href="{{ route('admin.modal.kalkulator') }}" class="menu-item"><i class="bi bi-calculator"></i><span>Kalkulator Modal</span></a>
+        @endcan
 
         <div class="menu-section-title">Products Management</div>
-        @if($canAccess('view_ruijie'))
+        
+        @canany(['view_ruijie', 'manage_ruijie'])
         <a href="/admin/ruijie" class="menu-item"><i class="bi bi-router"></i><span>Ruijie Networks</span></a>
-        @endif
+        @endcanany
         
-        @if($canAccess('view_wifi_cameras'))
+        @canany(['view_wifi_cameras', 'manage_wifi_cameras'])
         <a href="/admin/wifi-cameras" class="menu-item"><i class="bi bi-camera-video"></i><span>WiFi Cameras</span></a>
-        @endif
+        @endcanany
         
-        @if($canAccess('view_access_control'))
+        @canany(['view_access_control', 'manage_access_control'])
         <a href="/admin/access-control" class="menu-item"><i class="bi bi-shield-lock"></i><span>Access Control</span></a>
-        @endif
+        @endcanany
         
-        @if($canAccess('view_static_products'))
+        @canany(['view_static_products', 'manage_static_products'])
         <a href="/admin/static-products" class="menu-item"><i class="bi bi-box"></i><span>Static Products</span></a>
-        @endif
+        @endcanany
 
         <div class="menu-section-title">System</div>
         
-        @if($canAccess('view_users'))
+        @can('view_users')
         <a href="{{ route('admin.users.index') }}" class="menu-item active"><i class="bi bi-people"></i><span>Users Account</span></a>
+        @endcan
+
+        {{-- SINKRONISASI: Menggunakan manage_roles atau manage_users untuk akses role --}}
+        @canany(['manage_roles', 'manage_users'])
         <a href="{{ route('admin.roles.index') }}" class="menu-item"><i class="bi bi-shield-lock"></i><span>Roles & Permissions</span><span class="badge">SECURE</span></a>
-        @endif
+        @endcanany
         
     </div>
     
@@ -137,24 +140,18 @@
     @if(session('success'))
         <div class="alert alert-success"><i class="bi bi-check-circle"></i> {{ session('success') }}</div>
     @endif
-    @if($errors->any())
-        <div class="alert alert-danger">
-            <ul style="margin-left: 20px;">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
 
     <div class="page-header">
         <div>
             <h1>🛡️ User Management</h1>
             <p>Kelola akun dan role Administrator untuk sistem dashboard.</p>
         </div>
+        {{-- SINKRONISASI: Menggunakan create_users (Sesuai database kamu) --}}
+        @can('create_users')
         <button class="btn btn-primary" onclick="openModal('addModal')">
             <i class="bi bi-person-plus-fill"></i> Tambah User Baru
         </button>
+        @endcan
     </div>
 
     <div class="card">
@@ -172,24 +169,39 @@
                 </thead>
                 <tbody>
                     @forelse($users as $index => $user)
+                    @php $userRole = $user->roles->first()->name ?? ''; @endphp
                     <tr>
                         <td>{{ $index + 1 }}</td>
                         <td><strong>{{ $user->name }}</strong></td>
                         <td>{{ $user->username }}</td>
                         <td>{{ $user->email }}</td>
                         <td>
-                            <span class="badge-role">{{ strtoupper($user->role) }}</span>
+                            <span class="badge-role">{{ strtoupper($userRole ?: 'NO ROLE') }}</span>
                         </td>
                         <td>
-                            <button class="btn btn-outline" style="padding: 6px 12px;" onclick='openEditModal(@json($user))'>
-                                <i class="bi bi-pencil" style="color: #ed8936;"></i> Edit
-                            </button>
-                            <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Hapus user ini secara permanen?')">
-                                @csrf @method('DELETE')
-                                <button class="btn btn-outline" style="padding: 6px 12px; margin-left: 5px;">
-                                    <i class="bi bi-trash" style="color: #ef4444;"></i>
+                            <div class="d-flex gap-1">
+                                {{-- SINKRONISASI: Menggunakan edit_users --}}
+                                @can('edit_users')
+                                <button class="btn btn-outline" style="padding: 6px 12px;" onclick='openEditModal(@json($user), "{{ $userRole }}")'>
+                                    <i class="bi bi-pencil" style="color: #ed8936;"></i> Edit
                                 </button>
-                            </form>
+                                @endcan
+
+                                {{-- SINKRONISASI: Menggunakan delete_users --}}
+                                @can('delete_users')
+                                <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Hapus user ini secara permanen?')">
+                                    @csrf @method('DELETE')
+                                    <button class="btn btn-outline" style="padding: 6px 12px;">
+                                        <i class="bi bi-trash" style="color: #ef4444;"></i>
+                                    </button>
+                                </form>
+                                @endcan
+
+                                {{-- Jika sama sekali tidak punya izin Edit/Delete --}}
+                                @if(!auth()->user()->can('edit_users') && !auth()->user()->can('delete_users'))
+                                    <span class="text-muted small">No Action</span>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                     @empty
@@ -201,6 +213,7 @@
     </div>
 </div>
 
+{{-- Modal Add & Edit --}}
 <div id="addModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -260,15 +273,14 @@
     function openModal(id) { document.getElementById(id).classList.add('show'); }
     function closeModal(id) { document.getElementById(id).classList.remove('show'); }
     
-    function openEditModal(user) {
+    function openEditModal(user, userRole) {
         document.getElementById('edit_name').value = user.name;
         document.getElementById('edit_username').value = user.username;
         document.getElementById('edit_email').value = user.email;
         
-        // Pilih role sesuai data user
         let roleSelect = document.getElementById('edit_role');
         for (let i = 0; i < roleSelect.options.length; i++) {
-            if (roleSelect.options[i].value === user.role) {
+            if (roleSelect.options[i].value === userRole) {
                 roleSelect.selectedIndex = i;
                 break;
             }
@@ -284,7 +296,6 @@
         }
     }
 
-    // Fungsi untuk hapus jejak login
     function hapusJejakBrowser(event) {
         event.preventDefault();
         localStorage.clear();

@@ -62,9 +62,19 @@
                                 — Tempo s/d {{ \Carbon\Carbon::parse($invoice->jatuh_tempo)->format('d/m/Y') }}
                             @endif
                         </span>
-                        <a href="/admin/finance" class="btn btn-outline-warning btn-sm">
-                            <i class="fas fa-cash-register me-1"></i>Tandai Lunas di Finance
-                        </a>
+                        @can('manage_finance')
+                            <form action="{{ route('admin.sales-orders.mark-lunas', $salesOrder->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-warning btn-sm fw-bold" onclick="return confirm('Yakin tandai invoice ini sebagai Lunas?')">
+                                    Tandai Lunas di Finance
+                                </button>
+                            </form>
+                        @else
+                            {{-- Jika tidak punya akses, tampilkan tombol abu-abu yang tidak bisa diklik --}}
+                            <button type="button" class="btn btn-outline-secondary btn-sm" disabled title="Akses Ditolak: Butuh izin Modul Finance">
+                                <i class="bi bi-lock-fill me-1"></i> Tandai Lunas di Finance
+                            </button>
+                        @endcanany
                     @else
                         <span class="badge bg-success">
                             <i class="fas fa-check-circle me-1"></i>Invoice {{ $invoice->invoice_number }} — LUNAS

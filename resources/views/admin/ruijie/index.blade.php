@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ruijie Products Management - TechStore</title>
-     <link rel="icon" href="/storage/gambar/logo-mja.png" type="image/png">
+    <link rel="icon" href="/storage/gambar/logo-mja.png" type="image/png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -18,16 +18,7 @@
     </style>
 </head>
 <body class="bg-gray-50">
-@php
-    $adminRoleName = session('admin_role');
-    $currentRole = \Spatie\Permission\Models\Role::where('name', $adminRoleName)->first();
-    
-    // Fungsi ngecek izin murni HANYA dari centangan di database
-    $canAccess = function($permissionName) use ($currentRole) {
-        return $currentRole ? $currentRole->hasPermissionTo($permissionName) : false;
-    };
-@endphp
-    <!-- Header -->
+
     <header class="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex items-center justify-between">
@@ -39,16 +30,11 @@
                         <span class="text-white font-bold text-xl">TechStore</span>
                     </a>
                 </div>
-                <button onclick="toggleMenu()" class="text-white lg:hidden">
-                    <i class="fas fa-bars text-2xl"></i>
-                </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Page Header -->
         <div class="mb-8">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                 <div class="mb-4 md:mb-0">
@@ -60,10 +46,14 @@
                         <i class="fas fa-arrow-left mr-2"></i>
                         Back to Dashboard
                     </a>
+                    
+                    @can('create_ruijie')
                     <a href="{{ route('admin.ruijie.products.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                         <i class="fas fa-plus mr-2"></i>
                         Add New Product
                     </a>
+                    @endcan
+                    
                     <a href="{{ route('products.ruijie') }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
                         <i class="fas fa-eye mr-2"></i>
                         View Public Page
@@ -72,7 +62,6 @@
             </div>
         </div>
 
-        <!-- Search and Filters -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="relative">
@@ -101,13 +90,12 @@
             </div>
         </div>
 
-        <!-- Statistics Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-blue-600 text-sm font-medium">Total Products</p>
-                        <p class="text-3xl font-bold text-blue-900 mt-1">{{ $statistics['total_products'] }}</p>
+                        <p class="text-3xl font-bold text-blue-900 mt-1">{{ collect($products ?? [])->count() }}</p>
                     </div>
                     <div class="bg-blue-500 p-3 rounded-lg">
                         <i class="fas fa-box text-white text-2xl"></i>
@@ -119,7 +107,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-green-600 text-sm font-medium">Active</p>
-                        <p class="text-3xl font-bold text-green-900 mt-1">{{ $statistics['active_products'] }}</p>
+                        <p class="text-3xl font-bold text-green-900 mt-1">{{ collect($products ?? [])->where('is_active', true)->count() }}</p>
                     </div>
                     <div class="bg-green-500 p-3 rounded-lg">
                         <i class="fas fa-check-circle text-white text-2xl"></i>
@@ -131,7 +119,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-yellow-600 text-sm font-medium">Featured</p>
-                        <p class="text-3xl font-bold text-yellow-900 mt-1">{{ $products->where('is_featured', true)->count() }}</p>
+                        <p class="text-3xl font-bold text-yellow-900 mt-1">{{ collect($products ?? [])->where('is_featured', true)->count() }}</p>
                     </div>
                     <div class="bg-yellow-500 p-3 rounded-lg">
                         <i class="fas fa-star text-white text-2xl"></i>
@@ -143,7 +131,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-purple-600 text-sm font-medium">Categories</p>
-                        <p class="text-3xl font-bold text-purple-900 mt-1">{{ $statistics['total_categories'] }}</p>
+                        <p class="text-3xl font-bold text-purple-900 mt-1">{{ collect($categories ?? [])->count() }}</p>
                     </div>
                     <div class="bg-purple-500 p-3 rounded-lg">
                         <i class="fas fa-folder text-white text-2xl"></i>
@@ -152,7 +140,6 @@
             </div>
         </div>
 
-        <!-- Products Grid -->
         <div id="productsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             @forelse($products as $product)
             <div class="product-card bg-white rounded-lg shadow-md overflow-hidden card-hover"
@@ -163,40 +150,28 @@
                  data-order="{{ $product->order }}"
                  data-date="{{ $product->created_at }}">
                 
-                <!-- Product Image -->
                 <div class="relative h-48 bg-gray-100 overflow-hidden">
                     @if($product->image_url)
-                        <img src="{{ $product->image_url }}" 
-                             alt="{{ $product->name }}" 
-                             class="w-full h-full object-cover">
+                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}" class="w-full h-full object-cover">
                     @else
                         <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300">
                             <i class="fas fa-network-wired text-gray-400 text-6xl"></i>
                         </div>
                     @endif
                     
-                    <!-- Badges -->
                     <div class="absolute top-3 left-3 flex flex-col gap-2">
                         @if($product->is_featured)
-                            <span class="bg-yellow-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-lg">
-                                Featured
-                            </span>
+                            <span class="bg-yellow-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-lg">Featured</span>
                         @endif
                         @if($product->is_active)
-                            <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-lg">
-                                Active
-                            </span>
+                            <span class="bg-green-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-lg">Active</span>
                         @else
-                            <span class="bg-gray-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-lg">
-                                Inactive
-                            </span>
+                            <span class="bg-gray-500 text-white text-xs px-3 py-1 rounded-full font-semibold shadow-lg">Inactive</span>
                         @endif
                     </div>
                 </div>
 
-                <!-- Product Info -->
                 <div class="p-5">
-                    <!-- Category -->
                     @if($product->category)
                         <div class="flex items-center text-xs text-gray-500 mb-2">
                             <i class="fas fa-folder mr-1"></i>
@@ -204,12 +179,8 @@
                         </div>
                     @endif
 
-                    <!-- Product Name -->
-                    <h3 class="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
-                        {{ $product->name }}
-                    </h3>
+                    <h3 class="text-lg font-bold text-gray-900 mb-2 line-clamp-2">{{ $product->name }}</h3>
 
-                    <!-- Product Details -->
                     <div class="space-y-2 mb-4">
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-gray-500">Model:</span>
@@ -223,23 +194,22 @@
                         @endif
                     </div>
 
-                    <!-- Description Preview -->
                     @if($product->description)
-                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">
-                            {{ $product->description }}
-                        </p>
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ $product->description }}</p>
                     @endif
 
-                    <!-- Action Buttons -->
                     <div class="flex gap-2 pt-4 border-t border-gray-200">
-                        <a href="{{ route('admin.ruijie.products.edit', $product->id) }}" 
-                           class="flex-1 bg-blue-600 text-white text-center py-2 rounded-lg hover:bg-blue-700 transition font-medium">
+                        @can('edit_ruijie')
+                        <a href="{{ route('admin.ruijie.products.edit', $product->id) }}" class="flex-1 bg-blue-600 text-white text-center py-2 rounded-lg hover:bg-blue-700 transition font-medium">
                             <i class="fas fa-edit mr-1"></i> Edit
                         </a>
-                        <button onclick="deleteProduct({{ $product->id }}, '{{ $product->name }}')" 
-                                class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition font-medium">
+                        @endcan
+                        
+                        @can('delete_ruijie')
+                        <button onclick="deleteProduct({{ $product->id }}, '{{ addslashes($product->name) }}')" class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition font-medium">
                             <i class="fas fa-trash mr-1"></i> Delete
                         </button>
+                        @endcan
                     </div>
                 </div>
             </div>
@@ -247,21 +217,22 @@
             <div class="col-span-full text-center py-12">
                 <i class="fas fa-box-open text-gray-300 text-6xl mb-4"></i>
                 <p class="text-gray-500 text-lg">No products found</p>
+                
+                @can('create_ruijie')
                 <a href="{{ route('admin.ruijie.products.create') }}" class="inline-block mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                     Add Your First Product
                 </a>
+                @endcan
             </div>
             @endforelse
         </div>
 
-        <!-- No Results Message -->
         <div id="noResults" class="hidden text-center py-12">
             <i class="fas fa-search text-gray-300 text-6xl mb-4"></i>
             <p class="text-gray-500 text-lg">No products match your filters</p>
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <div class="text-center">
@@ -271,12 +242,8 @@
                 <h3 class="text-xl font-bold text-gray-900 mb-2">Delete Product?</h3>
                 <p class="text-gray-600 mb-6">Are you sure you want to delete "<span id="deleteProductName" class="font-semibold"></span>"? This action cannot be undone.</p>
                 <div class="flex gap-3">
-                    <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
-                        Cancel
-                    </button>
-                    <button onclick="confirmDelete()" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
-                        Delete
-                    </button>
+                    <button onclick="closeDeleteModal()" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">Cancel</button>
+                    <button onclick="confirmDelete()" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">Delete</button>
                 </div>
             </div>
         </div>
@@ -320,15 +287,10 @@
 
             cards.sort((a, b) => {
                 switch(sortBy) {
-                    case 'name':
-                        return a.dataset.name.localeCompare(b.dataset.name);
-                    case 'price':
-                        return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
-                    case 'newest':
-                        return new Date(b.dataset.date) - new Date(a.dataset.date);
-                    case 'order':
-                    default:
-                        return parseInt(a.dataset.order) - parseInt(b.dataset.order);
+                    case 'name': return a.dataset.name.localeCompare(b.dataset.name);
+                    case 'price': return parseFloat(b.dataset.price) - parseFloat(a.dataset.price);
+                    case 'newest': return new Date(b.dataset.date) - new Date(a.dataset.date);
+                    case 'order': default: return parseInt(a.dataset.order) - parseInt(b.dataset.order);
                 }
             });
 
@@ -368,11 +330,6 @@
                 console.error('Error:', error);
                 alert('Error deleting product. Please try again.');
             });
-        }
-
-        function toggleMenu() {
-            // Add mobile menu toggle logic here
-            alert('Mobile menu toggle');
         }
     </script>
 </body>

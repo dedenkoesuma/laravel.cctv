@@ -20,26 +20,22 @@ class AdminAccessControlController extends Controller
     {
         $query = DB::table('access_control_products');
 
-        // Filter by brand
         if ($request->has('brand') && $request->brand != '') {
             $query->where('brand', $request->brand);
         }
 
-        // Filter by status
         if ($request->has('status') && $request->status != '') {
             $query->where('status', $request->status);
         }
 
-        // Filter by featured
         if ($request->has('featured') && $request->featured == '1') {
             $query->where('is_featured', true);
         }
 
-        // Search
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('nama_produk', 'LIKE', "%{$search}%")
+                $q->where('name', 'LIKE', "%{$search}%")
                   ->orWhere('sku', 'LIKE', "%{$search}%")
                   ->orWhere('brand', 'LIKE', "%{$search}%");
             });
@@ -59,72 +55,49 @@ class AdminAccessControlController extends Controller
         $product = DB::table('access_control_products')->find($id);
 
         if (!$product) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Product not found'
-            ], 404);
+            return response()->json(['success' => false, 'message' => 'Product not found'], 404);
         }
 
-        return response()->json([
-            'success' => true,
-            'product' => $product
-        ]);
+        return response()->json(['success' => true, 'product' => $product]);
     }
 
-    // Create new product
-    // Create new product
+    // === CREATE NEW PRODUCT ===
     public function store(Request $request)
     {
+        // Validasi disesuaikan dengan key yang dikirim dari Javascript
         $validated = $request->validate([
-            'nama_produk' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'brand' => 'required|string',
             'sku' => 'required|string|unique:access_control_products,sku',
-            'deskripsi' => 'nullable|string',
-            'harga_modal' => 'required|numeric|min:0',
-            'harga_jual' => 'required|numeric|min:0',
+            'description' => 'nullable|string',
+            'cost_price' => 'required|numeric|min:0',
+            'sell_price' => 'required|numeric|min:0',
             'original_price' => 'nullable|numeric|min:0',
-            'stok' => 'required|integer|min:0',
-            'kategori' => 'nullable|string',
-            'specifications' => 'nullable|array',
-            'package_includes' => 'nullable|array',
-            'is_featured' => 'boolean',
+            'stock' => 'required|integer|min:0',
+            'category' => 'nullable|string',
+            'is_featured' => 'nullable', 
             'status' => 'required|in:active,inactive',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'gallery.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Handle main image upload
         $imagePath = null;
-        if ($request->hasFile('gambar')) {
-            $imagePath = $request->file('gambar')->store('access-control', 'public');
-        }
-
-        // Handle gallery images
-        $galleryPaths = [];
-        if ($request->hasFile('gallery')) {
-            foreach ($request->file('gallery') as $file) {
-                if (count($galleryPaths) < 5) { // Max 5 images
-                    $galleryPaths[] = $file->store('access-control/gallery', 'public');
-                }
-            }
+        if ($request->hasFile('main_image')) {
+            $imagePath = $request->file('main_image')->store('access-control', 'public');
         }
 
         $productId = DB::table('access_control_products')->insertGetId([
-            'name' => $validated['nama_produk'],
+            'name' => $validated['name'],
             'brand' => $validated['brand'],
             'sku' => $validated['sku'],
-            'description' => $validated['deskripsi'] ?? null,
-            'cost_price' => $validated['harga_modal'],
-            'sell_price' => $validated['harga_jual'], // Mapping benar ke sell_price
+            'description' => $validated['description'] ?? null,
+            'cost_price' => $validated['cost_price'],
+            'sell_price' => $validated['sell_price'],
             'original_price' => $validated['original_price'] ?? null,
-            'main_image' => $imagePath, // Mapping ke main_image
-            'gallery_images' => !empty($galleryPaths) ? json_encode($galleryPaths) : null, // Mapping ke gallery_images
-            'specifications' => isset($validated['specifications']) ? json_encode($validated['specifications']) : null,
-            'features' => isset($validated['package_includes']) ? json_encode($validated['package_includes']) : null, // Masuk ke kolom features
-            'stock' => $validated['stok'],
-            'category' => $validated['kategori'] ?? null,
+            'stock' => $validated['stock'],
+            'category' => $validated['category'] ?? null,
             'status' => $validated['status'],
-            'is_featured' => $validated['is_featured'] ?? false,
+            'is_featured' => $request->is_featured ? 1 : 0, // Ambil dari request langsung
+            'main_image' => $imagePath,
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -136,99 +109,52 @@ class AdminAccessControlController extends Controller
         ]);
     }
 
-    // Update product
-    // Update product
+    // === UPDATE PRODUCT ===
     public function update(Request $request, $id)
     {
         $product = DB::table('access_control_products')->find($id);
 
         if (!$product) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Product not found'
-            ], 404);
+            return response()->json(['success' => false, 'message' => 'Product not found'], 404);
         }
 
+        // Validasi disesuaikan dengan key yang dikirim dari Javascript
         $validated = $request->validate([
-            'nama_produk' => 'nullable|string|max:255',
+            'name' => 'nullable|string|max:255',
             'brand' => 'nullable|string',
             'sku' => 'nullable|string|unique:access_control_products,sku,' . $id,
-            'deskripsi' => 'nullable|string',
-            'harga_modal' => 'nullable|numeric|min:0',
-            'harga_jual' => 'nullable|numeric|min:0',
+            'description' => 'nullable|string',
+            'cost_price' => 'nullable|numeric|min:0',
+            'sell_price' => 'nullable|numeric|min:0',
             'original_price' => 'nullable|numeric|min:0',
-            'stok' => 'nullable|integer|min:0',
-            'kategori' => 'nullable|string',
-            'specifications' => 'nullable|array',
-            'package_includes' => 'nullable|array',
-            'is_featured' => 'boolean',
+            'stock' => 'nullable|integer|min:0',
+            'category' => 'nullable|string',
             'status' => 'nullable|in:active,inactive',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'gallery.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'main_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $updateData = [];
 
-        // Mapping yang benar: 'Nama_di_DB' => 'Nama_di_Form'
-        $fieldMapping = [
-            'name' => 'nama_produk',
-            'brand' => 'brand',
-            'sku' => 'sku',
-            'description' => 'deskripsi',
-            'cost_price' => 'harga_modal',
-            'sell_price' => 'harga_jual',
-            'original_price' => 'original_price',
-            'stock' => 'stok',
-            'category' => 'kategori',
-            'status' => 'status'
-        ];
-
-        foreach ($fieldMapping as $dbColumn => $formField) {
-            if (isset($validated[$formField])) {
-                $updateData[$dbColumn] = $validated[$formField];
+        // Masukkan data yang ada di request ke array update
+        $fields = ['name', 'brand', 'sku', 'description', 'cost_price', 'sell_price', 'original_price', 'stock', 'category', 'status'];
+        
+        foreach ($fields as $field) {
+            if ($request->has($field)) {
+                $updateData[$field] = $request->input($field);
             }
         }
 
-        if (isset($validated['is_featured'])) {
-            $updateData['is_featured'] = $validated['is_featured'];
-        }
-
-        if (isset($validated['specifications'])) {
-            $updateData['specifications'] = json_encode($validated['specifications']);
-        }
-
-        if (isset($validated['package_includes'])) {
-            $updateData['features'] = json_encode($validated['package_includes']); // Masuk ke kolom features
+        // Handle is_featured (bisa berupa string '1' atau '0')
+        if ($request->has('is_featured')) {
+            $updateData['is_featured'] = $request->is_featured ? 1 : 0;
         }
 
         // Handle main image upload
-        if ($request->hasFile('gambar')) {
-            // Delete old image using the correct DB column name
+        if ($request->hasFile('main_image')) {
             if ($product->main_image) {
                 Storage::disk('public')->delete($product->main_image);
             }
-            $updateData['main_image'] = $request->file('gambar')->store('access-control', 'public');
-        }
-
-        // Handle gallery images
-        if ($request->hasFile('gallery')) {
-            // Delete old gallery images using the correct DB column name
-            if ($product->gallery_images) {
-                $oldGallery = json_decode($product->gallery_images, true);
-                if(is_array($oldGallery)) {
-                    foreach ($oldGallery as $oldImage) {
-                        Storage::disk('public')->delete($oldImage);
-                    }
-                }
-            }
-            
-            $galleryPaths = [];
-            foreach ($request->file('gallery') as $file) {
-                if (count($galleryPaths) < 5) {
-                    $galleryPaths[] = $file->store('access-control/gallery', 'public');
-                }
-            }
-            $updateData['gallery_images'] = json_encode($galleryPaths);
+            $updateData['main_image'] = $request->file('main_image')->store('access-control', 'public');
         }
 
         $updateData['updated_at'] = now();
@@ -243,19 +169,14 @@ class AdminAccessControlController extends Controller
     }
 
     // Delete product
-    // Delete product
     public function destroy($id)
     {
         $product = DB::table('access_control_products')->find($id);
 
         if (!$product) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Product not found'
-            ], 404);
+            return response()->json(['success' => false, 'message' => 'Product not found'], 404);
         }
 
-        // Delete images using correct DB column names
         if ($product->main_image) {
             Storage::disk('public')->delete($product->main_image);
         }
@@ -271,57 +192,7 @@ class AdminAccessControlController extends Controller
 
         DB::table('access_control_products')->where('id', $id)->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Product deleted successfully'
-        ]);
-    }
-
-    // Toggle status
-    public function toggleStatus($id)
-    {
-        $product = DB::table('access_control_products')->find($id);
-
-        if (!$product) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Product not found'
-            ], 404);
-        }
-
-        $newStatus = $product->status === 'active' ? 'inactive' : 'active';
-
-        DB::table('access_control_products')->where('id', $id)->update([
-            'status' => $newStatus,
-            'updated_at' => now()
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Status updated successfully',
-            'status' => $newStatus
-        ]);
-    }
-
-    // Get public access control products (for frontend)
-    public function getPublicProducts(Request $request)
-    {
-        $query = DB::table('access_control_products')
-            ->where('status', 'active')
-            ->orderBy('is_featured', 'desc')
-            ->orderBy('created_at', 'desc');
-        
-        if ($request->has('brand') && $request->brand != '') {
-            $query->where('brand', $request->brand);
-        }
-        
-        $products = $query->get();
-        
-        return response()->json([
-            'success' => true,
-            'products' => $products,
-            'count' => $products->count()
-        ]);
+        return response()->json(['success' => true, 'message' => 'Product deleted successfully']);
     }
 
     // Get statistics
@@ -329,9 +200,11 @@ class AdminAccessControlController extends Controller
     {
         $total = DB::table('access_control_products')->count();
         $active = DB::table('access_control_products')->where('status', 'active')->count();
-        $featured = DB::table('access_control_products')->where('is_featured', true)->count();
+        $featured = DB::table('access_control_products')->where('is_featured', 1)->count();
         $brands = DB::table('access_control_products')->distinct('brand')->count('brand');
-        $lowStock = DB::table('access_control_products')->where('stok', '<', 10)->where('status', 'active')->count();
+        
+        // Menggunakan nama kolom yang benar: 'stock'
+        $lowStock = DB::table('access_control_products')->where('stock', '<', 10)->where('status', 'active')->count();
 
         return response()->json([
             'success' => true,

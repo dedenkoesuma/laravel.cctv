@@ -21,7 +21,8 @@
         .menu-item.active { background: rgba(255,255,255,0.2); border-left-color: white; }
         .menu-item i { width: 24px; text-align: center; font-size: 18px; }
         .menu-item .badge { margin-left: auto; background: rgba(255,255,255,0.3); padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
-        .logout-btn { position: fixed; bottom: 20px; left: 20px; width: 240px; padding: 12px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; text-decoration: none; }
+        .logout-btn { position: fixed; bottom: 20px; left: 20px; width: 240px; padding: 12px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; text-decoration: none; transition: 0.3s;}
+        .logout-btn:hover { background: rgba(255,255,255,0.3); }
         
         .main-content { margin-left: 280px; padding: 30px; min-height: 100vh; }
         .card { background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #edf2f7; overflow: hidden; }
@@ -38,26 +39,66 @@
     <div class="sidebar-menu">
         <a href="/dashboard" class="menu-item"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
 
-        <div class="menu-section-title">Inventory Management</div>
-        <a href="/admin/inventory" class="menu-item"><i class="bi bi-box-seam"></i><span>Dashboard</span></a>
-        <a href="/admin/inventory/incoming-continuous" class="menu-item"><i class="bi bi-box-arrow-in-down"></i><span>Barang Masuk</span><span class="badge">NEW</span></a>
-        <a href="/admin/inventory/outgoing" class="menu-item"><i class="bi bi-box-arrow-up"></i><span>Barang Keluar</span></a>
+        <div class="menu-section-title">Operations Management</div>
+        
+        @can('view_inventory')
+        <a href="/admin/gudang" class="menu-item"><i class="bi bi-box-seam"></i><span>Gudang</span></a>
+        @endcan
+
+        @can('view_purchase_orders')
+        <a href="{{ route('admin.po.index') }}" class="menu-item"><i class="bi bi-cart-check"></i><span>Purchase Order</span></a>
+        @endcan
+        
+        @can('view_sales_orders')
+        <a href="/admin/gudang/sales-orders" class="menu-item"><i class="bi bi-file-earmark-check"></i><span>Sales Order</span></a>
+        @endcan
+
+        @can('view_quotations')
+        <a href="{{ route('admin.quotation.index') }}" class="menu-item"><i class="bi bi-file-text"></i><span>Quotation</span></a>
+        @endcan
+
+        @can('view_bookkeeping')
+        <a href="/admin/keuangan" class="menu-item"><i class="bi bi-wallet2"></i><span>Keuangan Boss</span></a>
+        @endcan
+
+        @can('view_finance')
+        <a href="/admin/finance" class="menu-item"><i class="bi bi-receipt"></i><span>Finance Staff</span></a>
+        @endcan
+
+        @can('view_kalkulator')
+        <a href="{{ route('admin.modal.kalkulator') }}" class="menu-item"><i class="bi bi-calculator"></i><span>Kalkulator Modal</span></a>
+        @endcan
 
         <div class="menu-section-title">Products Management</div>
+        
+        @can('view_ruijie')
         <a href="/admin/ruijie" class="menu-item"><i class="bi bi-router"></i><span>Ruijie Networks</span></a>
+        @endcan
+        
+        @can('view_wifi_cameras')
         <a href="/admin/wifi-cameras" class="menu-item"><i class="bi bi-camera-video"></i><span>WiFi Cameras</span></a>
+        @endcan
+        
+        @can('view_access_control')
         <a href="/admin/access-control" class="menu-item"><i class="bi bi-shield-lock"></i><span>Access Control</span></a>
+        @endcan
+        
+        @can('view_static_products')
         <a href="/admin/static-products" class="menu-item"><i class="bi bi-box"></i><span>Static Products</span></a>
-
-        <div class="menu-section-title">Business Documents</div>
-        <a href="/admin/bookkeeping" class="menu-item"><i class="bi bi-calculator"></i><span>Pembukuan</span></a>
-        <a href="/admin/sales-documents" class="menu-item"><i class="bi bi-file-earmark-text"></i><span>Surat Order & Penawaran</span></a>
+        @endcan
 
         <div class="menu-section-title">System</div>
-        <a href="{{ route('admin.users.index') }}" class="menu-item active"><i class="bi bi-people"></i><span>Users & Roles</span><span class="badge">SECURE</span></a>
+        
+        @can('view_users')
+        <a href="{{ route('admin.users.index') }}" class="menu-item"><i class="bi bi-people"></i><span>Users Account</span></a>
+        <a href="{{ route('admin.roles.index') }}" class="menu-item active"><i class="bi bi-shield-lock"></i><span>Roles & Permissions</span><span class="badge">SECURE</span></a>
+        @endcan
+        
     </div>
     
-    <a href="{{ route('admin.logout') }}" class="logout-btn"><i class="bi bi-box-arrow-right"></i><span>Logout</span></a>
+    <a href="{{ route('admin.logout') }}" class="logout-btn" onclick="hapusJejakBrowser(event)">
+        <i class="bi bi-box-arrow-right"></i><span>Logout</span>
+    </a>
 </div>
 
 <div class="main-content">
@@ -76,15 +117,40 @@
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 25px;">
             
             @foreach($permissions as $groupName => $groupItems)
+            @php
+                // SUDAH DIPERBAIKI: Menambahkan 'view_finance' ke dalam array izin yang disembunyikan
+                $hiddenPerms = [
+                    'view_bookkeeping', 'create_bookkeeping', 'edit_bookkeeping', 'delete_bookkeeping',
+                    'view_sales_documents', 'create_sales_documents', 'edit_sales_documents', 'delete_sales_documents', 'manage_sales_documents',
+                    'view_finance' 
+                ];
+                
+                // Filter array/collection agar membuang izin yang duplikat/disembunyikan
+                $filteredItems = collect($groupItems)->reject(function($item) use ($hiddenPerms) {
+                    return in_array($item->name, $hiddenPerms);
+                });
+            @endphp
+
+            @if($filteredItems->count() > 0)
             <div class="card">
                 <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 18px 25px; font-weight: 700; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 15px; letter-spacing: 0.5px;"><i class="bi bi-box-seam"></i> MODUL: {{ strtoupper($groupName) }}</span>
-                    <span style="background: rgba(255,255,255,0.2); padding: 2px 10px; border-radius: 10px; font-size: 11px;">{{ count($groupItems) }} Izin</span>
+                    
+                    @php
+                        $namaModul = strtoupper($groupName);
+                        if (strtolower($groupName) === 'inventory') {
+                            $namaModul = 'GUDANG';
+                        } elseif (strtolower($groupName) === 'bookkeeping') {
+                            $namaModul = 'KEUANGAN';
+                        }
+                    @endphp
+
+                    <span style="font-size: 15px; letter-spacing: 0.5px;"><i class="bi bi-box-seam"></i> MODUL: {{ $namaModul }}</span>
+                    <span style="background: rgba(255,255,255,0.2); padding: 2px 10px; border-radius: 10px; font-size: 11px;">{{ $filteredItems->count() }} Izin</span>
                 </div>
                 
                 <div class="card-body" style="padding: 25px;">
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                        @foreach($groupItems as $perm)
+                        @foreach($filteredItems as $perm)
                         <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 12px; border-radius: 12px; border: 1px solid #f1f5f9; transition: all 0.2s;" 
                                onmouseover="this.style.borderColor='#667eea'; this.style.background='#f7faff';" 
                                onmouseout="this.style.borderColor='#f1f5f9'; this.style.background='transparent';">
@@ -95,14 +161,25 @@
                                        style="width: 20px; height: 20px; accent-color: #667eea; cursor: pointer;">
                             </div>
                             
+                            @php
+                                // Translasi otomatis
+                                $permLabel = ucwords(str_replace('_', ' ', $perm->name));
+                                $permLabel = str_ireplace('Bookkeeping', 'Keuangan', $permLabel);
+                                $permLabel = str_ireplace('Inventory', 'Gudang', $permLabel);
+                                
+                                $permLabel = str_ireplace('Delete Sales Orders', 'Batalkan Sales Order', $permLabel);
+                                $permLabel = str_ireplace('Delete Sales Order', 'Batalkan Sales Order', $permLabel);
+                            @endphp
+
                             <span style="font-size: 14px; color: #4a5568; font-weight: 500;">
-                                {{ ucwords(str_replace('_', ' ', $perm->name)) }}
+                                {{ $permLabel }}
                             </span>
                         </label>
                         @endforeach
                     </div>
                 </div>
             </div>
+            @endif
             @endforeach
 
         </div>
@@ -117,6 +194,15 @@
 
     <div style="height: 100px;"></div>
 </div>
+
+<script>
+function hapusJejakBrowser(event) {
+    event.preventDefault();
+    localStorage.clear(); 
+    sessionStorage.clear();
+    window.location.href = '/admin/logout';
+}
+</script>
 
 </body>
 </html>

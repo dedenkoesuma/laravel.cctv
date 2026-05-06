@@ -39,7 +39,6 @@
         .stat-header { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; position: relative; }
         .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; }
         
-        /* Utility Colors for Icons */
         .icon-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
         .icon-success { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); }
         .icon-warning { background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%); }
@@ -70,7 +69,6 @@
         .loading { display: inline-block; width: 18px; height: 18px; border: 2px solid #f3f3f3; border-top: 2px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
-        /* Fix for logout button overlapping content on small screens */
         @media(max-width: 992px) {
             .sidebar { transform: translateX(-100%); transition: 0.3s; }
             .sidebar.active { transform: translateX(0); }
@@ -79,15 +77,6 @@
     </style>
 </head>
 <body>
-
-@php
-    $adminRoleName = strtolower(session('admin_role'));
-    $currentRole = \Spatie\Permission\Models\Role::where('name', $adminRoleName)->first();
-    
-    $canAccess = function($permissionName) use ($currentRole) {
-        return $currentRole ? $currentRole->hasPermissionTo($permissionName) : false;
-    };
-@endphp
 
 <div class="sidebar">
     <div class="sidebar-header">
@@ -100,51 +89,61 @@
 
         <div class="menu-section-title">Operations Management</div>
         
-        @if($canAccess('view_inventory'))
+        @canany(['view_inventory', 'manage_inventory'])
         <a href="/admin/gudang" class="menu-item"><i class="bi bi-box-seam"></i><span>Gudang</span></a>
-        @endif
+        @endcanany
 
+        @canany(['view_purchase_orders', 'manage_purchase_orders'])
         <a href="{{ route('admin.po.index') }}" class="menu-item"><i class="bi bi-cart-check"></i><span>Purchase Order</span></a>
+        @endcanany
         
-        @if($canAccess('view_sales_documents'))
+        @canany(['view_sales_orders', 'manage_sales_orders'])
         <a href="/admin/gudang/sales-orders" class="menu-item"><i class="bi bi-file-earmark-check"></i><span>Sales Order</span></a>
-        @endif
+        @endcanany
 
+        @canany(['view_quotation', 'manage_quotation'])
         <a href="{{ route('admin.quotation.index') }}" class="menu-item"><i class="bi bi-file-text"></i><span>Quotation</span></a>
+        @endcanany
 
-        @if($canAccess('view_bookkeeping'))
+        @canany(['view_bookkeeping', 'manage_bookkeeping'])
         <a href="/admin/keuangan" class="menu-item"><i class="bi bi-wallet2"></i><span>Keuangan Boss</span></a>
-        @endif
+        @endcanany
 
-        {{-- NEW: Finance Staff di Sidebar --}}
+        @can('manage_finance')
         <a href="/admin/finance" class="menu-item"><i class="bi bi-receipt"></i><span>Finance Staff</span></a>
+        @endcan
 
-        {{-- NEW: Kalkulator Modal di Sidebar --}}
+        @can('view_kalkulator')
         <a href="{{ route('admin.modal.kalkulator') }}" class="menu-item"><i class="bi bi-calculator"></i><span>Kalkulator Modal</span></a>
+        @endcan
 
         <div class="menu-section-title">Products Management</div>
-        @if($canAccess('view_ruijie'))
+        
+        @canany(['view_ruijie', 'manage_ruijie'])
         <a href="/admin/ruijie" class="menu-item"><i class="bi bi-router"></i><span>Ruijie Networks</span></a>
-        @endif
+        @endcanany
         
-        @if($canAccess('view_wifi_cameras'))
+        @canany(['view_wifi_cameras', 'manage_wifi_cameras'])
         <a href="/admin/wifi-cameras" class="menu-item"><i class="bi bi-camera-video"></i><span>WiFi Cameras</span></a>
-        @endif
+        @endcanany
         
-        @if($canAccess('view_access_control'))
+        @canany(['view_access_control', 'manage_access_control'])
         <a href="/admin/access-control" class="menu-item"><i class="bi bi-shield-lock"></i><span>Access Control</span></a>
-        @endif
+        @endcanany
         
-        @if($canAccess('view_static_products'))
+        @canany(['view_static_products', 'manage_static_products'])
         <a href="/admin/static-products" class="menu-item"><i class="bi bi-box"></i><span>Static Products</span></a>
-        @endif
+        @endcanany
 
         <div class="menu-section-title">System</div>
         
-        @if($canAccess('view_users'))
+        @canany(['view_users', 'manage_users'])
         <a href="{{ route('admin.users.index') }}" class="menu-item"><i class="bi bi-people"></i><span>Users Account</span></a>
+        @endcanany
+
+        @can('manage_roles')
         <a href="{{ route('admin.roles.index') }}" class="menu-item"><i class="bi bi-shield-lock"></i><span>Roles & Permissions</span><span class="badge">SECURE</span></a>
-        @endif
+        @endcan
         
     </div>
     
@@ -222,7 +221,7 @@
     
     <div class="products-overview">
         
-        @if($canAccess('view_inventory'))
+        @canany(['view_inventory', 'manage_inventory'])
         <div class="product-category-card" style="border-left: 4px solid #ef4444;">
             <div class="category-header">
                 <div class="category-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);"><i class="bi bi-box-seam" style="color: white;"></i></div>
@@ -235,8 +234,9 @@
                 <a href="/admin/gudang" class="btn btn-primary"><i class="bi bi-speedometer2"></i><span>Buka Gudang</span></a>
             </div>
         </div>
-        @endif
+        @endcanany
 
+        @canany(['view_purchase_orders', 'manage_purchase_orders'])
         <div class="product-category-card" style="border-left: 4px solid #805ad5;">
             <div class="category-header">
                 <div class="category-icon" style="background: linear-gradient(135deg, #9f7aea 0%, #6b46c1 100%);"><i class="bi bi-cart-check" style="color: white;"></i></div>
@@ -247,11 +247,14 @@
             </div>
             <div class="category-actions">
                 <a href="{{ route('admin.po.index') }}" class="btn btn-primary"><i class="bi bi-list-ul"></i><span>Daftar PO</span></a>
+                @canany(['create_purchase_orders', 'manage_purchase_orders'])
                 <a href="{{ route('admin.po.create') }}" class="btn btn-outline"><i class="bi bi-plus-circle"></i><span>Buat Baru</span></a>
+                @endcanany
             </div>
         </div>
+        @endcanany
 
-        @if($canAccess('view_sales_documents'))
+        @canany(['view_sales_orders', 'manage_sales_orders'])
         <div class="product-category-card" style="border-left: 4px solid #f6ad55;">
             <div class="category-header">
                 <div class="category-icon" style="background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);"><i class="bi bi-file-earmark-check" style="color: white;"></i></div>
@@ -262,11 +265,14 @@
             </div>
             <div class="category-actions">
                 <a href="/admin/gudang/sales-orders" class="btn btn-primary"><i class="bi bi-list-check"></i><span>Daftar SO</span></a>
+                @canany(['create_sales_orders', 'manage_sales_orders'])
                 <a href="/admin/gudang/sales-orders/create" class="btn btn-outline"><i class="bi bi-plus-circle"></i><span>Buat Baru</span></a>
+                @endcanany
             </div>
         </div>
-        @endif
+        @endcanany
 
+        @canany(['view_quotation', 'manage_quotation'])
         <div class="product-category-card" style="border-left: 4px solid #3182ce;">
             <div class="category-header">
                 <div class="category-icon" style="background: linear-gradient(135deg, #63b3ed 0%, #2b6cb0 100%);"><i class="bi bi-file-text" style="color: white;"></i></div>
@@ -277,11 +283,14 @@
             </div>
             <div class="category-actions">
                 <a href="{{ route('admin.quotation.index') }}" class="btn btn-primary"><i class="bi bi-file-text"></i><span>Daftar Penawaran</span></a>
+                @canany(['create_quotation', 'manage_quotation'])
                 <a href="{{ route('admin.quotation.create') }}" class="btn btn-outline"><i class="bi bi-plus-circle"></i><span>Buat Baru</span></a>
+                @endcanany
             </div>
         </div>
+        @endcanany
 
-        @if($canAccess('view_bookkeeping'))
+        @canany(['view_bookkeeping', 'manage_bookkeeping'])
         <div class="product-category-card" style="border-left: 4px solid #48bb78;">
             <div class="category-header">
                 <div class="category-icon" style="background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);"><i class="bi bi-wallet2" style="color: white;"></i></div>
@@ -294,9 +303,9 @@
                 <a href="/admin/keuangan" class="btn btn-primary"><i class="bi bi-cash-stack"></i><span>Buka Modul</span></a>
             </div>
         </div>
-        @endif
+        @endcanany
 
-        {{-- NEW MODULE: Finance Staff --}}
+        @can('manage_finance')
         <div class="product-category-card" style="border-left: 4px solid #10b981;">
             <div class="category-header">
                 <div class="category-icon" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);"><i class="bi bi-receipt-cutoff" style="color: white;"></i></div>
@@ -309,8 +318,9 @@
                 <a href="/admin/finance" class="btn btn-primary"><i class="bi bi-cash-coin"></i><span>Buka Finance Staff</span></a>
             </div>
         </div>
+        @endcan
 
-        {{-- NEW MODULE: Kalkulator Modal --}}
+        @can('view_kalkulator')
         <div class="product-category-card" style="border-left: 4px solid #d53f8c;">
             <div class="category-header">
                 <div class="category-icon" style="background: linear-gradient(135deg, #ed64a6 0%, #d53f8c 100%);"><i class="bi bi-calculator" style="color: white;"></i></div>
@@ -323,8 +333,9 @@
                 <a href="{{ route('admin.modal.kalkulator') }}" class="btn btn-primary"><i class="bi bi-calculator-fill"></i><span>Buka Kalkulator</span></a>
             </div>
         </div>
+        @endcan
 
-        @if($canAccess('view_ruijie'))
+        @canany(['view_ruijie', 'manage_ruijie'])
         <div class="product-category-card" style="border-left: 4px solid #4299e1;">
             <div class="category-header">
                 <div class="category-icon" style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);"><i class="bi bi-router" style="color: white;"></i></div>
@@ -338,9 +349,9 @@
                 <a href="/products/ruijie" target="_blank" class="btn btn-outline"><i class="bi bi-eye"></i><span>View</span></a>
             </div>
         </div>
-        @endif
+        @endcanany
 
-        @if($canAccess('view_wifi_cameras'))
+        @canany(['view_wifi_cameras', 'manage_wifi_cameras'])
         <div class="product-category-card" style="border-left: 4px solid #38b2ac;">
             <div class="category-header">
                 <div class="category-icon" style="background: linear-gradient(135deg, #4fd1c5 0%, #319795 100%);"><i class="bi bi-camera-video" style="color: white;"></i></div>
@@ -354,9 +365,9 @@
                 <a href="/wifi-cam" target="_blank" class="btn btn-outline"><i class="bi bi-eye"></i><span>View</span></a>
             </div>
         </div>
-        @endif
+        @endcanany
 
-        @if($canAccess('view_access_control'))
+        @canany(['view_access_control', 'manage_access_control'])
         <div class="product-category-card" style="border-left: 4px solid #ecc94b;">
             <div class="category-header">
                 <div class="category-icon" style="background: linear-gradient(135deg, #ecc94b 0%, #d69e2e 100%);"><i class="bi bi-shield-lock" style="color: white;"></i></div>
@@ -370,9 +381,9 @@
                 <a href="/access-control" target="_blank" class="btn btn-outline"><i class="bi bi-eye"></i><span>View</span></a>
             </div>
         </div>
-        @endif
+        @endcanany
 
-        @if($canAccess('view_static_products'))
+        @canany(['view_static_products', 'manage_static_products'])
         <div class="product-category-card" style="border-left: 4px solid #a0aec0;">
             <div class="category-header">
                 <div class="category-icon" style="background: linear-gradient(135deg, #a0aec0 0%, #718096 100%);"><i class="bi bi-box" style="color: white;"></i></div>
@@ -385,9 +396,9 @@
                 <a href="/admin/static-products" class="btn btn-primary"><i class="bi bi-gear"></i><span>Manage</span></a>
             </div>
         </div>
-        @endif
+        @endcanany
 
-        @if($canAccess('view_users'))
+        @canany(['view_users', 'manage_users'])
         <div class="product-category-card" style="border-left: 4px solid #764ba2;">
             <div class="category-header">
                 <div class="category-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"><i class="bi bi-person-gear" style="color: white;"></i></div>
@@ -398,10 +409,12 @@
             </div>
             <div class="category-actions">
                 <a href="{{ route('admin.users.index') }}" class="btn btn-primary"><i class="bi bi-shield-lock"></i><span>Users</span></a>
+                @can('manage_roles')
                 <a href="{{ route('admin.roles.index') }}" class="btn btn-outline"><i class="bi bi-key"></i><span>Roles</span></a>
+                @endcan
             </div>
         </div>
-        @endif
+        @endcanany
 
     </div>
 </div>
@@ -413,8 +426,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadAllStatistics() {
     let totalCount = 0;
-    
-    // API GUDANG
     try {
         const res = await fetch('/api/admin/gudang/products');
         const data = await res.json();
@@ -427,8 +438,6 @@ async function loadAllStatistics() {
             totalCount += (s.total_produk || 0);
         }
     } catch (e) { console.error('Gudang error', e); }
-    
-    // API Ruijie
     try {
         const res = await fetch('/api/admin/ruijie/statistics');
         const data = await res.json();
@@ -441,8 +450,6 @@ async function loadAllStatistics() {
             totalCount += (s.total_products || 0);
         }
     } catch (e) { console.error('Ruijie error', e); }
-
-    // API WiFi
     try {
         const res = await fetch('/api/admin/wifi-cameras');
         const data = await res.json();
@@ -455,8 +462,6 @@ async function loadAllStatistics() {
             totalCount += count;
         }
     } catch (e) { console.error('WiFi error', e); }
-
-    // API Access
     try {
         const res = await fetch('/api/admin/access-control/statistics');
         const data = await res.json();
@@ -468,8 +473,6 @@ async function loadAllStatistics() {
             totalCount += count;
         }
     } catch (e) { console.error('Access error', e); }
-
-    // Set Total Gabungan
     if(document.getElementById('totalProducts')) {
         document.getElementById('totalProducts').textContent = totalCount;
     }

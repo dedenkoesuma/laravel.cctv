@@ -38,9 +38,12 @@
                 <h1 class="fs-3 fw-bold mb-1">📋 Penawaran (Quotation)</h1>
                 <p class="mb-0 opacity-75">Kelola surat penawaran ke customer</p>
             </div>
+            {{-- PERBAIKAN: Tombol Buat Baru dilindungi Manage --}}
+            @can('manage_quotation')
             <a href="{{ route('admin.quotation.create') }}" class="btn btn-light fw-bold">
                 <i class="bi bi-plus-circle me-1"></i>Buat Penawaran Baru
             </a>
+            @endcan
         </div>
     </div>
 
@@ -78,7 +81,10 @@
         @if($quotations->isEmpty())
             <div class="text-center py-5 text-muted">
                 <i class="bi bi-file-earmark-text fs-1 d-block mb-2"></i>
-                Belum ada penawaran. <a href="{{ route('admin.quotation.create') }}">Buat sekarang</a>
+                Belum ada penawaran. 
+                @can('manage_quotation')
+                <a href="{{ route('admin.quotation.create') }}">Buat sekarang</a>
+                @endcan
             </div>
         @else
         <table id="quoTable">
@@ -122,41 +128,55 @@
                     </td>
                     <td class="text-center">
                         <div class="d-flex gap-1 justify-content-center flex-wrap">
-                            {{-- Lihat --}}
-                            <a href="{{ route('admin.quotation.show', $q->id) }}" class="btn btn-xs btn-outline-primary">
+                            {{-- Lihat (Semua yang punya akses View boleh melihat) --}}
+                            <a href="{{ route('admin.quotation.show', $q->id) }}" class="btn btn-xs btn-outline-primary" title="Lihat Penawaran">
                                 <i class="bi bi-eye"></i>
                             </a>
-                            {{-- Edit (hanya jika draft) --}}
+                            
+                            {{-- Edit (Hanya yang punya izin Manage) --}}
                             @if(in_array($q->status, ['draft', 'revised']))
-                            <a href="{{ route('admin.quotation.edit', $q->id) }}" class="btn btn-xs btn-outline-warning">
-                                <i class="bi bi-pencil"></i>
-                            </a>
+                                @can('manage_quotation')
+                                <a href="{{ route('admin.quotation.edit', $q->id) }}" class="btn btn-xs btn-outline-warning" title="Edit">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                @endcan
                             @endif
-                            {{-- Kirim WA --}}
+                            
+                            {{-- Kirim WA (Hanya yang punya izin Manage) --}}
                             @if(in_array($q->status, ['draft','sent','revised']) && $q->customer_phone)
-                            <button class="btn btn-xs btn-outline-success" onclick="kirimWA({{ $q->id }})" title="Kirim via WhatsApp">
-                                <i class="bi bi-whatsapp"></i>
-                            </button>
+                                @can('manage_quotation')
+                                <button class="btn btn-xs btn-outline-success" onclick="kirimWA({{ $q->id }})" title="Kirim via WhatsApp">
+                                    <i class="bi bi-whatsapp"></i>
+                                </button>
+                                @endcan
                             @endif
-                            {{-- Salin Link --}}
+                            
+                            {{-- Salin Link (Bebas untuk yang punya akses View) --}}
                             <button class="btn btn-xs btn-outline-secondary" onclick="salinLink('{{ $q->public_url }}')" title="Salin link penawaran">
                                 <i class="bi bi-link-45deg"></i>
                             </button>
-                            {{-- Konversi ke SO --}}
+                            
+                            {{-- Konversi ke SO (Hanya yang punya izin Manage) --}}
                             @if($q->status === 'approved' && !$q->sales_order_id)
-                            <button class="btn btn-xs btn-outline-primary" onclick="konversiSO({{ $q->id }}, '{{ $q->quo_number }}')" title="Konversi ke Sales Order">
-                                <i class="bi bi-arrow-right-circle"></i> SO
-                            </button>
+                                @can('manage_quotation')
+                                <button class="btn btn-xs btn-outline-primary" onclick="konversiSO({{ $q->id }}, '{{ $q->quo_number }}')" title="Konversi ke Sales Order">
+                                    <i class="bi bi-arrow-right-circle"></i> SO
+                                </button>
+                                @endcan
                             @endif
-                            {{-- PDF --}}
+                            
+                            {{-- PDF (Bebas untuk yang punya akses View) --}}
                             <a href="{{ route('admin.quotation.pdf', $q->id) }}" target="_blank" class="btn btn-xs btn-outline-secondary" title="Download PDF">
                                 <i class="bi bi-file-pdf"></i>
                             </a>
-                            {{-- Hapus --}}
+                            
+                            {{-- Hapus (Hanya yang punya izin Manage) --}}
                             @if($q->status === 'draft')
-                            <button class="btn btn-xs btn-outline-danger" onclick="hapus({{ $q->id }}, '{{ $q->quo_number }}')">
-                                <i class="bi bi-trash"></i>
-                            </button>
+                                @can('manage_quotation')
+                                <button class="btn btn-xs btn-outline-danger" onclick="hapus({{ $q->id }}, '{{ $q->quo_number }}')" title="Hapus">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                                @endcan
                             @endif
                         </div>
                     </td>

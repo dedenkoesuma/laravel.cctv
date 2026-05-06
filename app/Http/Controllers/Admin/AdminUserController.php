@@ -3,75 +3,108 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Spatie\Permission\Models\Role;
 
 class AdminUserController extends Controller
 {
+    /**
+     * Menampilkan daftar user
+     */
     public function index()
     {
-        $users = DB::table('admins')->orderBy('id', 'desc')->get();
+        // Menggunakan Eloquent Model dan mengambil relasi roles
+        // supaya tidak terjadi error Undefined property: stdClass::$roles
+        $users = User::with('roles')->get();
+        
+        // Pastikan nama view ('admin.users.index') sesuai dengan lokasi file blade kamu.
+        // Jika file kamu ada di folder resources/views/users/index.blade.php, ubah jadi 'users.index'
         return view('admin.users.index', compact('users'));
     }
 
+    /**
+     * Menyimpan user baru ke database
+     */
     public function store(Request $request)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'username' => 'required|string|max:255|unique:admins',
-        'email' => 'required|string|email|max:255|unique:admins',
-        'password' => 'required|string|min:6',
-        'role' => 'required|exists:roles,name' 
-    ]);
+    {
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username',
+            'email'    => 'required|email|max:255|unique:users,email',
+            'password' => 'required|string|min:6',
+            'role'     => 'required|exists:roles,name',
+        ]);
 
-    DB::table('admins')->insert([
-        'name' => $request->name,
-        'username' => $request->username,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'role' => $request->role,
-        'created_at' => now(),
-        'updated_at' => now()
-    ]);
+        // Buat user baru
+        $user = User::create([
+            'name'      => $request->name,
+            'username'  => $request->username,
+            'email'     => $request->email,
+            'password'  => Hash::make($request->password),
+            'is_active' => 1, // Set default aktif
+        ]);
 
-    return back()->with('success', 'User berhasil ditambahkan!');
-}
+        // Assign role dari Spatie
+        $user->assignRole($request->role);
 
-public function update(Request $request, $id)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'username' => 'required|string|max:255|unique:admins,username,'.$id,
-        'email' => 'required|string|email|max:255|unique:admins,email,'.$id,
-        'role' => 'required|exists:roles,name' // Samakan dengan store
-    ]);
-
-    $data = [
-        'name' => $request->name,
-        'username' => $request->username,
-        'email' => $request->email,
-        'role' => $request->role,
-        'updated_at' => now()
-    ];
-
-    if ($request->filled('password')) {
-        $data['password'] = Hash::make($request->password);
+        return redirect()->back()->with('success', 'User berhasil ditambahkan!');
     }
 
-    DB::table('admins')->where('id', $id)->update($data);
-
-    return back()->with('success', 'Data user berhasil diperbarui!');
-}
-
-    public function destroy($id)
+    /**
+     * Mengupdate data user
+     */
+    public function update(Request $request, $id)
     {
-        // Mencegah user menghapus dirinya sendiri (opsional tapi disarankan)
-        if (session('admin_id') == $id) {
-            return back()->with('error', 'Anda tidak bisa menghapus akun Anda sendiri!');
+        $user = User::findOrFail($id);
+
+        $rules = [
+            'name'     => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'email'    => 'required|email|max:255|unique:users,email,' . $user->id,
+            'role'     => 'required|exists:roles,name',
+        ];
+
+        // Jika password diisi, maka tambahkan rule validasi password
+        if ($request->filled('password')) {
+            $rules['password'] = 'string|min:6';
         }
 
-        DB::table('admins')->where('id', $id)->delete();
-        return back()->with('success', 'User berhasil dihapus!');
+        $request->validate($rules);
+
+        // Update data dasar
+        $user->name     = $request->name;
+        $user->username = $request->username;
+        $user->email    = $request->email;
+
+        // Jika user mengisi form password, berarti ganti password
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        // Update Role menggunakan syncRoles dari Spatie
+        $user->syncRoles([$request->role]);
+
+        return redirect()->back()->with('success', 'Data user berhasil diupdate!');
+    }
+
+    /**
+     * Menghapus user
+     */
+    public function destroy($id)
+    {
+        $user = User::findOrFail($id);
+
+        // Proteksi: jangan sampai superadmin menghapus akunnya sendiri secara tidak sengaja
+        if (auth()->id() == $user->id) {
+            return redirect()->back()->withErrors(['error' => 'Anda tidak bisa menghapus akun Anda sendiri!']);
+        }
+
+        $user->delete();
+
+        return redirect()->back()->with('success', 'User berhasil dihapus secara permanen!');
     }
 }

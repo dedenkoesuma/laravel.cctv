@@ -137,12 +137,17 @@
                 <p class="mb-0 opacity-75">Kontrol inventaris, stok masuk, dan integrasi Sales Order PT Trac.</p>
             </div>
             <div class="d-flex gap-2">
+                @can('view_sales_orders')
                 <a href="{{ route('admin.sales-orders.index') }}" class="btn btn-light text-primary fw-bold px-4 shadow-sm" style="border-radius:12px;">
                     <i class="bi bi-file-earmark-check me-2"></i>Sales Order
                 </a>
+                @endcan
+
+                @can('create_inventory')
                 <button class="btn btn-warning fw-bold px-4 shadow-sm" style="border-radius:12px;" data-bs-toggle="modal" data-bs-target="#modalBarangMasuk">
                     <i class="bi bi-plus-circle me-2"></i>Barang Masuk
                 </button>
+                @endcan
             </div>
         </div>
     </div>
@@ -206,24 +211,29 @@
             <p class="mt-2 text-muted">Sinkronisasi data...</p>
         </div>
         <div id="tableContainer" style="display:none;">
-            <table class="table mb-0">
-                <thead>
-                    <tr>
-                        <th>Informasi Produk</th>
-                        <th>Brand / SKU</th>
-                        <th class="text-center">Masuk</th>
-                        <th class="text-center">Keluar</th>
-                        <th class="text-center">Sisa Stok</th>
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="productTableBody"></tbody>
-            </table>
+            <!-- DITAMBAHKAN DIV TABLE-RESPONSIVE DI SINI AGAR BISA SCROLL HP -->
+            <div class="table-responsive">
+                <!-- DITAMBAHKAN CLASS TEXT-NOWRAP AGAR TEKS TIDAK BERANTAKAN -->
+                <table class="table mb-0 text-nowrap">
+                    <thead>
+                        <tr>
+                            <th>Informasi Produk</th>
+                            <th>Brand / SKU</th>
+                            <th class="text-center">Masuk</th>
+                            <th class="text-center">Keluar</th>
+                            <th class="text-center">Sisa Stok</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
 
-{{-- MODAL BARANG MASUK (Full Code - Dipertahankan logikanya) --}}
+{{-- MODAL BARANG MASUK --}}
+@can('create_inventory')
 <div class="modal fade" id="modalBarangMasuk" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -280,16 +290,19 @@
         </div>
     </div>
 </div>
+@endcan
 
 {{-- MODAL HISTORY --}}
 <div class="modal fade" id="modalHistory" tabindex="-1">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" style="margin-top: 100px;">
+        <div class="modal-content" style="max-height: 75vh;">
+            <div class="modal-header border-bottom shadow-sm">
                 <h5 class="modal-title fw-bold" id="historyTitle">Riwayat Stok</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="historyBody"></div>
+            <div class="modal-body bg-light" id="historyBody">
+                <!-- Isi history akan dimuat di sini -->
+            </div>
         </div>
     </div>
 </div>
@@ -297,6 +310,10 @@
 <script>
 let debounceTimer;
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
+// VARIABEL PROTEKSI JAVASCRIPT
+const canCreateSales = @json(auth()->check() && auth()->user()->can('create_sales_orders'));
+const canDeleteInventory = @json(auth()->check() && auth()->user()->can('delete_inventory'));
 
 document.addEventListener('DOMContentLoaded', () => {
     loadProducts();
@@ -363,6 +380,31 @@ function renderProducts(products) {
         if (p.sisa_stok <= 0) { stokClass = 'habis'; stokLabel = 'Habis'; }
         else if (p.sisa_stok <= 5) { stokClass = 'menipis'; stokLabel = 'Menipis'; }
 
+        // RENDER TOMBOL AKSI BERDASARKAN ROLE
+        let actionButtons = '';
+        
+        // Tombol Buat SO
+        if (canCreateSales) {
+            actionButtons += `
+            <a href="/admin/gudang/sales-orders/create?product_id=${p.id}" class="btn btn-sm btn-outline-danger shadow-sm" style="border-radius:8px" title="Buat Sales Order">
+                <i class="bi bi-file-earmark-plus"></i> SO
+            </a>`;
+        }
+
+        // Tombol Riwayat (Bisa diakses siapa saja yang punya hak view_inventory)
+        actionButtons += `
+        <button class="btn btn-sm btn-outline-primary shadow-sm" style="border-radius:8px" onclick="showHistory(${p.id}, '${p.nama_produk.replace(/'/g, "\\'")}')" title="Lihat Riwayat">
+            <i class="bi bi-clock-history"></i>
+        </button>`;
+
+        // Tombol Hapus Produk
+        if (canDeleteInventory) {
+            actionButtons += `
+            <button class="btn btn-sm btn-light text-danger border-0" onclick="hapusProduk(${p.id}, '${p.nama_produk.replace(/'/g, "\\'")}')" title="Hapus Produk">
+                <i class="bi bi-trash"></i>
+            </button>`;
+        }
+
         return `
         <tr>
             <td>
@@ -380,15 +422,7 @@ function renderProducts(products) {
             </td>
             <td class="text-center">
                 <div class="d-flex gap-1 justify-content-center">
-                    <a href="/admin/gudang/sales-orders/create?product_id=${p.id}" class="btn btn-sm btn-outline-danger shadow-sm" style="border-radius:8px">
-                        <i class="bi bi-file-earmark-plus"></i> SO
-                    </a>
-                    <button class="btn btn-sm btn-outline-primary shadow-sm" style="border-radius:8px" onclick="showHistory(${p.id}, '${p.nama_produk.replace(/'/g, "\\'")}')">
-                        <i class="bi bi-clock-history"></i>
-                    </button>
-                    <button class="btn btn-sm btn-light text-danger border-0" onclick="hapusProduk(${p.id}, '${p.nama_produk.replace(/'/g, "\\'")}')">
-                        <i class="bi bi-trash"></i>
-                    </button>
+                    ${actionButtons}
                 </div>
             </td>
         </tr>`;

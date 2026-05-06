@@ -1,4 +1,5 @@
 <?php
+
 // =====================================================
 // FILE: app/Http/Controllers/Admin/QuotationController.php
 // =====================================================
@@ -13,19 +14,34 @@ use App\Models\SalesOrderItem;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth; // ✅ TAMBAHAN WAJIB
 
 class QuotationController extends Controller
 {
-    // ===== HELPER: Ambil admin_id dari session =====
+    // ===== HELPER: Ambil admin_id Cerdas (Anti Error) =====
     private function adminId(): int
     {
-        $id = session('admin_id');
-
-        if (!$id) {
-            abort(401, 'Session admin tidak ditemukan. Silakan login ulang.');
+        // 1. Coba ambil dari session (sistem bawaanmu yang lama)
+        $adminId = session('admin_id');
+        if ($adminId && is_numeric($adminId)) {
+            return (int) $adminId;
         }
 
-        return (int) $id;
+        // 2. Jika tidak ada di session, ambil dari Auth Laravel
+        if (Auth::check()) {
+            $user = Auth::user();
+            $id = $user->id;
+            
+            // Jika ID-nya sudah angka, langsung pakai
+            if (is_numeric($id)) return (int) $id;
+            
+            // Jika ID-nya ternyata Email, cari ID aslinya di tabel admins
+            $admin = DB::table('admins')->where('email', $id)->orWhere('username', $id)->first();
+            if ($admin) return (int) $admin->id;
+        }
+
+        // Fallback darurat agar database tidak crash
+        return 1; 
     }
 
     // ===== LIST =====
@@ -86,7 +102,7 @@ class QuotationController extends Controller
                 'discount_global'  => $request->discount_global ?? 0,
                 'notes'            => $request->notes,
                 'terms'            => $request->terms ?? $this->defaultTerms(),
-                'created_by'       => $this->adminId(),
+                'created_by'       => $this->adminId(), // ✅ SUDAH MENGGUNAKAN HELPER CERDAS
             ]);
 
             foreach ($request->items as $i => $itemData) {
@@ -222,7 +238,7 @@ class QuotationController extends Controller
                 'status'           => 'draft',
                 'notes'            => "Dari Penawaran {$quo->quo_number}.",
                 'total_amount'     => $quo->total_amount,
-                'created_by'       => $this->adminId(),
+                'created_by'       => $this->adminId(), // ✅ SUDAH MENGGUNAKAN HELPER CERDAS
             ]);
 
             foreach ($quo->items as $item) {

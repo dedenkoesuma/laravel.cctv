@@ -214,10 +214,13 @@
         <div class="table-card mb-4">
             <div class="row g-3">
                 <div class="col-md-4">
-                    <input type="text" class="form-control" id="searchCamera" placeholder="Cari nama produk..." oninput="filterTable()">
+                    <!-- Event diubah ke renderTable() agar tidak loading -->
+                    <input type="text" class="form-control" id="searchCamera" placeholder="Cari nama produk..." oninput="renderTable()">
                 </div>
                 <div class="col-md-3">
-                    <select class="form-select" id="filterBrand" onchange="loadCameras()">
+                    <!-- Event diubah ke renderTable() agar tidak loading -->
+                    <select class="form-select" id="filterBrand" onchange="renderTable()">
+                        <option value="">Semua Brand</option>
                         <option value="DAHUA">DAHUA</option>
                         <option value="HIVIEW">HIVIEW</option>
                         <option value="EZVIZ">EZVIZ</option>
@@ -226,7 +229,8 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <select class="form-select" id="filterStatus" onchange="loadCameras()">
+                    <!-- Event diubah ke renderTable() agar tidak loading -->
+                    <select class="form-select" id="filterStatus" onchange="renderTable()">
                         <option value="">Semua Status</option>
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
@@ -546,6 +550,10 @@
 <script>
 let cameras = [];
 
+// Variabel pengecekan akses untuk dirender di tabel
+const canEdit = @json(auth()->check() && auth()->user()->can('edit_wifi_cameras'));
+const canDelete = @json(auth()->check() && auth()->user()->can('delete_wifi_cameras'));
+
 // ===== HELPER: Parse JSON field dari API (bisa string atau array) =====
 function parseJsonField(value) {
     if (!value) return [];
@@ -592,18 +600,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Ambil SEMUA data sekali saja tanpa parameter
 function loadCameras() {
     document.getElementById('loadingSpinner').style.display = 'block';
     document.getElementById('tableContainer').style.display = 'none';
 
-    const brand = document.getElementById('filterBrand').value;
-    const status = document.getElementById('filterStatus').value;
-
-    let url = '/api/admin/wifi-cameras?';
-    if (brand) url += `brand=${brand}&`;
-    if (status) url += `status=${status}`;
-
-    fetch(url, { headers: { 'Accept': 'application/json' } })
+    fetch('/api/admin/wifi-cameras', { 
+        headers: { 'Accept': 'application/json' } 
+    })
     .then(async response => {
         const ct = response.headers.get('content-type');
         if (ct && ct.includes('application/json')) return response.json();
@@ -613,7 +617,7 @@ function loadCameras() {
     .then(data => {
         if (data.success) {
             cameras = data.cameras || [];
-            renderTable();
+            renderTable(); // Jalankan fungsi filtering dan render
             document.getElementById('loadingSpinner').style.display = 'none';
             document.getElementById('tableContainer').style.display = 'block';
         }
@@ -630,21 +634,46 @@ function loadCameras() {
     });
 }
 
+// Render data dengan filter client-side tanpa reload server
 function renderTable() {
     const tbody = document.getElementById('cameraTableBody');
     tbody.innerHTML = '';
 
-    if (cameras.length === 0) {
+    // Ambil nilai dari kotak pencarian & dropdown
+    const brandVal = document.getElementById('filterBrand').value;
+    const statusVal = document.getElementById('filterStatus').value;
+    const searchVal = document.getElementById('searchCamera').value.toLowerCase();
+
+    // Saring data dari memori
+    const filteredCameras = cameras.filter(camera => {
+        const matchBrand = brandVal === "" || camera.brand === brandVal;
+        const matchStatus = statusVal === "" || camera.status === statusVal;
+        const matchSearch = camera.name.toLowerCase().includes(searchVal) || 
+                            (camera.sku && camera.sku.toLowerCase().includes(searchVal));
+        
+        return matchBrand && matchStatus && matchSearch;
+    });
+
+    if (filteredCameras.length === 0) {
         tbody.innerHTML = `
             <tr><td colspan="8" class="text-center py-5">
                 <i class="bi bi-camera-video" style="font-size: 3rem; color: #ccc;"></i>
-                <p class="mt-3 mb-2"><strong>Belum ada produk WiFi Camera</strong></p>
-                <p class="text-muted">Klik tombol "Tambah WiFi Camera" untuk menambah produk pertama</p>
+                <p class="mt-3 mb-2"><strong>Tidak ada produk yang cocok</strong></p>
             </td></tr>`;
         return;
     }
 
-    cameras.forEach(camera => {
+    filteredCameras.forEach(camera => {
+        let actionButtons = '';
+        
+        if(canEdit) {
+            actionButtons += `<button class="btn btn-sm btn-primary btn-action" onclick="editCamera(${camera.id})"><i class="bi bi-pencil"></i> Edit</button>`;
+        }
+        
+        if(canDelete) {
+            actionButtons += `<button class="btn btn-sm btn-danger btn-action" onclick="deleteCamera(${camera.id})"><i class="bi bi-trash"></i></button>`;
+        }
+
         tbody.innerHTML += `
             <tr>
                 <td>${camera.id}</td>
@@ -663,22 +692,8 @@ function renderTable() {
                 <td>Rp ${formatNumber(camera.price)}</td>
                 <td><span class="badge ${camera.stock > 0 ? 'bg-success' : 'bg-danger'}">${camera.stock}</span></td>
                 <td><span class="badge ${camera.status === 'active' ? 'bg-success' : 'bg-secondary'}">${camera.status}</span></td>
-                <td class="action-buttons">
-                    <button class="btn btn-sm btn-primary btn-action" onclick="editCamera(${camera.id})">
-                        <i class="bi bi-pencil"></i> Edit
-                    </button>
-                    <button class="btn btn-sm btn-danger btn-action" onclick="deleteCamera(${camera.id})">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </td>
+                <td class="action-buttons">${actionButtons}</td>
             </tr>`;
-    });
-}
-
-function filterTable() {
-    const search = document.getElementById('searchCamera').value.toLowerCase();
-    document.querySelectorAll('#cameraTableBody tr').forEach(row => {
-        row.style.display = row.textContent.toLowerCase().includes(search) ? '' : 'none';
     });
 }
 

@@ -42,15 +42,6 @@
 </head>
 <body>
 
-@php
-    $adminRoleName = strtolower(session('admin_role'));
-    $currentRole = \Spatie\Permission\Models\Role::where('name', $adminRoleName)->first();
-    
-    $canAccess = function($permissionName) use ($currentRole) {
-        return $currentRole ? $currentRole->hasPermissionTo($permissionName) : false;
-    };
-@endphp
-
 <div class="sidebar">
     <div class="sidebar-header">
         <h2>🏢 PT Trac</h2>
@@ -62,50 +53,59 @@
 
         <div class="menu-section-title">Operations Management</div>
         
-        @if($canAccess('view_inventory'))
+        @canany(['view_inventory', 'manage_inventory'])
         <a href="/admin/gudang" class="menu-item"><i class="bi bi-box-seam"></i><span>Gudang</span></a>
-        @endif
+        @endcanany
 
+        @canany(['view_purchase_orders', 'manage_purchase_orders'])
         <a href="{{ route('admin.po.index') }}" class="menu-item"><i class="bi bi-cart-check"></i><span>Purchase Order</span></a>
+        @endcanany
         
-        @if($canAccess('view_sales_documents'))
+        @canany(['view_sales_orders', 'manage_sales_orders'])
         <a href="/admin/gudang/sales-orders" class="menu-item"><i class="bi bi-file-earmark-check"></i><span>Sales Order</span></a>
-        @endif
+        @endcanany
 
+        @canany(['view_quotation', 'manage_quotation'])
         <a href="{{ route('admin.quotation.index') }}" class="menu-item"><i class="bi bi-file-text"></i><span>Quotation</span></a>
+        @endcanany
 
-        @if($canAccess('view_bookkeeping'))
+        @canany(['view_bookkeeping', 'manage_bookkeeping'])
         <a href="/admin/keuangan" class="menu-item"><i class="bi bi-wallet2"></i><span>Keuangan Boss</span></a>
-        @endif
+        @endcanany
 
+        {{-- FINANCE STAFF MURNI MANAGE --}}
+        @can('manage_finance')
         <a href="/admin/finance" class="menu-item"><i class="bi bi-receipt"></i><span>Finance Staff</span></a>
+        @endcan
 
-        {{-- NEW: Kalkulator Modal di Sidebar --}}
+        @can('view_kalkulator')
         <a href="{{ route('admin.modal.kalkulator') }}" class="menu-item"><i class="bi bi-calculator"></i><span>Kalkulator Modal</span></a>
+        @endcan
 
         <div class="menu-section-title">Products Management</div>
-        @if($canAccess('view_ruijie'))
+        
+        @canany(['view_ruijie', 'manage_ruijie'])
         <a href="/admin/ruijie" class="menu-item"><i class="bi bi-router"></i><span>Ruijie Networks</span></a>
-        @endif
+        @endcanany
         
-        @if($canAccess('view_wifi_cameras'))
+        @canany(['view_wifi_cameras', 'manage_wifi_cameras'])
         <a href="/admin/wifi-cameras" class="menu-item"><i class="bi bi-camera-video"></i><span>WiFi Cameras</span></a>
-        @endif
+        @endcanany
         
-        @if($canAccess('view_access_control'))
+        @canany(['view_access_control', 'manage_access_control'])
         <a href="/admin/access-control" class="menu-item"><i class="bi bi-shield-lock"></i><span>Access Control</span></a>
-        @endif
+        @endcanany
         
-        @if($canAccess('view_static_products'))
+        @canany(['view_static_products', 'manage_static_products'])
         <a href="/admin/static-products" class="menu-item"><i class="bi bi-box"></i><span>Static Products</span></a>
-        @endif
+        @endcanany
 
         <div class="menu-section-title">System</div>
         
-        @if($canAccess('view_users'))
+        @canany(['view_users', 'manage_users'])
         <a href="{{ route('admin.users.index') }}" class="menu-item"><i class="bi bi-people"></i><span>Users Account</span></a>
         <a href="{{ route('admin.roles.index') }}" class="menu-item active"><i class="bi bi-shield-lock"></i><span>Roles & Permissions</span><span class="badge">SECURE</span></a>
-        @endif
+        @endcanany
         
     </div>
     

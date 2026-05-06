@@ -105,9 +105,12 @@ table.it{width:100%;border-collapse:collapse;font-size:.82rem;}
             @endif
         </div>
         @if(!$quo->sales_order_id)
+        {{-- PERBAIKAN: Tombol Konversi SO digembok --}}
+        @can('manage_quotation')
         <div class="rb-action">
             <button class="rb-btn so" onclick="konversiSO()">📦 Konversi ke SO</button>
         </div>
+        @endcan
         @endif
     </div>
 
@@ -139,36 +142,56 @@ table.it{width:100%;border-collapse:collapse;font-size:.82rem;}
             <div class="rb-note revised">💬 "{{ $quo->customer_notes }}"</div>
             @endif
         </div>
+        {{-- PERBAIKAN: Tombol Edit & Revisi digembok --}}
+        @can('manage_quotation')
         <div class="rb-action">
             <a href="{{ route('admin.quotation.edit', $quo->id) }}" class="rb-btn edit">✏️ Edit & Revisi</a>
         </div>
+        @endcan
     </div>
     @endif
 
     {{-- ACTION BUTTONS --}}
     <div class="action-row">
+        {{-- PERBAIKAN: Tombol Kirim WA digembok --}}
         @if(in_array($quo->status, ['draft','sent','revised']) && $quo->customer_phone)
+        @can('manage_quotation')
         <button class="btn-act btn-wa" onclick="kirimWA()">
             <i class="bi bi-whatsapp"></i> Kirim via WhatsApp
         </button>
+        @endcan
         @endif
+        
+        {{-- PERBAIKAN: Tombol Edit digembok --}}
         @if(in_array($quo->status, ['draft','revised']))
+        @can('manage_quotation')
         <a href="{{ route('admin.quotation.edit', $quo->id) }}" class="btn-act btn-edit">
             <i class="bi bi-pencil"></i> Edit Penawaran
         </a>
+        @endcan
         @endif
+        
+        {{-- BEBAS (Tidak digembok) --}}
         <a href="{{ route('admin.quotation.pdf', $quo->id) }}" target="_blank" class="btn-act btn-pdf">
             <i class="bi bi-file-pdf"></i> Download PDF
         </a>
+        
+        {{-- PERBAIKAN: Tombol Konversi SO digembok --}}
         @if($quo->status === 'approved' && !$quo->sales_order_id)
+        @can('manage_quotation')
         <button class="btn-act btn-so" onclick="konversiSO()">
             <i class="bi bi-arrow-right-circle"></i> Konversi ke Sales Order
         </button>
+        @endcan
         @endif
+        
+        {{-- PERBAIKAN: Tombol Hapus digembok --}}
         @if($quo->status === 'draft')
+        @can('manage_quotation')
         <button class="btn-act btn-del" onclick="hapus()">
             <i class="bi bi-trash"></i> Hapus
         </button>
+        @endcan
         @endif
     </div>
 
