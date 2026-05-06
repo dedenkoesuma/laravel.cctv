@@ -47,12 +47,12 @@
                         Back to Dashboard
                     </a>
                     
-                    @can('create_ruijie')
+                    @canany(['create_ruijie', 'manage_ruijie'])
                     <a href="{{ route('admin.ruijie.products.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                         <i class="fas fa-plus mr-2"></i>
                         Add New Product
                     </a>
-                    @endcan
+                    @endcanany
                     
                     <a href="{{ route('products.ruijie') }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
                         <i class="fas fa-eye mr-2"></i>
@@ -199,17 +199,17 @@
                     @endif
 
                     <div class="flex gap-2 pt-4 border-t border-gray-200">
-                        @can('edit_ruijie')
+                        @canany(['edit_ruijie', 'manage_ruijie'])
                         <a href="{{ route('admin.ruijie.products.edit', $product->id) }}" class="flex-1 bg-blue-600 text-white text-center py-2 rounded-lg hover:bg-blue-700 transition font-medium">
                             <i class="fas fa-edit mr-1"></i> Edit
                         </a>
-                        @endcan
+                        @endcanany
                         
-                        @can('delete_ruijie')
+                        @canany(['delete_ruijie', 'manage_ruijie'])
                         <button onclick="deleteProduct({{ $product->id }}, '{{ addslashes($product->name) }}')" class="flex-1 bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition font-medium">
                             <i class="fas fa-trash mr-1"></i> Delete
                         </button>
-                        @endcan
+                        @endcanany
                     </div>
                 </div>
             </div>
@@ -218,11 +218,11 @@
                 <i class="fas fa-box-open text-gray-300 text-6xl mb-4"></i>
                 <p class="text-gray-500 text-lg">No products found</p>
                 
-                @can('create_ruijie')
+                @canany(['create_ruijie', 'manage_ruijie'])
                 <a href="{{ route('admin.ruijie.products.create') }}" class="inline-block mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                     Add Your First Product
                 </a>
-                @endcan
+                @endcanany
             </div>
             @endforelse
         </div>

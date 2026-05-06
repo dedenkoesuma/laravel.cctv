@@ -206,19 +206,21 @@
 
         <div class="mb-4 d-flex justify-content-between align-items-center">
             <h2 class="section-title mb-0">Daftar WiFi Camera</h2>
+            
+            {{-- DIBUNGKUS CANANY --}}
+            @canany(['create_wifi_cameras', 'manage_wifi_cameras'])
             <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCameraModal">
                 <i class="bi bi-plus-circle me-2"></i>Tambah WiFi Camera
             </button>
+            @endcanany
         </div>
 
         <div class="table-card mb-4">
             <div class="row g-3">
                 <div class="col-md-4">
-                    <!-- Event diubah ke renderTable() agar tidak loading -->
                     <input type="text" class="form-control" id="searchCamera" placeholder="Cari nama produk..." oninput="renderTable()">
                 </div>
                 <div class="col-md-3">
-                    <!-- Event diubah ke renderTable() agar tidak loading -->
                     <select class="form-select" id="filterBrand" onchange="renderTable()">
                         <option value="">Semua Brand</option>
                         <option value="DAHUA">DAHUA</option>
@@ -229,7 +231,6 @@
                     </select>
                 </div>
                 <div class="col-md-3">
-                    <!-- Event diubah ke renderTable() agar tidak loading -->
                     <select class="form-select" id="filterStatus" onchange="renderTable()">
                         <option value="">Semua Status</option>
                         <option value="active">Active</option>
@@ -276,6 +277,7 @@
 </div>
 
 <!-- ===== MODAL TAMBAH CAMERA ===== -->
+@canany(['create_wifi_cameras', 'manage_wifi_cameras'])
 <div class="modal fade" id="addCameraModal" tabindex="-1">
     <div class="modal-dialog modal-lg-custom modal-dialog-scrollable">
         <div class="modal-content">
@@ -425,8 +427,10 @@
         </div>
     </div>
 </div>
+@endcanany
 
 <!-- ===== MODAL EDIT CAMERA ===== -->
+@canany(['edit_wifi_cameras', 'manage_wifi_cameras'])
 <div class="modal fade" id="editCameraModal" tabindex="-1">
     <div class="modal-dialog modal-lg-custom modal-dialog-scrollable">
         <div class="modal-content">
@@ -546,13 +550,14 @@
         </div>
     </div>
 </div>
+@endcanany
 
 <script>
 let cameras = [];
 
-// Variabel pengecekan akses untuk dirender di tabel
-const canEdit = @json(auth()->check() && auth()->user()->can('edit_wifi_cameras'));
-const canDelete = @json(auth()->check() && auth()->user()->can('delete_wifi_cameras'));
+// PENYAKIT DISEMBUHKAN: Tambahkan manage_wifi_cameras sebagai Master Key
+const canEdit = @json(auth()->check() && (auth()->user()->can('edit_wifi_cameras') || auth()->user()->can('manage_wifi_cameras')));
+const canDelete = @json(auth()->check() && (auth()->user()->can('delete_wifi_cameras') || auth()->user()->can('manage_wifi_cameras')));
 
 // ===== HELPER: Parse JSON field dari API (bisa string atau array) =====
 function parseJsonField(value) {
