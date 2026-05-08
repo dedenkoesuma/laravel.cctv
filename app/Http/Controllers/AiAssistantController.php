@@ -5,12 +5,25 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use App\Models\Product; // Pastikan model Product di-import
+use App\Models\Product; 
 
 class AiAssistantController extends Controller
 {
     private string $groqUrl = 'https://api.groq.com/openai/v1/chat/completions';
-    private string $model   = 'llama-3.3-70b-versatile'; // Model terbaru & gratis di Groq
+    private string $model   = 'llama-3.3-70b-versatile'; 
+
+    // Bikin fungsi khusus untuk narik semua katalog buat chatbot biasa
+    private function getKatalogText()
+    {
+        // Ambil maksimal 50 produk untuk konteks chat biasa
+        $products = Product::where('stok', '>', 0)->limit(50)->get(['brand', 'nama', 'harga', 'spesifikasi']);
+        $text = "";
+        foreach ($products as $p) {
+            $hargaFormat = 'Rp ' . number_format($p->harga, 0, ',', '.');
+            $text .= "- {$p->nama} ({$p->brand}) | Harga: {$hargaFormat} | Spek: {$p->spesifikasi}\n";
+        }
+        return $text;
+    }
     
     public function chat(Request $request)
     {
@@ -21,7 +34,10 @@ class AiAssistantController extends Controller
         ]);
 
         $messages = $request->input('messages', []);
-        $reply    = $this->callGroq($messages, $this->chatSystemPrompt());
+        
+        // Masukkan data produk ke dalam prompt chat
+        $katalog = $this->getKatalogText();
+        $reply   = $this->callGroq($messages, $this->chatSystemPrompt($katalog));
 
         return response()->json(['reply' => $reply]);
     }
@@ -30,7 +46,7 @@ class AiAssistantController extends Controller
     {
         $request->validate([
             'lokasi'      => 'required|string',
-            'budget'      => 'required|numeric|min:500000',
+            'budget'      => 'required|numeric',
             'jumlah_cam'  => 'required|integer|min:1|max:64',
             'fitur_khusus'=> 'nullable|array',
         ]);
@@ -40,39 +56,39 @@ class AiAssistantController extends Controller
         $jumlahCam = $request->input('jumlah_cam');
         $fitur     = $request->input('fitur_khusus', []);
 
-        // 1. Hitung estimasi budget per kamera untuk memfilter database
-        // Dikalikan 2 agar AI punya ruang untuk merekomendasikan produk pelengkap (DVR/NVR/Kabel)
+        // Filter harga
         $maxPricePerItem = ($budget / $jumlahCam) * 2;
-
-        // 2. Ambil data produk dari database (sesuaikan nama kolom dengan tabelmu)
         $products = Product::where('harga', '<=', $maxPricePerItem)
-            ->where('stok', '>', 0) // Pastikan hanya barang yang ready
-            ->limit(30) // Batasi jumlah agar token tidak jebol
+            ->where('stok', '>', 0)
+            ->limit(30)
             ->get(['brand', 'nama', 'harga', 'spesifikasi']);
 
-        // 3. Format data produk menjadi teks untuk AI
+        // CEGAT DISINI JIKA BUDGET KEKECILAN (TIDAK ADA PRODUK)
+        if ($products->isEmpty()) {
+            // Cari produk paling murah di database untuk diinfokan ke user
+            $termurah = Product::orderBy('harga', 'asc')->first();
+            
+            if ($termurah) {
+                $hargaMin = 'Rp ' . number_format($termurah->harga, 0, ',', '.');
+                return response()->json([
+                    'reply' => "Mohon maaf, untuk budget tersebut kami belum memiliki paket yang sesuai. Paket termurah kami saat ini adalah **{$termurah->nama}** dengan harga **{$hargaMin}**.\n\nApakah Anda ingin mempertimbangkan paket tersebut?"
+                ]);
+            }
+            
+            return response()->json(['reply' => 'Maaf, saat ini stok produk kami sedang kosong.']);
+        }
+
         $katalogText = "";
         foreach ($products as $p) {
             $hargaFormat = 'Rp ' . number_format($p->harga, 0, ',', '.');
             $katalogText .= "- {$p->brand} {$p->nama} | Harga: {$hargaFormat} | Spek: {$p->spesifikasi}\n";
         }
 
-        if (empty($katalogText)) {
-            $katalogText = "Saat ini tidak ada produk yang sesuai dengan range harga tersebut di database.";
-        }
-
         $fiturText   = !empty($fitur) ? implode(', ', $fitur) : 'Tidak ada';
         $budgetFormat = 'Rp ' . number_format($budget, 0, ',', '.');
 
-        $userMessage = <<<MSG
-Rekomendasikan produk CCTV untuk kebutuhan berikut:
-- Lokasi        : {$lokasi}
-- Budget        : {$budgetFormat}
-- Jumlah kamera : {$jumlahCam} unit
-- Fitur khusus  : {$fiturText}
-MSG;
+        $userMessage = "Rekomendasikan produk CCTV untuk lokasi: {$lokasi}, budget: {$budgetFormat}, jumlah kamera: {$jumlahCam}, fitur: {$fiturText}.";
 
-        // 4. Kirim konteks katalog ke system prompt
         $reply = $this->callGroq(
             [['role' => 'user', 'content' => $userMessage]],
             $this->recommendSystemPrompt($katalogText)
@@ -86,100 +102,69 @@ MSG;
         $apiKey = config('services.groq.key');
 
         if (empty($apiKey)) {
-            Log::error('GROQ_API_KEY tidak ditemukan di konfigurasi.');
             return 'Konfigurasi AI belum lengkap. Hubungi administrator. 🙏';
         }
 
-        $formattedMessages = [
-            ['role' => 'system', 'content' => $systemPrompt],
-        ];
+        $formattedMessages = [['role' => 'system', 'content' => $systemPrompt]];
 
         foreach ($messages as $msg) {
-            $role = ($msg['role'] === 'assistant') ? 'assistant' : 'user';
             $formattedMessages[] = [
-                'role'    => $role,
+                'role'    => ($msg['role'] === 'assistant') ? 'assistant' : 'user',
                 'content' => trim($msg['content']),
             ];
         }
 
-        $payload = [
-            'model'       => $this->model,
-            'messages'    => $formattedMessages,
-            'temperature' => 0.7,
-            'max_tokens'  => 1024,
-            'stream'      => false,
-        ];
-
         try {
-            $response = Http::withToken($apiKey)
-                ->timeout(20)
-                ->retry(2, 500)
-                ->post($this->groqUrl, $payload);
+            $response = Http::withToken($apiKey)->timeout(20)->retry(2, 500)->post($this->groqUrl, [
+                'model'       => $this->model,
+                'messages'    => $formattedMessages,
+                'temperature' => 0.5, // Turunkan sedikit biar gak ngarang
+                'max_tokens'  => 1024,
+                'stream'      => false,
+            ]);
 
             if ($response->failed()) {
-                return $this->handleGroqError($response->status(), $response->body());
+                return "Maaf, AI sedang mengalami gangguan jaringan.";
             }
 
-            $data = $response->json();
-
-            return $data['choices'][0]['message']['content']
-                ?? 'Maaf, format balasan dari AI tidak sesuai.';
-
-        } catch (\Illuminate\Http\Client\ConnectionException $e) {
-            Log::error('Groq Connection Error: ' . $e->getMessage());
-            return 'Koneksi ke layanan AI gagal. Periksa koneksi internet server. 🔌';
+            return $response->json()['choices'][0]['message']['content'] ?? 'Maaf, format balasan error.';
         } catch (\Exception $e) {
-            Log::error('Groq Exception: ' . $e->getMessage());
-            return 'Terjadi kesalahan tak terduga: ' . $e->getMessage();
+            return 'Terjadi kesalahan sistem: ' . $e->getMessage();
         }
     }
 
-    private function handleGroqError(int $status, string $body): string
-    {
-        Log::error("Groq HTTP Error [{$status}]: {$body}");
-
-        return match ($status) {
-            400 => 'Permintaan tidak valid. Coba ulangi dengan pertanyaan berbeda.',
-            401 => 'API Key Groq tidak valid atau sudah kedaluwarsa. Hubungi administrator. 🔑',
-            429 => 'AI sedang sibuk (rate limit). Tunggu beberapa detik lalu coba lagi. ⏳',
-            500, 503 => 'Server Groq sedang gangguan. Coba lagi nanti. 🛠️',
-            default => "Layanan AI tidak tersedia saat ini (HTTP {$status}).",
-        };
-    }
-
-    private function chatSystemPrompt(): string
+    private function chatSystemPrompt(string $katalog = ""): string
     {
         return <<<PROMPT
-Kamu adalah AI Assistant TechStore, toko CCTV dan networking terpercaya di Indonesia.
-Tugasmu membantu customer memilih produk CCTV, akses kontrol, dan networking.
+Kamu adalah AI Assistant TechStore, toko CCTV di Indonesia.
 
-Brand yang kami jual: Hikvision, Dahua, HiLook, EZVIZ, UNV, Ruijie, Foreage.
+ATURAN MUTLAK:
+1. Jika ditanya soal produk atau harga, KAMU WAJIB HANYA MENGGUNAKAN data dari daftar KATALOG di bawah ini.
+2. JANGAN PERNAH menyebutkan harga atau produk yang tidak ada di dalam KATALOG.
+3. Jika produk yang dicari tidak ada di KATALOG, katakan: "Maaf, kami belum memiliki produk tersebut."
 
-Aturan:
-- Jawab selalu dalam Bahasa Indonesia yang ramah, singkat, dan informatif.
-- Jika ditanya harga, sebutkan estimasi dalam Rupiah.
-- Jika pertanyaan di luar topik CCTV/networking, tolak dengan sopan.
+=== KATALOG PRODUK TECHSTORE ===
+{$katalog}
+================================
+
+Jawablah dengan ramah dan informatif.
 PROMPT;
     }
 
-    private function recommendSystemPrompt(string $katalogText = ''): string
+    private function recommendSystemPrompt(string $katalogText): string
     {
         return <<<PROMPT
 Kamu adalah AI specialist CCTV di TechStore Indonesia.
-Tugasmu memberikan rekomendasi paket CCTV yang detail dan sesuai kebutuhan customer.
 
-ATURAN SANGAT PENTING:
-Kamu HANYA BOLEH merekomendasikan produk dari daftar "Katalog Produk TechStore" di bawah ini. Jangan mengarang produk atau harga yang tidak ada di dalam daftar.
+ATURAN MUTLAK:
+1. KAMU WAJIB HANYA merekomendasikan produk dari "Katalog Produk TechStore" di bawah ini.
+2. DILARANG KERAS merekomendasikan produk atau mengarang harga di luar daftar katalog.
 
-=== KATALOG PRODUK TECHSTORE (READY STOCK) ===
+=== KATALOG PRODUK TECHSTORE ===
 {$katalogText}
-==============================================
+================================
 
-Format rekomendasi:
-1. Berikan 2 opsi paket yang paling masuk akal dengan budget customer (misal: Paket Hemat & Paket Optimal).
-2. Setiap opsi wajib mencantumkan: nama produk dari katalog, jumlah item, dan subtotal harga.
-3. Tambahkan estimasi biaya instalasi jika budget masih memungkinkan.
-4. Jawab dalam Bahasa Indonesia yang ramah dan profesional.
+Berikan maksimal 2 opsi paket. Cantumkan nama, harga persis sesuai katalog, dan alasan singkat kenapa cocok.
 PROMPT;
     }
 }
