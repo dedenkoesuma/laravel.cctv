@@ -3,7 +3,6 @@
 @section('title', 'Ruijie Products')
 
 @section('content')
-<!-- Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
 <style>
@@ -372,27 +371,10 @@ body {
     transform: scale(1.05);
 }
 
-.product-badges {
+.badge-featured {
     position: absolute;
     top: 12px;
     left: 12px;
-    right: 12px;
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-}
-
-.badge-sale {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    color: white;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
-}
-
-.badge-featured {
     background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
     color: #78350f;
     padding: 6px 12px;
@@ -494,38 +476,32 @@ body {
     border-top: 1px solid #f1f5f9;
 }
 
-.product-price-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+/* Banner Pengganti Harga (Lebih Elegan) */
+.best-price-banner {
+    background: #f0fdf4;
+    border: 1.5px dashed #22c55e;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
     margin-bottom: 16px;
-}
-
-.product-price {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: 4px;
 }
 
-.price-current {
-    font-size: 1.5rem;
+.best-price-banner .title {
+    color: #166534;
     font-weight: 800;
-    color: var(--ruijie-primary);
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
 }
 
-.price-original {
-    font-size: 0.875rem;
-    color: #94a3b8;
-    text-decoration: line-through;
-}
-
-.discount-badge {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    color: white;
-    padding: 4px 10px;
-    border-radius: 8px;
+.best-price-banner .subtitle {
+    color: #15803d;
     font-size: 0.75rem;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 .product-actions {
@@ -559,16 +535,17 @@ body {
     transform: translateY(-2px);
 }
 
+/* Tombol WhatsApp */
 .btn-buy {
     border: none;
-    background: var(--gradient-primary);
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
     color: white;
-    box-shadow: 0 4px 12px rgba(0, 167, 225, 0.25);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
 }
 
 .btn-buy:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(0, 167, 225, 0.35);
+    box-shadow: 0 6px 16px rgba(34, 197, 94, 0.35);
 }
 
 .btn-buy:disabled {
@@ -879,7 +856,6 @@ body {
 }
 </style>
 
-<!-- Hero Section -->
 <div class="hero-section">
     <div class="hero-content">
         <div class="hero-badge">
@@ -911,7 +887,6 @@ body {
     </div>
 </div>
 
-<!-- Filter Section -->
 <div class="filter-section">
     <div class="filter-container">
         <div class="filter-card">
@@ -922,7 +897,6 @@ body {
                 </div>
             </div>
 
-            <!-- Search Bar -->
             <div class="search-wrapper">
                 <div class="search-input-group">
                     <i class="bi bi-search"></i>
@@ -973,20 +947,16 @@ body {
     </div>
 </div>
 
-<!-- Loading State -->
 <div id="loadingState" class="loading-state">
     <div class="spinner"></div>
     <p class="loading-text">Memuat produk...</p>
 </div>
 
-<!-- Products Section -->
 <div class="products-section" id="productsSection" style="display: none;">
     <div class="products-grid" id="productsGrid">
-        <!-- Products will be loaded here -->
-    </div>
+        </div>
 </div>
 
-<!-- Features Section -->
 <div class="features-section">
     <div class="features-container">
         <div class="section-header">
@@ -1019,7 +989,6 @@ body {
     </div>
 </div>
 
-<!-- Solutions Section -->
 <div class="solutions-section">
     <div class="section-header">
         <h2 class="section-title">Solusi Untuk Berbagai Industri</h2>
@@ -1050,7 +1019,6 @@ body {
     </div>
 </div>
 
-<!-- CTA Section -->
 <div class="cta-section">
     <div class="cta-content">
         <span class="cta-icon">📞</span>
@@ -1141,9 +1109,6 @@ function renderProducts() {
     filtered.forEach(product => {
         const card = document.createElement('div');
 
-        const onSale   = product.original_price && product.original_price > product.price;
-        const discount = onSale ? Math.round(((product.original_price - product.price) / product.original_price) * 100) : 0;
-
         let stockClass = 'in-stock', stockText = '✓ Tersedia';
         if      (product.stock === 0) { stockClass = 'out-stock';  stockText = '✗ Habis';    }
         else if (product.stock < 5)   { stockClass = 'low-stock';  stockText = '⚠ Terbatas'; }
@@ -1177,7 +1142,7 @@ function renderProducts() {
         card.innerHTML = `
             <div class="product-image-wrapper">
                 <div class="product-badges">
-                    <div>${onSale ? `<span class="badge-sale">-${discount}%</span>` : ''}</div>
+                    <div></div>
                     <div>${product.is_featured ? '<span class="badge-featured">⭐ Featured</span>' : ''}</div>
                 </div>
                 <img src="${product.main_image ? '/storage/' + product.main_image : 'https://via.placeholder.com/300x200/00A7E1/ffffff?text=Ruijie'}"
@@ -1198,20 +1163,18 @@ function renderProducts() {
                 ${contentHtml}
 
                 <div class="product-footer">
-                    <div class="product-price-row">
-                        <div class="product-price">
-                            <span class="price-current">Rp ${formatPrice(product.price)}</span>
-                            ${onSale ? `<span class="price-original">Rp ${formatPrice(product.original_price)}</span>` : ''}
-                        </div>
-                        ${onSale ? `<span class="discount-badge">-${discount}%</span>` : ''}
+                    <div class="best-price-banner">
+                        <span class="title"><i class="bi bi-tag-fill me-1"></i> Penawaran Harga Spesial</span>
+                        <span class="subtitle">Chat admin untuk diskon & harga project</span>
                     </div>
+
                     <div class="product-actions">
                         <button class="btn-detail" onclick="showDetail(${product.id})">
                             <i class="bi bi-eye"></i><span>Detail</span>
                         </button>
                         <button class="btn-buy" ${product.stock === 0 ? 'disabled' : ''} onclick="buyProduct(${product.id})">
-                            <i class="bi bi-cart-plus"></i>
-                            <span>${product.stock === 0 ? 'Habis' : 'Beli'}</span>
+                            <i class="bi bi-whatsapp"></i>
+                            <span>${product.stock === 0 ? 'Habis' : 'Chat Admin'}</span>
                         </button>
                     </div>
                 </div>
@@ -1266,10 +1229,6 @@ function getCategoryIcon(category) {
     return icons[category] || 'bi-box';
 }
 
-function formatPrice(price) {
-    return parseInt(price).toLocaleString('id-ID');
-}
-
 function updateFilterCount() {
     let filtered = allProducts.filter(p => p.status === 'active');
     if (currentCategory) filtered = filtered.filter(p => p.category === currentCategory);
@@ -1296,11 +1255,11 @@ function showDetail(id) {
 
 function buyProduct(id) {
     const product = allProducts.find(p => p.id === id);
-    const waNumber = "6281234567890"; // GANTI DENGAN NOMOR WA KAMU
+    const waNumber = "62881025756671"; // GANTI DENGAN NOMOR WA KAMU
 
     if (product) {
-        const price   = parseInt(product.price).toLocaleString('id-ID');
-        const message = `Halo Admin TechStore, saya tertarik untuk membeli produk Ruijie:\n\n*${product.name}*\nHarga: Rp ${price}\n\nApakah stoknya masih tersedia?`;
+        // Pesan WA yang lebih elegan dan fokus nego harga
+        const message = `Halo Admin TechStore, saya tertarik dengan produk Ruijie berikut:\n\n*${product.name}*\n\nBisa minta penawaran harga terbaik dan info ketersediaan stoknya? Terima kasih.`;
         window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, '_blank');
     } else {
         window.open(`https://wa.me/${waNumber}?text=Halo%20Admin,%20saya%20tertarik%20membeli%20produk%20Ruijie.`, '_blank');
@@ -1308,7 +1267,7 @@ function buyProduct(id) {
 }
 
 function contactWhatsApp() {
-    window.open('https://wa.me/6281234567890?text=Halo, saya tertarik dengan produk Ruijie Networks', '_blank');
+    window.open('https://wa.me/62881025756671?text=Halo, saya tertarik dengan produk Ruijie Networks', '_blank');
 }
 
 function contactEmail() {

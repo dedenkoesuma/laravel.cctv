@@ -280,7 +280,7 @@
                                         </div>
 
                                   <div class="card-footer bg-white border-top text-center">
-                                        <a href="https://wa.me/6281234567890?text=Halo,%20saya%20tertarik%20dengan%20produk%20{{ urlencode($product->nama_produk ?? $product->product_name) }}%20-%20{{ urlencode($product->sku ?? '') }}" 
+                                        <a href="https://wa.me/62881025756671?text=Halo,%20saya%20tertarik%20dengan%20produk%20{{ urlencode($product->nama_produk ?? $product->product_name) }}%20-%20{{ urlencode($product->sku ?? '') }}" 
                                         target="_blank"
                                         class="btn btn-sm w-100" 
                                         style="background-color: {{ $brandData['color'] }}; color: white; border: none;"
@@ -377,7 +377,7 @@
                     <a href="{{ url('/contact') }}" class="btn btn-light btn-lg">
                         <i class="bi bi-envelope"></i> Hubungi Kami
                     </a>
-                    <a href="https://wa.me/6281234567890" target="_blank" class="btn btn-success btn-lg">
+                    <a href="https://wa.me/62881025756671" target="_blank" class="btn btn-success btn-lg">
                         <i class="bi bi-whatsapp"></i> Chat WhatsApp
                     </a>
                     <a href="{{ url('/') }}" class="btn btn-outline-light btn-lg">

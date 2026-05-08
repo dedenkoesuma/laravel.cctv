@@ -409,7 +409,7 @@
         <div class="cta-wrapper mb-5">
             <h2>Siap Mengamankan Aset Anda?</h2>
             <p>Jangan tunggu sampai hal yang tidak diinginkan terjadi. Konsultasikan kebutuhan CCTV dan jaringan Anda bersama tim ahli kami sekarang juga.</p>
-            <a href="https://wa.me/6281234567890" target="_blank" class="cta-button">
+            <a href="https://wa.me/62881025756671" target="_blank" class="cta-button">
                 <i class="bi bi-whatsapp"></i> Hubungi Kami Sekarang
             </a>
         </div>

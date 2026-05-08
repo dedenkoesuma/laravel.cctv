@@ -279,7 +279,7 @@ function renderProducts() {
 
 function buyProduct(name) {
     const msg = encodeURIComponent(`Halo Admin TechStore, saya tertarik dengan produk Access Control: *${name}*`);
-    window.open(`https://wa.me/6281234567890?text=${msg}`, '_blank');
+    window.open(`https://wa.me/62881025756671?text=${msg}`, '_blank');
 }
 </script>
 @endsection

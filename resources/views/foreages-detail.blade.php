@@ -407,7 +407,7 @@ function orderNow() {
     
     const message = `Halo TechStore, saya tertarik dengan produk Foreage:\n*${productName}*\nHarga: ${price}\n\nApakah barang ini ready stock?`;
     
-    window.open('https://wa.me/6281234567890?text=' + encodeURIComponent(message), '_blank');
+    window.open('https://wa.me/62881025756671?text=' + encodeURIComponent(message), '_blank');
 }
 </script>
 @endsection

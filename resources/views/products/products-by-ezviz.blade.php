@@ -627,7 +627,7 @@
                     <a href="{{ url('/contact') }}" class="btn btn-light btn-lg">
                         <i class="bi bi-envelope"></i> Hubungi Kami
                     </a>
-                    <a href="https://wa.me/6281234567890" target="_blank" class="btn btn-success btn-lg">
+                    <a href="https://wa.me/62881025756671" target="_blank" class="btn btn-success btn-lg">
                         <i class="bi bi-whatsapp"></i> Chat WhatsApp
                     </a>
                     <a href="{{ url('/') }}" class="btn btn-outline-light btn-lg">
@@ -802,7 +802,7 @@ function viewDetail(productId) {
 
 function contactWhatsApp(productName, sku) {
     const message = `Halo, saya tertarik dengan produk:\n*${productName}*\nSKU: ${sku}\n\nMohon info lebih lanjut.`;
-    const whatsappUrl = `https://wa.me/6281234567890?text=${encodeURIComponent(message)}`;
+    const whatsappUrl = `https://wa.me/62881025756671?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
 }
 </script>

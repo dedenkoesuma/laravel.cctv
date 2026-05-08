@@ -161,7 +161,7 @@
                         @php
                             $pesanWa = "Halo, saya tertarik dengan produk Paket CCTV " . ucfirst($package['brand']) . " " . $package['channel'] . " Channel - " . $package['title'];
                         @endphp
-                        <a href="https://wa.me/6281234567890?text={{ urlencode($pesanWa) }}" target="_blank" class="btn btn-outline-primary w-100">
+                        <a href="https://wa.me/62881025756671?text={{ urlencode($pesanWa) }}" target="_blank" class="btn btn-outline-primary w-100">
                             <i class="bi bi-whatsapp me-2"></i>Order Sekarang
                         </a>
                     </div>

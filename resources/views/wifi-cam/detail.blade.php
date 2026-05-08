@@ -542,7 +542,7 @@ function changeImage(imageSrc, thumbnail) {
 }
 
 function orderNow() {
-    const waNumber = "6281234567890";
+    const waNumber = "62881025756671";
     const productName = "{{ addslashes($product['name']) }}";
     const productPrice = "Rp {{ number_format($product['price'], 0, ',', '.') }}";
 

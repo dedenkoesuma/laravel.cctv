@@ -537,7 +537,7 @@
                             <a href="mailto:admin@techstore.com"><i class="bi bi-envelope me-3 fs-5"></i> Email</a>
                         </li>
                         <li>
-                            <a href="tel:+6281234567890"><i class="bi bi-telephone me-3 fs-5"></i> Telfon</a>
+                            <a href="tel:+62881025756671"><i class="bi bi-telephone me-3 fs-5"></i> Telfon</a>
                         </li>
                     </ul>
                 </div>

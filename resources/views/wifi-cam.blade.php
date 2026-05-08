@@ -212,7 +212,7 @@ function renderProducts() {
 function buyProduct(id) {
     const p = allCameras.find(c => c.id === id);
     const msg = encodeURIComponent(`Halo, saya tertarik: *${p.name}*`);
-    window.open(`https://wa.me/6281234567890?text=${msg}`, '_blank');
+    window.open(`https://wa.me/62881025756671?text=${msg}`, '_blank');
 }
 </script>
 @endsection

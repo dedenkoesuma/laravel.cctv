@@ -452,7 +452,7 @@ function changeImage(imageSrc, thumbnail) {
 
 // Order now function to WhatsApp
 function orderNow() {
-    const waNumber = "6281234567890"; // Ganti dengan nomor WA admin
+    const waNumber = "62881025756671"; // Ganti dengan nomor WA admin
     const productName = "{{ addslashes($product['name'] ?? '') }}";
     const sku = "{{ addslashes($product['sku'] ?? '') }}";
     // Sesuaikan link WA ke sell_price

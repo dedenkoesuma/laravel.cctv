@@ -757,14 +757,14 @@ function buyProduct() {
     const price = document.getElementById('productPrice').textContent;
     const message = `Halo, saya tertarik untuk membeli:\n\n${productName}\nHarga: ${price}\n\nMohon informasi lebih lanjut.`;
     
-    window.open('https://wa.me/6281234567890?text=' + encodeURIComponent(message), '_blank');
+    window.open('https://wa.me/62881025756671?text=' + encodeURIComponent(message), '_blank');
 }
 
 function contactWhatsApp() {
     const productName = document.getElementById('productName').textContent;
     const message = `Halo, saya ingin bertanya tentang produk ${productName}`;
     
-    window.open('https://wa.me/6281234567890?text=' + encodeURIComponent(message), '_blank');
+    window.open('https://wa.me/62881025756671?text=' + encodeURIComponent(message), '_blank');
 }
 
 function showError(message) {

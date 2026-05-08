@@ -1629,7 +1629,7 @@ function buyProduct(id) {
 }
 
 function contactWhatsApp() {
-    window.open('https://wa.me/6281234567890?text=Halo, saya tertarik dengan produk Ruijie Networks', '_blank');
+    window.open('https://wa.me/62881025756671?text=Halo, saya tertarik dengan produk Ruijie Networks', '_blank');
 }
 
 function contactEmail() {

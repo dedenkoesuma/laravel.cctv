@@ -974,7 +974,7 @@ function viewDetail(id) {
 
 function contactWhatsApp() {
     const message = 'Halo, saya tertarik dengan produk Foreage CCTV. Mohon informasi lebih lanjut.';
-    window.open('https://wa.me/6281234567890?text=' + encodeURIComponent(message), '_blank');
+    window.open('https://wa.me/62881025756671?text=' + encodeURIComponent(message), '_blank');
 }
 
 function showLoading() {

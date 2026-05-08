@@ -409,7 +409,7 @@ function orderNow() {
     
     const message = `Halo, saya tertarik dengan produk Ruijie:\n*${productName}*\nHarga: ${price}\n\nMohon informasi lebih lanjut.`;
     
-    window.open('https://wa.me/6281234567890?text=' + encodeURIComponent(message), '_blank');
+    window.open('https://wa.me/62881025756671?text=' + encodeURIComponent(message), '_blank');
 }
 </script>
 @endsection
