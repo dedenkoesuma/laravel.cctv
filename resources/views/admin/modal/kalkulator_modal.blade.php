@@ -8,6 +8,8 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', sans-serif; background: #f4f5f7; color: #1a1a2e; font-size: 14px; }
 
+  .val, .amt { transition: color 0.2s ease; }
+
   .app { max-width: 1200px; margin: 0 auto; padding: 24px 20px; }
 
   /* Header */
@@ -30,7 +32,7 @@
   .card { background: white; border-radius: 12px; border: 1px solid #e5e7eb; overflow: hidden; margin-bottom: 16px; }
 
   /* Table */
-  table { width: 100%; border-collapse: collapse; }
+  table { width: 100%; border-collapse: collapse; table-layout: fixed; }
   thead tr { background: #f9fafb; }
   th { padding: 11px 14px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: #6b7280; font-weight: 600; border-bottom: 1px solid #e5e7eb; }
   th.right { text-align: right; }
@@ -82,7 +84,7 @@
   .hargajual-body { padding: 16px 20px; }
 
   /* Harga Jual Table */
-  .hj-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; }
+  .hj-table { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 4px; }
   .hj-table th {
     padding: 9px 12px; font-size: 11px; text-transform: uppercase;
     letter-spacing: .4px; color: #9ca3af; font-weight: 600;
@@ -143,134 +145,125 @@
   .keuntungan-banner .right strong { font-size: 15px; opacity: 1; }
 
   .divider { height: 1px; background: #f3f4f6; margin: 4px 0; }
-
-  /* Margin badge next to name in hj table */
   .margin-pct { font-size: 11px; color: #6b7280; margin-left: 6px; }
 </style>
 </head>
 <body>
-<div class="app">
 
-  <!-- Header -->
-  <div class="header">
-    <div class="header-icon">
-      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-    </div>
-    <div>
-      <h1>Kalkulator Modal & Keuntungan</h1>
-      <p>Hitung total modal, harga jual, dan keuntungan bersih per produk</p>
-    </div>
-  </div>
+<div>
+  
+  <div class="app" wire:ignore x-ignore>
 
-  <!-- Stats -->
-  <div class="stats">
-    <div class="stat">
-      <label>Total Produk</label>
-      <div class="val" id="stat-produk">3</div>
+    <div class="header">
+      <div class="header-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+      </div>
+      <div>
+        <h1>Kalkulator Modal & Keuntungan</h1>
+        <p>Hitung total modal, harga jual, dan keuntungan bersih per produk</p>
+      </div>
     </div>
-    <div class="stat">
-      <label>Total Unit</label>
-      <div class="val" id="stat-unit">0</div>
-    </div>
-    <div class="stat">
-      <label>Total Modal</label>
-      <div class="val blue" id="stat-modal">Rp 0</div>
-    </div>
-    <div class="stat">
-      <label>Total Keuntungan</label>
-      <div class="val green" id="stat-untung">Rp 0</div>
-    </div>
-  </div>
 
-  <!-- Tabel Produk -->
-  <div class="card">
-    <table id="tbl">
-      <thead>
-        <tr>
-          <th style="width:32px">#</th>
-          <th>NAMA PRODUK</th>
-          <th class="right" style="width:90px">QTY</th>
-          <th class="right" style="width:140px">HARGA BELI</th>
-          <th class="right" style="width:100px">DISKON %</th>
-          <th class="right" style="width:120px">HEMAT</th>
-          <th class="right" style="width:130px">TOTAL MODAL</th>
-          <th style="width:36px"></th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-  </div>
-
-  <div class="actions">
-    <button class="btn btn-primary" onclick="tambahBaris()">+ Tambah Produk</button>
-    <button class="btn btn-ghost" onclick="resetAll()">Reset</button>
-  </div>
-
-  <!-- Ringkasan Produk -->
-  <div class="card" style="margin-top:16px">
-    <div class="summary" id="summary-box" style="padding:16px 20px"></div>
-  </div>
-
-  <!-- Harga Jual Produk -->
-  <div class="card hargajual-section">
-    <div class="section-title">
-      🏷️ Harga Jual Produk
+    <div class="stats">
+      <div class="stat">
+        <label>Total Produk</label>
+        <div class="val" id="stat-produk">3</div>
+      </div>
+      <div class="stat">
+        <label>Total Unit</label>
+        <div class="val" id="stat-unit">0</div>
+      </div>
+      <div class="stat">
+        <label>Total Modal</label>
+        <div class="val blue" id="stat-modal">Rp 0</div>
+      </div>
+      <div class="stat">
+        <label>Total Keuntungan</label>
+        <div class="val green" id="stat-untung">Rp 0</div>
+      </div>
     </div>
-    <div class="hargajual-body">
-      <table class="hj-table" id="hj-table">
+
+    <div class="card">
+      <table id="tbl">
         <thead>
           <tr>
+            <th style="width:32px">#</th>
             <th>NAMA PRODUK</th>
-            <th class="right" style="width:160px">MODAL / UNIT</th>
-            <th class="right" style="width:160px">HARGA JUAL</th>
-            <th class="right" style="width:130px">KEUNTUNGAN</th>
+            <th class="right" style="width:90px">QTY</th>
+            <th class="right" style="width:140px">HARGA BELI</th>
+            <th class="right" style="width:100px">DISKON %</th>
+            <th class="right" style="width:120px">HEMAT</th>
+            <th class="right" style="width:130px">TOTAL MODAL</th>
             <th style="width:36px"></th>
           </tr>
         </thead>
-        <tbody id="hj-tbody"></tbody>
+        <tbody id="tbody"></tbody>
       </table>
-      <button class="add-hj-btn" onclick="tambahHargaJual()">
-        <span style="font-size:18px;line-height:1">+</span> Tambah Produk Lain
-      </button>
     </div>
-  </div>
 
-  <!-- Ringkasan Keuntungan -->
-  <div class="profit-summary-card">
-    <div class="section-title" style="background:#f9fafb">📊 Ringkasan Keuntungan</div>
-    <div class="profit-summary-body" id="profit-summary-body">
-      <p class="summary-note" style="color:#9ca3af;font-size:13px">Isi data produk dan harga jual untuk melihat keuntungan.</p>
+    <div class="actions">
+      <button type="button" class="btn btn-primary" onclick="tambahBaris()">+ Tambah Produk</button>
+      <button type="button" class="btn btn-ghost" onclick="resetAll()">Reset</button>
     </div>
-  </div>
 
-  <!-- Grand Total Modal -->
-  <div class="grand-total-card">
-    <div class="left">
-      <div class="label">Total Modal Keseluruhan</div>
-      <div class="val" id="grand-total-val">Rp 0</div>
+    <div class="card" style="margin-top:16px">
+      <div class="summary" id="summary-box" style="padding:16px 20px"></div>
     </div>
-    <div class="right" id="grand-total-detail">
-      Modal produk keseluruhan
-    </div>
-  </div>
 
-  <!-- Keuntungan Banner -->
-  <div class="keuntungan-banner zero" id="keuntungan-banner">
-    <div class="left">
-      <div class="label">💰 Total Keuntungan Bersih</div>
-      <div class="val" id="keuntungan-val">Rp 0</div>
+    <div class="card hargajual-section">
+      <div class="section-title">
+        🏷️ Harga Jual Produk
+      </div>
+      <div class="hargajual-body">
+        <table class="hj-table" id="hj-table">
+          <thead>
+            <tr>
+              <th>NAMA PRODUK</th>
+              <th class="right" style="width:160px">MODAL / UNIT</th>
+              <th class="right" style="width:160px">HARGA JUAL</th>
+              <th class="right" style="width:170px">KEUNTUNGAN</th>
+              <th style="width:36px"></th>
+            </tr>
+          </thead>
+          <tbody id="hj-tbody"></tbody>
+        </table>
+        <button type="button" class="add-hj-btn" onclick="tambahHargaJual()">
+          <span style="font-size:18px;line-height:1">+</span> Tambah Produk Lain
+        </button>
+      </div>
     </div>
-    <div class="right" id="keuntungan-detail">
-      Total penjualan − total modal
+
+    <div class="profit-summary-card">
+      <div class="section-title" style="background:#f9fafb">📊 Ringkasan Keuntungan</div>
+      <div class="profit-summary-body" id="profit-summary-body">
+        <p class="summary-note" style="color:#9ca3af;font-size:13px">Isi data produk dan harga jual untuk melihat keuntungan.</p>
+      </div>
     </div>
-  </div>
 
-</div>
+    <div class="grand-total-card">
+      <div class="left">
+        <div class="label">Total Modal Keseluruhan</div>
+        <div class="val" id="grand-total-val">Rp 0</div>
+      </div>
+      <div class="right" id="grand-total-detail">
+        Modal produk keseluruhan
+      </div>
+    </div>
 
-<script>
+    <div class="keuntungan-banner zero" id="keuntungan-banner">
+      <div class="left">
+        <div class="label">💰 Total Keuntungan Bersih</div>
+        <div class="val" id="keuntungan-val">Rp 0</div>
+      </div>
+      <div class="right" id="keuntungan-detail">
+        Total penjualan − total modal
+      </div>
+    </div>
+
+  </div> </div> <script>
   const fmt = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
   let rows = [];
-  let hjList = []; // harga jual list: { id, nama, modalPerUnit, hargaJual, fromRowId? }
+  let hjList = []; 
   let nextId = 1;
   let nextHjId = 1;
 
@@ -283,7 +276,6 @@
 
   function hapusBaris(id) {
     rows = rows.filter(r => r.id !== id);
-    // Remove linked hj rows
     hjList = hjList.filter(h => h.fromRowId !== id);
     renderTable();
     renderHargaJual();
@@ -292,8 +284,28 @@
   function updateBaris(id, field, val) {
     const r = rows.find(r => r.id === id);
     if (!r) return;
+    
     if (field === 'nama') r.nama = val;
     else r[field] = parseFloat(val) || 0;
+    
+    const row = document.querySelector(`tr[data-row-id="${id}"]`);
+    if (row) {
+      const subtotal = r.qty * r.harga;
+      const hemat    = subtotal * (r.diskon / 100);
+      const total    = subtotal - hemat;
+      
+      const hematCell = row.querySelector('.hemat-cell');
+      const totalCell = row.querySelector('.total-cell');
+      
+      if (hematCell) {
+        hematCell.className = `right num hemat-cell ${hemat > 0 ? 'red' : 'muted'}`;
+        hematCell.textContent = hemat > 0 ? '- ' + fmt(hemat) : '—';
+      }
+      if (totalCell) {
+        totalCell.textContent = total > 0 ? fmt(total) : '—';
+      }
+    }
+
     syncHJFromRows();
     renderSummary();
   }
@@ -307,6 +319,7 @@
       const total    = subtotal - hemat;
 
       const tr = document.createElement('tr');
+      tr.setAttribute('data-row-id', r.id);
       tr.innerHTML = `
         <td class="row-num">${i+1}</td>
         <td><input class="inp" placeholder="Nama produk..." value="${r.nama}"
@@ -317,29 +330,47 @@
           oninput="updateBaris(${r.id},'harga',this.value)"></td>
         <td><input class="inp right inp-sm" type="number" min="0" max="100" value="${r.diskon||''}" placeholder="0"
           oninput="updateBaris(${r.id},'diskon',this.value)"></td>
-        <td class="right num ${hemat>0?'red':'muted'}">${hemat>0 ? '- '+fmt(hemat) : '—'}</td>
-        <td class="right num" style="font-weight:600">${total>0 ? fmt(total) : '—'}</td>
-        <td><button class="del-btn" onclick="hapusBaris(${r.id})" title="Hapus">✕</button></td>
+        <td class="right num hemat-cell ${hemat>0?'red':'muted'}">${hemat>0 ? '- '+fmt(hemat) : '—'}</td>
+        <td class="right num total-cell" style="font-weight:600">${total>0 ? fmt(total) : '—'}</td>
+        <td><button type="button" class="del-btn" onclick="hapusBaris(${r.id})" title="Hapus">✕</button></td>
       `;
       tbody.appendChild(tr);
     });
     renderSummary();
   }
 
-  // ── Sync HJ from rows (auto-populate) ───────────────────────────
+  // ── Sync HJ from rows ───────────────────────────
   function syncHJFromRows() {
+    let perluRenderUlangBawah = false;
+
     rows.forEach(r => {
       if (!r.nama || r.qty <= 0 || r.harga <= 0) return;
       const modalPerUnit = r.harga * (1 - r.diskon/100);
       const existing = hjList.find(h => h.fromRowId === r.id);
+      
       if (existing) {
-        existing.nama = r.nama;
-        existing.modalPerUnit = modalPerUnit;
+        if (existing.nama !== r.nama || existing.modalPerUnit !== modalPerUnit) {
+          existing.nama = r.nama;
+          existing.modalPerUnit = modalPerUnit;
+          
+          const hjRow = document.querySelector(`tr[data-hj-id="${existing.id}"]`);
+          if (hjRow) {
+            const namaInput = hjRow.querySelector('td:nth-child(1) input');
+            const modalInput = hjRow.querySelector('td:nth-child(2) input');
+            if (namaInput) namaInput.value = r.nama;
+            if (modalInput) modalInput.value = modalPerUnit;
+            updateHJ(existing.id, 'modalPerUnit', modalPerUnit, modalInput);
+          }
+        }
       } else {
         hjList.push({ id: nextHjId++, fromRowId: r.id, nama: r.nama, modalPerUnit, hargaJual: 0 });
+        perluRenderUlangBawah = true;
       }
     });
-    renderHargaJual();
+
+    if (perluRenderUlangBawah) {
+      renderHargaJual();
+    }
   }
 
   // ── Ringkasan ────────────────────────────────────────────────────
@@ -404,13 +435,37 @@
     renderHargaJual();
   }
 
-  function updateHJ(id, field, val) {
+  function updateHJ(id, field, val, inputElem) {
     const h = hjList.find(h => h.id === id);
     if (!h) return;
+    
     if (field === 'nama') h.nama = val;
     else if (field === 'modalPerUnit') h.modalPerUnit = parseFloat(val) || 0;
     else h.hargaJual = parseFloat(val) || 0;
-    renderHargaJual();
+
+    const row = document.querySelector(`tr[data-hj-id="${id}"]`);
+    if (row) {
+      const keuntungan = h.hargaJual - h.modalPerUnit;
+      const pct = h.modalPerUnit > 0 ? ((keuntungan / h.modalPerUnit) * 100).toFixed(1) : 0;
+      const badgeClass = keuntungan > 0 ? 'pos' : keuntungan < 0 ? 'neg' : 'zero';
+      const badgeText = keuntungan > 0 ? `+${pct}%` : keuntungan < 0 ? `${pct}%` : '0%';
+      
+      const badgeCell = row.querySelector('.keuntungan-cell');
+      if (h.hargaJual > 0 || h.modalPerUnit > 0) {
+        badgeCell.innerHTML = `
+          <span class="badge-profit ${badgeClass}">${keuntungan >= 0 ? '+' : ''}${fmt(keuntungan)}</span>
+          <span class="margin-pct">${badgeText}</span>
+        `;
+      } else {
+        badgeCell.innerHTML = '<span class="muted">—</span>';
+      }
+
+      if (field === 'hargaJual' && inputElem) {
+         inputElem.style.borderColor = h.hargaJual > 0 ? '#10b981' : '';
+      }
+    }
+
+    renderProfitSummary();
   }
 
   function renderHargaJual() {
@@ -424,6 +479,7 @@
       const badgeText = keuntungan > 0 ? `+${pct}%` : keuntungan < 0 ? `${pct}%` : '0%';
 
       const tr = document.createElement('tr');
+      tr.setAttribute('data-hj-id', h.id);
       tr.innerHTML = `
         <td>
           <input class="inp" placeholder="Nama produk..." value="${h.nama}"
@@ -432,21 +488,21 @@
         </td>
         <td class="right">
           <input class="inp right" type="number" min="0" value="${h.modalPerUnit||''}" placeholder="0"
-            oninput="updateHJ(${h.id},'modalPerUnit',this.value)"
+            oninput="updateHJ(${h.id},'modalPerUnit',this.value, this)"
             style="${h.fromRowId ? 'background:#f9fafb;color:#6b7280' : ''}">
         </td>
         <td>
           <input class="inp right" type="number" min="0" value="${h.hargaJual||''}" placeholder="Isi harga jual..."
-            oninput="updateHJ(${h.id},'hargaJual',this.value)"
+            oninput="updateHJ(${h.id},'hargaJual',this.value, this)"
             style="border-color:${h.hargaJual>0?'#10b981':''}">
         </td>
-        <td class="right">
+        <td class="right keuntungan-cell">
           ${h.hargaJual > 0 || h.modalPerUnit > 0
             ? `<span class="badge-profit ${badgeClass}">${keuntungan >= 0 ? '+' : ''}${fmt(keuntungan)}</span>
                <span class="margin-pct">${badgeText}</span>`
             : '<span class="muted">—</span>'}
         </td>
-        <td><button class="del-btn" onclick="hapusHJ(${h.id})" title="Hapus">✕</button></td>
+        <td><button type="button" class="del-btn" onclick="hapusHJ(${h.id})" title="Hapus">✕</button></td>
       `;
       tbody.appendChild(tr);
     });
@@ -469,7 +525,6 @@
     const totalModalHJ = hjFilled.reduce((s,h) => s + h.modalPerUnit, 0);
     const totalUntung = totalJual - totalModalHJ;
 
-    // Update stat
     const stat = document.getElementById('stat-untung');
     stat.textContent = fmt(totalUntung);
     stat.className = 'val ' + (totalUntung > 0 ? 'green' : totalUntung < 0 ? 'red' : 'blue');
@@ -505,7 +560,6 @@
       body.innerHTML = html;
     }
 
-    // Keuntungan banner
     const banner = document.getElementById('keuntungan-banner');
     const bannerVal = document.getElementById('keuntungan-val');
     const bannerDetail = document.getElementById('keuntungan-detail');
