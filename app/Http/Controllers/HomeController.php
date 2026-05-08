@@ -28,7 +28,7 @@ class HomeController extends Controller
         $wifiCameras = [
             [
                 'name' => 'EZVIZ C6N 3MP', 
-                'price' => '450000', 
+                'price' => '1200000', 
                 'desc' => '3MP 2K Smart Pan & Tilt Indoor WiFi Camera dengan resolusi tajam dan pelacakan pintar.', 
                 'brand' => 'EZVIZ', 
                 'image' => 'storage/wifi_cameras/v6LL8HisEC46kQvOxfigAV1CAwkhNPF56C2In0fL.png', 
@@ -37,7 +37,7 @@ class HomeController extends Controller
             ],
             [
                 'name' => 'EZVIZ H8c 2MP', 
-                'price' => '650000', 
+                'price' => '620000', 
                 'desc' => '2MP 1080P Smart Pan & Tilt Outdoor Camera dengan fitur perlindungan aktif dan night vision.', 
                 'brand' => 'EZVIZ', 
                 'image' => 'storage/wifi_cameras/rxaGgP1uLpfZtwyugs1AflJCCdbmmiLlLDPs64rK.png', 
@@ -46,7 +46,7 @@ class HomeController extends Controller
             ],
             [
                 'name' => 'IMOU Ranger A1 3MP', 
-                'price' => '430000', 
+                'price' => '350000', 
                 'desc' => '3MP 2K Smart WiFi Pan & Tilt Indoor Camera dengan deteksi manusia dan mode privasi.', 
                 'brand' => 'IMOU', 
                 'image' => 'storage/wifi_cameras/xTI8ykz6668DaEkWUUIydb5k80RCjLig9BYgT1GH.jpg', 
@@ -55,7 +55,7 @@ class HomeController extends Controller
             ],
             [
                 'name' => 'IMOU Cruiser 2 3MP', 
-                'price' => '550000', 
+                'price' => '740000', 
                 'desc' => '3MP Smart Home Pan & Tilt Outdoor WiFi Camera yang tahan cuaca ekstrem.', 
                 'brand' => 'IMOU', 
                 'image' => 'storage/wifi_cameras/OvQajIXCbMJ0G8Wtm0bXPpNd8ooxckx6so1xOOI6.webp', 
