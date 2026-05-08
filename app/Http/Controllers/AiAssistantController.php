@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Models\Product; // Pastikan model Product di-import
 
 class AiAssistantController extends Controller
 {
@@ -39,6 +40,27 @@ class AiAssistantController extends Controller
         $jumlahCam = $request->input('jumlah_cam');
         $fitur     = $request->input('fitur_khusus', []);
 
+        // 1. Hitung estimasi budget per kamera untuk memfilter database
+        // Dikalikan 2 agar AI punya ruang untuk merekomendasikan produk pelengkap (DVR/NVR/Kabel)
+        $maxPricePerItem = ($budget / $jumlahCam) * 2;
+
+        // 2. Ambil data produk dari database (sesuaikan nama kolom dengan tabelmu)
+        $products = Product::where('harga', '<=', $maxPricePerItem)
+            ->where('stok', '>', 0) // Pastikan hanya barang yang ready
+            ->limit(30) // Batasi jumlah agar token tidak jebol
+            ->get(['brand', 'nama', 'harga', 'spesifikasi']);
+
+        // 3. Format data produk menjadi teks untuk AI
+        $katalogText = "";
+        foreach ($products as $p) {
+            $hargaFormat = 'Rp ' . number_format($p->harga, 0, ',', '.');
+            $katalogText .= "- {$p->brand} {$p->nama} | Harga: {$hargaFormat} | Spek: {$p->spesifikasi}\n";
+        }
+
+        if (empty($katalogText)) {
+            $katalogText = "Saat ini tidak ada produk yang sesuai dengan range harga tersebut di database.";
+        }
+
         $fiturText   = !empty($fitur) ? implode(', ', $fitur) : 'Tidak ada';
         $budgetFormat = 'Rp ' . number_format($budget, 0, ',', '.');
 
@@ -50,9 +72,10 @@ Rekomendasikan produk CCTV untuk kebutuhan berikut:
 - Fitur khusus  : {$fiturText}
 MSG;
 
+        // 4. Kirim konteks katalog ke system prompt
         $reply = $this->callGroq(
             [['role' => 'user', 'content' => $userMessage]],
-            $this->recommendSystemPrompt()
+            $this->recommendSystemPrompt($katalogText)
         );
 
         return response()->json(['reply' => $reply]);
@@ -60,14 +83,13 @@ MSG;
 
     private function callGroq(array $messages, string $systemPrompt): string
     {
-        $apiKey = config('services.groq.key'); // Ambil dari config, bukan env() langsung
+        $apiKey = config('services.groq.key');
 
         if (empty($apiKey)) {
             Log::error('GROQ_API_KEY tidak ditemukan di konfigurasi.');
             return 'Konfigurasi AI belum lengkap. Hubungi administrator. 🙏';
         }
 
-        // Susun messages: system prompt selalu di posisi pertama
         $formattedMessages = [
             ['role' => 'system', 'content' => $systemPrompt],
         ];
@@ -91,7 +113,7 @@ MSG;
         try {
             $response = Http::withToken($apiKey)
                 ->timeout(20)
-                ->retry(2, 500) // Otomatis retry 2x jika gagal
+                ->retry(2, 500)
                 ->post($this->groqUrl, $payload);
 
             if ($response->failed()) {
@@ -140,18 +162,23 @@ Aturan:
 PROMPT;
     }
 
-    private function recommendSystemPrompt(): string
+    private function recommendSystemPrompt(string $katalogText = ''): string
     {
         return <<<PROMPT
 Kamu adalah AI specialist CCTV di TechStore Indonesia.
 Tugasmu memberikan rekomendasi paket CCTV yang detail dan sesuai kebutuhan customer.
 
-Brand yang tersedia: Hikvision, Dahua, HiLook, EZVIZ, UNV, Foreage.
+ATURAN SANGAT PENTING:
+Kamu HANYA BOLEH merekomendasikan produk dari daftar "Katalog Produk TechStore" di bawah ini. Jangan mengarang produk atau harga yang tidak ada di dalam daftar.
+
+=== KATALOG PRODUK TECHSTORE (READY STOCK) ===
+{$katalogText}
+==============================================
 
 Format rekomendasi:
-1. Berikan 2-3 opsi paket (Budget / Standar / Premium).
-2. Setiap opsi wajib mencantumkan: nama produk, spesifikasi singkat, dan estimasi harga.
-3. Tambahkan total estimasi biaya di akhir setiap opsi.
+1. Berikan 2 opsi paket yang paling masuk akal dengan budget customer (misal: Paket Hemat & Paket Optimal).
+2. Setiap opsi wajib mencantumkan: nama produk dari katalog, jumlah item, dan subtotal harga.
+3. Tambahkan estimasi biaya instalasi jika budget masih memungkinkan.
 4. Jawab dalam Bahasa Indonesia yang ramah dan profesional.
 PROMPT;
     }
