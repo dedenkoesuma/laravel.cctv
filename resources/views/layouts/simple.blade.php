@@ -519,11 +519,11 @@
                 <!-- Kolom 3: Navigasi Menu -->
                 <div class="col-lg-2 col-md-6">
                     <ul class="footer-links">
-                        <li><a href="{{ url('/') }}">Beranda</a></li>
-                        <li><a href="{{ url('/products/cctv') }}">Kamera CCTV</a></li>
+                           <li><a href="{{ url('/') }}">Beranda</a></li>
+                        <li><a href="{{ url('/products/hikvision') }}">Kamera CCTV</a></li>
                         <li><a href="{{ url('/access-control') }}">Akses Kontrol</a></li>
                         <li><a href="{{ url('/contact') }}">Kontak</a></li>
-                        <li><a href="{{ url('/about') }}">Tentang Kami</a></li>
+                        <li><a href="{{ 'https://wa.me/62881025756671'}}">Tentang Kami</a></li>
                     </ul>
                 </div>
 
@@ -534,10 +534,10 @@
                             <a href="#"><i class="bi bi-instagram me-3 fs-5"></i> Instagram</a>
                         </li>
                         <li>
-                            <a href="mailto:admin@techstore.com"><i class="bi bi-envelope me-3 fs-5"></i> Email</a>
+                            <a href="mailto:techstorecctv@gmail.com"><i class="bi bi-envelope me-3 fs-5"></i> Email</a>
                         </li>
                         <li>
-                            <a href="tel:+62881025756671"><i class="bi bi-telephone me-3 fs-5"></i> Telfon</a>
+                            <a href="https://wa.me/62881025756671"><i class="bi bi-telephone me-3 fs-5"></i> Telfon</a>
                         </li>
                     </ul>
                 </div>

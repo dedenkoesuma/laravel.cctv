@@ -520,10 +520,10 @@
                 <div class="col-lg-2 col-md-6">
                     <ul class="footer-links">
                         <li><a href="{{ url('/') }}">Beranda</a></li>
-                        <li><a href="{{ url('/products/cctv') }}">Kamera CCTV</a></li>
+                        <li><a href="{{ url('/products//hikvision') }}">Kamera CCTV</a></li>
                         <li><a href="{{ url('/access-control') }}">Akses Kontrol</a></li>
                         <li><a href="{{ url('/contact') }}">Kontak</a></li>
-                        <li><a href="{{ url('/about') }}">Tentang Kami</a></li>
+                        <li><a href="{{ https://wa.me/62881025756671}}">Tentang Kami</a></li>
                     </ul>
                 </div>
 
