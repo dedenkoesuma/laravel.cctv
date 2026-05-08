@@ -591,3 +591,18 @@ Route::fallback(function () {
         'description' => 'The page you are looking for does not exist.',
     ], 404);
 });
+Route::get('/setup-roles-rahasia', function () {
+    try {
+        // 1. Jalankan Seeder
+        \Illuminate\Support\Facades\Artisan::call('db:seed', [
+            '--class' => 'RolePermissionSeeder'
+        ]);
+        
+        // 2. Clear Cache Spatie
+        \Illuminate\Support\Facades\Artisan::call('permission:cache-reset');
+        
+        return '✅ Sukses, Den! Roles, Permissions, dan akun Superadmin sudah masuk ke database online.';
+    } catch (\Exception $e) {
+        return '❌ Error: ' . $e->getMessage();
+    }
+});
