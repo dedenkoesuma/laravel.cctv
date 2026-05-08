@@ -104,7 +104,7 @@
 }
 
 .badge-resolution.active {
-    background: #dc3545;
+    background: #00A7E1; /* Warna Ruijie */
     color: white;
 }
 
@@ -141,7 +141,7 @@
     color: #333;
     margin-bottom: 20px;
     padding-bottom: 10px;
-    border-bottom: 2px solid #667eea;
+    border-bottom: 2px solid #00A7E1;
 }
 
 .specs-grid {
@@ -158,7 +158,7 @@
 }
 
 .spec-item i {
-    color: #667eea;
+    color: #00A7E1;
     font-size: 1.2rem;
     margin-top: 2px;
 }
@@ -187,7 +187,7 @@
 }
 
 .package-item i {
-    color: #28a745;
+    color: #f59e0b;
     font-size: 1.2rem;
 }
 
@@ -196,30 +196,33 @@
     font-size: 0.95rem;
 }
 
-/* ===== PRICE & ORDER ===== */
+/* ===== PRICE & ORDER (BARU: BANNER TANYA HARGA) ===== */
 .price-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #f0fdf4;
+    border: 2px dashed #22c55e;
     padding: 30px;
     border-radius: 12px;
-    color: white;
+    text-align: center;
     margin-top: 30px;
 }
 
 .price-label {
-    font-size: 0.9rem;
-    opacity: 0.9;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #166534;
     margin-bottom: 5px;
 }
 
 .price-value {
-    font-size: 2.5rem;
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #15803d;
     margin-bottom: 20px;
 }
 
 .btn-order {
-    background: white;
-    color: #667eea;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    color: white;
     border: none;
     padding: 15px 40px;
     border-radius: 10px;
@@ -231,11 +234,13 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
 }
 
 .btn-order:hover {
     transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 20px rgba(34, 197, 94, 0.35);
+    color: white;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -254,10 +259,6 @@
     
     .specs-grid {
         grid-template-columns: 1fr;
-    }
-    
-    .price-value {
-        font-size: 2rem;
     }
 }
 </style>
@@ -306,7 +307,7 @@
                             {{-- Memanggil nama kategori dari objek relasi --}}
                             @if($product->category)
                             <span class="badge-resolution inactive">
-                                {{ $product->category->name }}
+                                {{ $product->category->name ?? $product->category }}
                             </span>
                             @endif
                         </div>
@@ -368,7 +369,7 @@
                             @foreach($features as $item)
                                 @if(trim($item) !== '' && trim($item) !== '[]') {{-- Hindari menampilkan array kosong dari placeholder form --}}
                                 <div class="package-item">
-                                    <i class="bi bi-star-fill text-warning"></i> {{-- Ubah icon agar beda dengan spek --}}
+                                    <i class="bi bi-star-fill text-warning"></i>
                                     <span class="package-text">{{ trim($item) }}</span>
                                 </div>
                                 @endif
@@ -377,12 +378,12 @@
                         @endif
 
                         <div class="price-section">
-                            <div class="price-label">Harga/Unit:</div>
-                            <div class="price-value">IDR. {{ number_format($product->price ?? 0, 0, ',', '.') }}</div>
+                            <div class="price-label">🏷️ Penawaran Harga Spesial</div>
+                            <div class="price-value">Chat Admin untuk diskon & harga project</div>
                             
                             <button class="btn btn-order" onclick="orderNow()">
                                 <i class="bi bi-whatsapp"></i>
-                                Order Sekarang
+                                Chat Admin
                             </button>
                         </div>
                     </div>
@@ -405,9 +406,9 @@ function changeImage(imageSrc, thumbnail) {
 // Order now function
 function orderNow() {
     const productName = '{{ addslashes($product->name) }}';
-    const price = 'IDR. {{ number_format($product->price ?? 0, 0, ',', '.') }}';
     
-    const message = `Halo, saya tertarik dengan produk Ruijie:\n*${productName}*\nHarga: ${price}\n\nMohon informasi lebih lanjut.`;
+    // Pesan disamakan dengan index Ruijie
+    const message = `Halo Admin TechStore, saya tertarik dengan produk Ruijie berikut:\n\n*${productName}*\n\nBisa minta penawaran harga terbaik dan info ketersediaan stoknya? Terima kasih.`;
     
     window.open('https://wa.me/62881025756671?text=' + encodeURIComponent(message), '_blank');
 }
