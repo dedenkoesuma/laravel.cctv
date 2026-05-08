@@ -12,15 +12,22 @@ class AiAssistantController extends Controller
     private string $groqUrl = 'https://api.groq.com/openai/v1/chat/completions';
     private string $model   = 'llama-3.3-70b-versatile'; 
 
-    // Bikin fungsi khusus untuk narik semua katalog buat chatbot biasa
+    // Fungsi "Kebal Error" untuk ambil data katalog
     private function getKatalogText()
     {
-        // Ambil maksimal 50 produk untuk konteks chat biasa
-        $products = Product::where('stok', '>', 0)->limit(50)->get(['brand', 'nama', 'harga', 'spesifikasi']);
+        // Ambil data tanpa filter kolom spesifik (menghindari error column not found)
+        $products = Product::limit(50)->get();
         $text = "";
+        
         foreach ($products as $p) {
-            $hargaFormat = 'Rp ' . number_format($p->harga, 0, ',', '.');
-            $text .= "- {$p->nama} ({$p->brand}) | Harga: {$hargaFormat} | Spek: {$p->spesifikasi}\n";
+            // Cek dinamis: kalau 'nama' nggak ada, pakai 'name', dst.
+            $nama  = $p->nama ?? $p->name ?? $p->title ?? 'Produk Tanpa Nama';
+            $harga = $p->harga ?? $p->price ?? 0;
+            $spek  = $p->spesifikasi ?? $p->description ?? $p->deskripsi ?? '-';
+            $brand = $p->brand ?? $p->merk ?? '-';
+
+            $hargaFormat = 'Rp ' . number_format((float)$harga, 0, ',', '.');
+            $text .= "- {$nama} ({$brand}) | Harga: {$hargaFormat} | Spek: {$spek}\n";
         }
         return $text;
     }
@@ -33,13 +40,19 @@ class AiAssistantController extends Controller
             'messages.*.content'=> 'required|string|max:4000',
         ]);
 
-        $messages = $request->input('messages', []);
-        
-        // Masukkan data produk ke dalam prompt chat
-        $katalog = $this->getKatalogText();
-        $reply   = $this->callGroq($messages, $this->chatSystemPrompt($katalog));
+        try {
+            $messages = $request->input('messages', []);
+            $katalog  = $this->getKatalogText();
+            $reply    = $this->callGroq($messages, $this->chatSystemPrompt($katalog));
 
-        return response()->json(['reply' => $reply]);
+            return response()->json(['reply' => $reply]);
+            
+        } catch (\Exception $e) {
+            // Jika database error, tampilkan pesannya langsung di chat
+            return response()->json([
+                'reply' => 'Waduh Den, ada error di Database nih: ' . $e->getMessage()
+            ]);
+        }
     }
 
     public function recommend(Request $request)
@@ -51,50 +64,69 @@ class AiAssistantController extends Controller
             'fitur_khusus'=> 'nullable|array',
         ]);
 
-        $lokasi    = $request->input('lokasi');
-        $budget    = $request->input('budget');
-        $jumlahCam = $request->input('jumlah_cam');
-        $fitur     = $request->input('fitur_khusus', []);
+        try {
+            $lokasi    = $request->input('lokasi');
+            $budget    = $request->input('budget');
+            $jumlahCam = $request->input('jumlah_cam');
+            $fitur     = $request->input('fitur_khusus', []);
 
-        // Filter harga
-        $maxPricePerItem = ($budget / $jumlahCam) * 2;
-        $products = Product::where('harga', '<=', $maxPricePerItem)
-            ->where('stok', '>', 0)
-            ->limit(30)
-            ->get(['brand', 'nama', 'harga', 'spesifikasi']);
+            $maxPricePerItem = ($budget / $jumlahCam) * 2;
 
-        // CEGAT DISINI JIKA BUDGET KEKECILAN (TIDAK ADA PRODUK)
-        if ($products->isEmpty()) {
-            // Cari produk paling murah di database untuk diinfokan ke user
-            $termurah = Product::orderBy('harga', 'asc')->first();
+            // Ambil semua produk, filter manual via Collection agar tidak crash di Query SQL
+            $allProducts = Product::all();
             
-            if ($termurah) {
-                $hargaMin = 'Rp ' . number_format($termurah->harga, 0, ',', '.');
-                return response()->json([
-                    'reply' => "Mohon maaf, untuk budget tersebut kami belum memiliki paket yang sesuai. Paket termurah kami saat ini adalah **{$termurah->nama}** dengan harga **{$hargaMin}**.\n\nApakah Anda ingin mempertimbangkan paket tersebut?"
-                ]);
+            $products = $allProducts->filter(function($p) use ($maxPricePerItem) {
+                $harga = $p->harga ?? $p->price ?? 0;
+                return $harga <= $maxPricePerItem;
+            })->take(30);
+
+            // Cegat jika budget kekecilan
+            if ($products->isEmpty()) {
+                $termurah = $allProducts->sortBy(function($p) {
+                    return $p->harga ?? $p->price ?? 0;
+                })->first();
+                
+                if ($termurah) {
+                    $namaTermurah  = $termurah->nama ?? $termurah->name ?? 'Paket CCTV';
+                    $hargaTermurah = $termurah->harga ?? $termurah->price ?? 0;
+                    $hargaMin      = 'Rp ' . number_format((float)$hargaTermurah, 0, ',', '.');
+                    
+                    return response()->json([
+                        'reply' => "Mohon maaf, untuk budget tersebut kami belum memiliki paket yang sesuai. Paket termurah kami saat ini adalah **{$namaTermurah}** dengan harga **{$hargaMin}**.\n\nApakah Anda ingin mempertimbangkan paket tersebut?"
+                    ]);
+                }
+                
+                return response()->json(['reply' => 'Maaf, saat ini stok produk kami sedang kosong.']);
             }
+
+            $katalogText = "";
+            foreach ($products as $p) {
+                $nama  = $p->nama ?? $p->name ?? 'Produk';
+                $harga = $p->harga ?? $p->price ?? 0;
+                $spek  = $p->spesifikasi ?? $p->description ?? '-';
+                $brand = $p->brand ?? $p->merk ?? '-';
+                
+                $hargaFormat = 'Rp ' . number_format((float)$harga, 0, ',', '.');
+                $katalogText .= "- {$nama} ({$brand}) | Harga: {$hargaFormat} | Spek: {$spek}\n";
+            }
+
+            $fiturText    = !empty($fitur) ? implode(', ', $fitur) : 'Tidak ada';
+            $budgetFormat = 'Rp ' . number_format($budget, 0, ',', '.');
+
+            $userMessage = "Rekomendasikan produk CCTV untuk lokasi: {$lokasi}, budget: {$budgetFormat}, jumlah kamera: {$jumlahCam}, fitur: {$fiturText}.";
+
+            $reply = $this->callGroq(
+                [['role' => 'user', 'content' => $userMessage]],
+                $this->recommendSystemPrompt($katalogText)
+            );
+
+            return response()->json(['reply' => $reply]);
             
-            return response()->json(['reply' => 'Maaf, saat ini stok produk kami sedang kosong.']);
+        } catch (\Exception $e) {
+            return response()->json([
+                'reply' => 'Gagal baca database rekomendasi. Error: ' . $e->getMessage()
+            ]);
         }
-
-        $katalogText = "";
-        foreach ($products as $p) {
-            $hargaFormat = 'Rp ' . number_format($p->harga, 0, ',', '.');
-            $katalogText .= "- {$p->brand} {$p->nama} | Harga: {$hargaFormat} | Spek: {$p->spesifikasi}\n";
-        }
-
-        $fiturText   = !empty($fitur) ? implode(', ', $fitur) : 'Tidak ada';
-        $budgetFormat = 'Rp ' . number_format($budget, 0, ',', '.');
-
-        $userMessage = "Rekomendasikan produk CCTV untuk lokasi: {$lokasi}, budget: {$budgetFormat}, jumlah kamera: {$jumlahCam}, fitur: {$fiturText}.";
-
-        $reply = $this->callGroq(
-            [['role' => 'user', 'content' => $userMessage]],
-            $this->recommendSystemPrompt($katalogText)
-        );
-
-        return response()->json(['reply' => $reply]);
     }
 
     private function callGroq(array $messages, string $systemPrompt): string
@@ -102,7 +134,7 @@ class AiAssistantController extends Controller
         $apiKey = config('services.groq.key');
 
         if (empty($apiKey)) {
-            return 'Konfigurasi AI belum lengkap. Hubungi administrator. 🙏';
+            return 'Konfigurasi API Key Groq belum lengkap.';
         }
 
         $formattedMessages = [['role' => 'system', 'content' => $systemPrompt]];
@@ -118,18 +150,18 @@ class AiAssistantController extends Controller
             $response = Http::withToken($apiKey)->timeout(20)->retry(2, 500)->post($this->groqUrl, [
                 'model'       => $this->model,
                 'messages'    => $formattedMessages,
-                'temperature' => 0.5, // Turunkan sedikit biar gak ngarang
+                'temperature' => 0.5, 
                 'max_tokens'  => 1024,
                 'stream'      => false,
             ]);
 
             if ($response->failed()) {
-                return "Maaf, AI sedang mengalami gangguan jaringan.";
+                return "Maaf, AI sedang mengalami gangguan jaringan dengan Groq.";
             }
 
             return $response->json()['choices'][0]['message']['content'] ?? 'Maaf, format balasan error.';
         } catch (\Exception $e) {
-            return 'Terjadi kesalahan sistem: ' . $e->getMessage();
+            return 'Terjadi kesalahan sistem API: ' . $e->getMessage();
         }
     }
 
