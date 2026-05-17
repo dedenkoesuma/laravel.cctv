@@ -67,6 +67,15 @@
 .camera-footer, .access-footer { padding: 0 1.5rem 1.5rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
 .camera-brand, .access-brand { font-size: 0.75rem; font-weight: 600; color: #6c757d; text-transform: uppercase; }
 
+/* ===== TESTIMONI / HASIL INSTALASI CARDS ===== */
+.testimoni-card { border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.08); transition: all 0.3s ease; height: 100%; position: relative; cursor: pointer; background: #000; }
+.testimoni-card:hover { transform: translateY(-8px); box-shadow: 0 16px 32px rgba(0,0,0,0.2); }
+.testimoni-image { width: 100%; height: 260px; object-fit: cover; transition: transform 0.5s ease; opacity: 0.9; }
+.testimoni-card:hover .testimoni-image { transform: scale(1.08); opacity: 1; }
+.testimoni-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(15, 23, 42, 0.95), rgba(15, 23, 42, 0.6), transparent); color: white; padding: 30px 20px 15px; }
+.testimoni-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 5px; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
+.testimoni-location { font-size: 0.85rem; color: #e2e8f0; display: flex; align-items: center; gap: 5px; }
+
 /* ===== SERVICE CARDS ===== */
 .service-card { background: white; border-radius: 12px; padding: 2.5rem 2rem; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.08); transition: all 0.3s ease; height: 100%; }
 .service-card:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(0,0,0,0.15); }
@@ -89,7 +98,6 @@
 }
 </style>
 
-<!-- Hero Section -->
 <section class="hero-section">
     <div class="container">
         <h1 class="hero-title">Selamat Datang di TechStore</h1>
@@ -97,7 +105,6 @@
     </div>
 </section>
 
-<!-- Brands Section -->
 <section class="py-5 bg-white" id="brands">
     <div class="container">
         <h2 class="section-title text-center mb-5">Brand Partner Kami</h2>
@@ -123,7 +130,6 @@
     </div>
 </section>
 
-<!-- Paket Kamera Section -->
 <section class="py-5 bg-light">
     <div class="container">
         <div class="section-header">
@@ -172,7 +178,6 @@
     </div>
 </section>
 
-<!-- WiFi Camera Section -->
 <section class="py-5">
     <div class="container">
         <div class="section-header">
@@ -208,7 +213,6 @@
     </div>
 </section>
 
-<!-- Access Control Section -->
 <section class="py-5 bg-light">
     <div class="container">
         <div class="section-header">
@@ -224,7 +228,6 @@
             <div class="col-lg-3 col-md-6">
                 <div class="access-card">
                     <div class="access-image">
-                        <!-- Perbaikan Gambar: Menggunakan image dari DB jika ada, jika tidak, pakai dummy image Access Control -->
                         <img src="{{ isset($device['image']) ? asset($device['image']) : 'https://images.unsplash.com/photo-1558002038-1055907df827?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80' }}" 
                              alt="{{ $device['name'] }}" 
                              class="img-fluid" 
@@ -244,6 +247,63 @@
                 </div>
             </div>
             @endforeach
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title">Hasil Instalasi & Testimoni</h2>
+            <p class="section-description mx-auto" style="max-width: 600px;">Intip beberapa hasil nyata pemasangan kamera CCTV dan sistem keamanan oleh teknisi profesional kami.</p>
+        </div>
+
+        <div class="row g-4">
+            {{-- Mengambil data dari variabel $testimonials yang dilempar dari Controller --}}
+            @forelse($testimonials ?? [] as $testimoni)
+            <div class="col-lg-4 col-md-6">
+                <div class="testimoni-card">
+                    <img src="{{ asset('storage/' . $testimoni['image']) }}" alt="{{ $testimoni['title'] }}" class="testimoni-image">
+                    <div class="testimoni-overlay">
+                        <h5 class="testimoni-title">{{ $testimoni['title'] }}</h5>
+                        @if(isset($testimoni['location']))
+                        <span class="testimoni-location"><i class="bi bi-geo-alt-fill text-danger"></i> {{ $testimoni['location'] }}</span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            @empty
+            {{-- TAMPILAN CONTOH (DUMMY) JIKA DATA BACKEND MASIH KOSONG --}}
+            <div class="col-lg-4 col-md-6">
+                <div class="testimoni-card">
+                    <img src="{{ asset('storage/gambar/contoh-testimoni1.jpg') }}" onerror="this.src='https://images.unsplash.com/photo-1557597774-9d273605dfa9?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80'" alt="Instalasi 8 Channel" class="testimoni-image">
+                    <div class="testimoni-overlay">
+                        <h5 class="testimoni-title">Instalasi Dahua 8 Channel</h5>
+                        <span class="testimoni-location"><i class="bi bi-geo-alt-fill text-danger"></i> Perumahan Cluster, Jakarta</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="testimoni-card">
+                    <img src="https://images.unsplash.com/photo-1558002038-1055907df827?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="Instalasi Pabrik" class="testimoni-image">
+                    <div class="testimoni-overlay">
+                        <h5 class="testimoni-title">Sistem Akses Kontrol & CCTV</h5>
+                        <span class="testimoni-location"><i class="bi bi-geo-alt-fill text-danger"></i> Kawasan Industri Cikarang</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="testimoni-card">
+                    <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="Instalasi Toko" class="testimoni-image">
+                    <div class="testimoni-overlay">
+                        <h5 class="testimoni-title">Instalasi IP Camera 4 Titik</h5>
+                        <span class="testimoni-location"><i class="bi bi-geo-alt-fill text-danger"></i> Minimarket, Bekasi Raya</span>
+                    </div>
+                </div>
+            </div>
+            @endforelse
         </div>
     </div>
 </section>
@@ -281,7 +341,6 @@
     </div>
 </div>
 
-<!-- Services Section -->
 <section class="py-5">
     <div class="container">
         <div class="text-center mb-5">

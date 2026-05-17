@@ -34,6 +34,7 @@ use App\Http\Controllers\Admin\FinanceController;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\TestimonialController;
 
 /*
 |--------------------------------------------------------------------------
@@ -560,6 +561,15 @@ Route::middleware(['admin.auth'])->group(function () {
 
 }); // END middleware admin.auth
 
+// Pastikan ini berada di dalam group route admin Anda (misalnya yang dibungkus auth/admin)
+Route::prefix('admin')->name('admin.')->group(function () {
+    
+    // Route Testimoni
+    Route::get('/testimonials', [TestimonialController::class, 'index'])->name('testimonials.index');
+    Route::post('/testimonials', [TestimonialController::class, 'store'])->name('testimonials.store');
+    Route::delete('/testimonials/{id}', [TestimonialController::class, 'destroy'])->name('testimonials.destroy');
+    
+});
 // =====================================
 // LEGACY ROUTES
 // =====================================

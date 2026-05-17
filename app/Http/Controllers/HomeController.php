@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Testimonial;
 
 class HomeController extends Controller
 {
@@ -13,6 +14,7 @@ class HomeController extends Controller
      */
     public function index()
     {
+        $testimonials = Testimonial::latest()->take(6)->get();
         // 1. DATA BRANDS
         $brands = [
             ['name' => 'HIKVISION', 'slug' => 'hikvision', 'image' => 'hikvision.png'],
@@ -119,6 +121,6 @@ class HomeController extends Controller
             ['icon' => '🏢', 'title' => 'Kantor', 'description' => 'Keberadaan CCTV membuat karyawan, pelanggan, dan pengunjung lebih berhati-hati dalam berperilaku dan membantu menjaga lingkungan kerja yang kondusif.'],
         ];
 
-        return view('welcome', compact('brands', 'wifiCameras', 'packages', 'accessControls', 'services'));
+        return view('welcome', compact('brands', 'wifiCameras', 'packages', 'accessControls', 'services','testimonials'));
     }
 }
