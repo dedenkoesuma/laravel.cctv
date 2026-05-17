@@ -20,7 +20,7 @@ class TestimonialController extends Controller
         $request->validate([
             'title'    => 'required|string|max:255',
             'location' => 'nullable|string|max:255',
-            'image'    => 'required|image|mimes:jpeg,png,jpg,webp|max:2048', // Maksimal 2MB
+            'image'    => 'required|image|mimes:jpeg,png,jpg,webp|max:10240', // Maksimal 10MB
         ]);
 
         // Simpan gambar ke folder storage/app/public/testimoni
