@@ -20,7 +20,7 @@
         .sidebar-menu { padding: 20px 0 100px; }
         .menu-section-title { padding: 20px 24px 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; opacity: 0.6; letter-spacing: 1px; }
         .menu-item { padding: 14px 24px; display: flex; align-items: center; gap: 12px; color: white; text-decoration: none; transition: all 0.3s; cursor: pointer; border-left: 4px solid transparent; }
-        .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.2); border-left-color: white; color: white; }
+        .menu-item:hover, .menu-item.active { background: rgba(255,255,255,0.2); border-left-color: white; color: white; font-weight: bold; }
         .menu-item i { width: 24px; text-align: center; font-size: 18px; }
         .menu-item .badge { margin-left: auto; background: rgba(255,255,255,0.3); padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
         .logout-btn { position: fixed; bottom: 20px; left: 20px; width: 240px; padding: 12px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 8px; cursor: pointer; transition: all 0.3s; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; }
@@ -85,65 +85,70 @@
     </div>
     
     <div class="sidebar-menu">
-        <a href="/dashboard" class="menu-item active"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
+        <a href="/dashboard" class="menu-item {{ request()->is('dashboard') ? 'active' : '' }}"><i class="bi bi-speedometer2"></i><span>Dashboard</span></a>
 
         <div class="menu-section-title">Operations Management</div>
         
         @canany(['view_inventory', 'manage_inventory'])
-        <a href="/admin/gudang" class="menu-item"><i class="bi bi-box-seam"></i><span>Gudang</span></a>
+        <a href="/admin/gudang" class="menu-item {{ request()->is('admin/gudang*') && !request()->is('admin/gudang/sales-orders*') ? 'active' : '' }}"><i class="bi bi-box-seam"></i><span>Gudang</span></a>
         @endcanany
 
         @canany(['view_purchase_orders', 'manage_purchase_orders'])
-        <a href="{{ route('admin.po.index') }}" class="menu-item"><i class="bi bi-cart-check"></i><span>Purchase Order</span></a>
+        <a href="{{ route('admin.po.index') }}" class="menu-item {{ request()->routeIs('admin.po.*') ? 'active' : '' }}"><i class="bi bi-cart-check"></i><span>Purchase Order</span></a>
         @endcanany
         
         @canany(['view_sales_orders', 'manage_sales_orders'])
-        <a href="/admin/gudang/sales-orders" class="menu-item"><i class="bi bi-file-earmark-check"></i><span>Sales Order</span></a>
+        <a href="/admin/gudang/sales-orders" class="menu-item {{ request()->is('admin/gudang/sales-orders*') ? 'active' : '' }}"><i class="bi bi-file-earmark-check"></i><span>Sales Order</span></a>
         @endcanany
 
         @canany(['view_quotation', 'manage_quotation'])
-        <a href="{{ route('admin.quotation.index') }}" class="menu-item"><i class="bi bi-file-text"></i><span>Quotation</span></a>
+        <a href="{{ route('admin.quotation.index') }}" class="menu-item {{ request()->routeIs('admin.quotation.*') ? 'active' : '' }}"><i class="bi bi-file-text"></i><span>Quotation</span></a>
         @endcanany
 
         @canany(['view_bookkeeping', 'manage_bookkeeping'])
-        <a href="/admin/keuangan" class="menu-item"><i class="bi bi-wallet2"></i><span>Keuangan Boss</span></a>
+        <a href="/admin/keuangan" class="menu-item {{ request()->is('admin/keuangan*') ? 'active' : '' }}"><i class="bi bi-wallet2"></i><span>Keuangan Boss</span></a>
         @endcanany
 
         @can('manage_finance')
-        <a href="/admin/finance" class="menu-item"><i class="bi bi-receipt"></i><span>Finance Staff</span></a>
+        <a href="/admin/finance" class="menu-item {{ request()->is('admin/finance*') ? 'active' : '' }}"><i class="bi bi-receipt"></i><span>Finance Staff</span></a>
         @endcan
 
         @can('view_kalkulator')
-        <a href="{{ route('admin.modal.kalkulator') }}" class="menu-item"><i class="bi bi-calculator"></i><span>Kalkulator Modal</span></a>
+        <a href="{{ route('admin.modal.kalkulator') }}" class="menu-item {{ request()->routeIs('admin.modal.kalkulator') ? 'active' : '' }}"><i class="bi bi-calculator"></i><span>Kalkulator Modal</span></a>
         @endcan
 
         <div class="menu-section-title">Products Management</div>
         
         @canany(['view_ruijie', 'manage_ruijie'])
-        <a href="/admin/ruijie" class="menu-item"><i class="bi bi-router"></i><span>Ruijie Networks</span></a>
+        <a href="/admin/ruijie" class="menu-item {{ request()->is('admin/ruijie*') ? 'active' : '' }}"><i class="bi bi-router"></i><span>Ruijie Networks</span></a>
         @endcanany
         
         @canany(['view_wifi_cameras', 'manage_wifi_cameras'])
-        <a href="/admin/wifi-cameras" class="menu-item"><i class="bi bi-camera-video"></i><span>WiFi Cameras</span></a>
+        <a href="/admin/wifi-cameras" class="menu-item {{ request()->is('admin/wifi-cameras*') ? 'active' : '' }}"><i class="bi bi-camera-video"></i><span>WiFi Cameras</span></a>
         @endcanany
         
         @canany(['view_access_control', 'manage_access_control'])
-        <a href="/admin/access-control" class="menu-item"><i class="bi bi-shield-lock"></i><span>Access Control</span></a>
+        <a href="/admin/access-control" class="menu-item {{ request()->is('admin/access-control*') ? 'active' : '' }}"><i class="bi bi-shield-lock"></i><span>Access Control</span></a>
         @endcanany
         
         @canany(['view_static_products', 'manage_static_products'])
-        <a href="/admin/static-products" class="menu-item"><i class="bi bi-box"></i><span>Static Products</span></a>
+        <a href="/admin/static-products" class="menu-item {{ request()->is('admin/static-products*') ? 'active' : '' }}"><i class="bi bi-box"></i><span>Static Products</span></a>
         @endcanany
 
         <div class="menu-section-title">System</div>
         
         @canany(['view_users', 'manage_users'])
-        <a href="{{ route('admin.users.index') }}" class="menu-item"><i class="bi bi-people"></i><span>Users Account</span></a>
+        <a href="{{ route('admin.users.index') }}" class="menu-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}"><i class="bi bi-people"></i><span>Users Account</span></a>
         @endcanany
 
         @can('manage_roles')
-        <a href="{{ route('admin.roles.index') }}" class="menu-item"><i class="bi bi-shield-lock"></i><span>Roles & Permissions</span><span class="badge">SECURE</span></a>
+        <a href="{{ route('admin.roles.index') }}" class="menu-item {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}"><i class="bi bi-shield-lock"></i><span>Roles & Permissions</span><span class="badge">SECURE</span></a>
         @endcan
+
+        {{-- MENU BARU: TESTIMONI --}}
+        @canany(['view_testimonials', 'manage_testimonials'])
+        <a href="{{ route('admin.testimonials.index') }}" class="menu-item {{ request()->routeIs('admin.testimonials.*') ? 'active' : '' }}"><i class="bi bi-images"></i><span>Testimoni & Instalasi</span></a>
+        @endcanany
         
     </div>
     
@@ -412,6 +417,22 @@
                 @can('manage_roles')
                 <a href="{{ route('admin.roles.index') }}" class="btn btn-outline"><i class="bi bi-key"></i><span>Roles</span></a>
                 @endcan
+            </div>
+        </div>
+        @endcanany
+
+        {{-- CARD BARU: TESTIMONI --}}
+        @canany(['view_testimonials', 'manage_testimonials'])
+        <div class="product-category-card" style="border-left: 4px solid #ec4899;">
+            <div class="category-header">
+                <div class="category-icon" style="background: linear-gradient(135deg, #f472b6 0%, #db2777 100%);"><i class="bi bi-images" style="color: white;"></i></div>
+                <div class="category-info">
+                    <h3>Testimoni & Instalasi</h3>
+                    <p class="category-count">Kelola foto hasil pemasangan CCTV</p>
+                </div>
+            </div>
+            <div class="category-actions">
+                <a href="{{ route('admin.testimonials.index') }}" class="btn btn-primary"><i class="bi bi-images"></i><span>Kelola Galeri</span></a>
             </div>
         </div>
         @endcanany
