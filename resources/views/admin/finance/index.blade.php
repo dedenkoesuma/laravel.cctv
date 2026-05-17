@@ -127,12 +127,6 @@
         </div>
     </div>
 
-    {{-- INFO --}}
-    <div class="info-box mb-4">
-        ℹ️ <strong>Catatan:</strong> Invoice dari SO akan muncul di tab <strong>Invoice</strong>.
-        Tandai Lunas di sini → otomatis masuk laporan keuangan bos sebagai pemasukan.
-    </div>
-
     {{-- FILTER --}}
     <div class="d-flex gap-2 mb-3 align-items-center flex-wrap">
         <select id="filterBulan" class="form-select" style="width:auto; flex-grow: 1;" onchange="loadAll()">

@@ -12,51 +12,29 @@ class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        // Reset cache
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // === DAFTAR SEMUA PERMISSION ===
         $permissions = [
-            // Inventory / Gudang
             'view_inventory', 'manage_inventory',
-
-            // Sales & Purchase
             'view_sales_orders', 'manage_sales_orders',
             'view_purchase_orders', 'manage_purchase_orders',
-
-            // Quotation
             'view_quotation', 'manage_quotation',
-
-            // Keuangan Boss (bookkeeping)
             'view_bookkeeping', 'manage_bookkeeping',
-
-            // Finance Staff
             'view_finance', 'manage_finance',
-
-            // Static Products
-            'view_static_products', 'create_static_products',
-            'edit_static_products', 'delete_static_products',
-
-            // Ruijie
+            'view_static_products', 'create_static_products', 'edit_static_products', 'delete_static_products',
             'view_ruijie', 'manage_ruijie',
-
-            // WiFi Cameras
             'view_wifi_cameras', 'manage_wifi_cameras',
-
-            // Access Control
             'view_access_control', 'manage_access_control',
-
-            // System
             'view_users', 'manage_users', 'manage_roles',
+            'view_kalkulator', // ✅ Tambahan baru
         ];
 
         foreach ($permissions as $perm) {
             Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
         }
 
-        // === DEFINISI ROLE & PERMISSION-NYA ===
         $roleMatrix = [
-            'superadmin' => $permissions, // Semua permission
+            'superadmin' => $permissions,
 
             'admin' => [
                 'view_inventory', 'manage_inventory',
@@ -69,6 +47,7 @@ class RolePermissionSeeder extends Seeder
                 'view_ruijie', 'manage_ruijie',
                 'view_wifi_cameras', 'manage_wifi_cameras',
                 'view_access_control', 'manage_access_control',
+                'view_kalkulator', // ✅ Admin bisa akses kalkulator
             ],
 
             'finance' => [
@@ -97,7 +76,6 @@ class RolePermissionSeeder extends Seeder
             $role->syncPermissions($rolePerms);
         }
 
-        // === BUAT DEFAULT USER SUPERADMIN ===
         $superadmin = User::firstOrCreate(
             ['email' => 'superadmin@techstore.com'],
             [
