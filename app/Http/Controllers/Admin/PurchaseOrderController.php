@@ -40,7 +40,6 @@ class PurchaseOrderController extends Controller
     }
 
     // ===== SIMPAN PO BARU =====
-    // ===== SIMPAN PO BARU =====
     public function store(Request $request)
     {
         $request->validate([
@@ -55,7 +54,7 @@ class PurchaseOrderController extends Controller
         DB::beginTransaction();
         try {
             $calc   = $this->calculate($request);
-            $poNum  = $this->generatePoNumber();
+            $poNum  = $this->generatePoNumber(); // Menggunakan fungsi generatePoNumber yang sudah diperbaiki
 
             $poId = DB::table('purchase_orders')->insertGetId([
                 'po_number'       => $poNum,
@@ -101,14 +100,28 @@ class PurchaseOrderController extends Controller
             }
 
             // ===== INTEGRASI KE FINANCE (SEBAGAI PIUTANG DAGANG) =====
-            // Generate Kode Transaksi Finance (Pakai Prefix PIU)
-            $countFinance = DB::table('keuangan_transaksi')->whereYear('created_at', date('Y'))->where('tipe', 'pemasukan')->count();
-            $kodeFinance = 'PIU-' . date('Y') . '-' . str_pad($countFinance + 1, 4, '0', STR_PAD_LEFT);
+            // Generate Kode Transaksi Finance (Pakai Prefix PIU) - ANTI BENTROK
+            $tahun = date('Y');
+            $prefixFinance = 'PIU-' . $tahun . '-';
+            
+            $lastFinance = DB::table('keuangan_transaksi')
+                ->where('kode_transaksi', 'like', $prefixFinance . '%')
+                ->orderBy('kode_transaksi', 'desc')
+                ->first();
+
+            if ($lastFinance) {
+                $lastNumberFinance = (int) substr($lastFinance->kode_transaksi, -4);
+                $newNumberFinance = $lastNumberFinance + 1;
+            } else {
+                $newNumberFinance = 1;
+            }
+
+            $kodeFinance = $prefixFinance . str_pad($newNumberFinance, 4, '0', STR_PAD_LEFT);
 
             DB::table('keuangan_transaksi')->insert([
                 'kode_transaksi' => $kodeFinance,
                 'tipe'           => 'pemasukan', // Di sistemmu, piutang disimpan sbg pemasukan + pending
-                'kategori'       => 'Piutang Dagang', // <-- Berubah ke Piutang Dagang
+                'kategori'       => 'Piutang Dagang',
                 'jumlah'         => $calc['total'],
                 'tanggal'        => $request->po_date,
                 'deskripsi'      => 'Pembayaran PO: ' . $poNum,
@@ -177,7 +190,6 @@ class PurchaseOrderController extends Controller
             foreach ($request->items as $item) {
                 $sub = ($item['qty'] * $item['unit_price']) - ($item['discount_item'] ?? 0);
                 DB::table('purchase_order_items')->insert([
-                    // ... (Isi field items tetap sama persis seperti aslinya) ...
                     'purchase_order_id'  => $id,
                     'product_name'       => $item['product_name'],
                     'product_description'=> $item['product_description'] ?? null,
@@ -362,12 +374,25 @@ class PurchaseOrderController extends Controller
         ];
     }
 
-    // ===== HELPER: GENERATE NO. PO =====
+    // ===== HELPER: GENERATE NO. PO (ANTI DUPLIKAT) =====
     private function generatePoNumber(): string
     {
         $tahun = date('Y');
-        $count = DB::table('purchase_orders')->whereYear('created_at', $tahun)->count();
-        return 'PO-' . $tahun . '-' . str_pad($count + 1, 4, '0', STR_PAD_LEFT);
+        $prefix = 'PO-' . $tahun . '-';
+
+        $lastPo = DB::table('purchase_orders')
+            ->where('po_number', 'like', $prefix . '%')
+            ->orderBy('po_number', 'desc')
+            ->first();
+
+        if ($lastPo) {
+            $lastNumber = (int) substr($lastPo->po_number, -4);
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 1;
+        }
+
+        return $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
     }
 
     // ===== HELPER: LOG =====
@@ -382,10 +407,13 @@ class PurchaseOrderController extends Controller
             'updated_at'        => now(),
         ]);
     }
+    
+    // ===== HISTORY =====
     public function history()
     {
         return view('admin.purchase-orders.history');
     }
+    
     // ===== EXPORT KE CSV =====
     public function export(Request $request)
     {
@@ -435,5 +463,4 @@ class PurchaseOrderController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
-
 }
