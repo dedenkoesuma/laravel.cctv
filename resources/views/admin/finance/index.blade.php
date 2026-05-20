@@ -1,31 +1,19 @@
 {{-- resources/views/admin/finance/index.blade.php --}}
 @extends('layouts.finance')
-@section('title', 'Finance Staff - Input Piutang & Pengeluaran')
+@section('title', 'Finance Staff - Input Penjualan, Piutang & Pengeluaran')
 @section('content')
 <style>
-.fin-header {
-    background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%);
-    color: white; padding: 28px 24px;
-    border-radius: 14px; margin-bottom: 24px;
-}
-.summary-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    gap: 16px; margin-bottom: 24px;
-}
-.sum-card {
-    background: white; border-radius: 12px; padding: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-    border-left: 4px solid #e5e7eb; transition: transform 0.2s;
-}
+.fin-header { background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%); color: white; padding: 28px 24px; border-radius: 14px; margin-bottom: 24px; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.sum-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); border-left: 4px solid #e5e7eb; transition: transform 0.2s; }
 .sum-card:hover { transform: translateY(-2px); }
-.sum-card.piutang-all     { border-left-color: #f59e0b; }
 .sum-card.piutang-pending { border-left-color: #ef4444; }
-.sum-card.piutang-lunas   { border-left-color: #10b981; }
+.sum-card.penjualan-lunas { border-left-color: #10b981; }
 .sum-card.pengeluaran     { border-left-color: #8b5cf6; }
 .sum-icon { width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:12px; }
 .sum-value { font-size: 1.4rem; font-weight: 800; color: #111827; }
 .sum-label { font-size: 0.78rem; color: #6b7280; margin-top: 2px; }
-
+.sum-sublabel { font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
 /* TABS */
 .fin-tabs { display:flex;gap:4px;background:white;border-radius:12px;padding:6px;box-shadow:0 2px 10px rgba(0,0,0,0.07);margin-bottom:18px;flex-wrap:wrap; }
 .fin-tab { padding:9px 18px;border-radius:8px;border:none;font-size:.83rem;font-weight:600;cursor:pointer;transition:all .2s;color:#6b7280;background:transparent;display:flex;align-items:center;gap:6px; }
@@ -49,6 +37,7 @@
 /* BADGES */
 .tipe-badge { display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700; }
 .tipe-badge.piutang     { background:#fef3c7;color:#92400e; }
+.tipe-badge.penjualan   { background:#d1fae5;color:#065f46; }
 .tipe-badge.pengeluaran { background:#ede9fe;color:#5b21b6; }
 .status-badge { padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:600; }
 .status-badge.lunas   { background:#d1fae5;color:#065f46; }
@@ -72,7 +61,7 @@
 .form-control,.form-select { border-radius:8px;border:1px solid #d1d5db;font-size:.875rem;padding:8px 12px; }
 .info-box { background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:10px;padding:14px;font-size:.83rem;color:#1e40af; }
 
-/* LAPORAN */
+/* LAPORAN CSS */
 .lap-tab-btn { padding:8px 18px;border-radius:8px;border:2px solid #e5e7eb;background:white;font-weight:700;font-size:.82rem;cursor:pointer;transition:all .2s;color:#374151; }
 .lap-tab-btn.active { background:#0f172a;color:white;border-color:#0f172a; }
 .lr-row { display:flex;justify-content:space-between;align-items:center;padding:7px 10px;border-bottom:1px solid #f3f4f6;font-size:.85rem; }
@@ -94,19 +83,10 @@
 
 /* FIX RESPONSIVE MOBILE */
 @media(max-width:768px) {
-    .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .sum-card { padding: 15px; }
-    .sum-value { font-size: 1.1rem; }
-    
     .toolbar { flex-direction: column; align-items: stretch; padding: 14px; }
     .toolbar > * { width: 100%; margin-bottom: 8px; }
     .toolbar > *:last-child { margin-bottom: 0; }
-    
-    .fin-header { padding: 20px 16px; }
     .fin-header .d-flex { flex-direction: column; align-items: stretch !important; text-align: center; }
-    .fin-header .d-flex > div:last-child { justify-content: center; margin-top: 10px; }
-    
-    .fin-tabs { justify-content: center; }
 }
 </style>
 
@@ -117,10 +97,11 @@
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
                 <h1 class="fs-3 fw-bold mb-1">📋 Finance Staff</h1>
-                <p class="mb-0 opacity-75">Kelola invoice, piutang & pengeluaran — data masuk ke laporan keuangan bos</p>
+                <p class="mb-0 opacity-75">Kelola penjualan, piutang & pengeluaran — data terhubung ke laporan bos</p>
             </div>
-            <div class="d-flex gap-2 flex-wrap">
+            <div class="d-flex gap-2 flex-wrap justify-content-center">
                 <button class="btn fw-bold" style="background:#10b981;color:white;" onclick="bukaModalLaporan()">📊 Laporan</button>
+                <button class="btn fw-bold" style="background:#3b82f6;color:white;" onclick="bukaModal('penjualan')">🛍️ Input Penjualan</button>
                 <button class="btn fw-bold" style="background:#f59e0b;color:white;" onclick="bukaModal('piutang')">💰 Input Piutang</button>
                 <button class="btn btn-danger fw-bold" onclick="bukaModal('pengeluaran')">💸 Input Pengeluaran</button>
             </div>
@@ -142,28 +123,38 @@
     </div>
 
     {{-- SUMMARY --}}
-    <div class="summary-grid">
-        <div class="sum-card piutang-all">
-            <div class="sum-icon" style="background:#fef3c7">💰</div>
-            <div class="sum-value text-warning" id="sumPiutangBulan">-</div>
-            <div class="sum-label">Total Piutang Bulan Ini</div>
-        </div>
-        <div class="sum-card piutang-pending">
-            <div class="sum-icon" style="background:#fee2e2">⏳</div>
-            <div class="sum-value text-danger" id="sumPiutangPending">-</div>
-            <div class="sum-label">Piutang Belum Lunas</div>
-        </div>
-        <div class="sum-card piutang-lunas">
-            <div class="sum-icon" style="background:#d1fae5">✅</div>
-            <div class="sum-value text-success" id="sumPiutangLunas">-</div>
-            <div class="sum-label">Piutang Lunas Bulan Ini</div>
-        </div>
-        <div class="sum-card pengeluaran">
-            <div class="sum-icon" style="background:#ede9fe">💸</div>
-            <div class="sum-value" style="color:#5b21b6" id="sumPengeluaran">-</div>
-            <div class="sum-label">Pengeluaran Bulan Ini</div>
-        </div>
+   <div class="summary-grid">
+    <div class="sum-card penjualan-lunas">
+        <div class="sum-icon" style="background:#d1fae5">🛍️</div>
+        <div class="sum-value text-success" id="sumPenjualanBulan">-</div>
+        <div class="sum-label">Penjualan Lunas Bulan Ini</div>
+        <div class="sum-sublabel">Ecommerce & toko</div>
     </div>
+    <div class="sum-card" style="border-left-color:#10b981">
+        <div class="sum-icon" style="background:#d1fae5">✅</div>
+        <div class="sum-value text-success" id="sumPiutangLunas">-</div>
+        <div class="sum-label">Piutang Lunas Bulan Ini</div>
+        <div class="sum-sublabel">Tagihan terbayar</div>
+    </div>
+    <div class="sum-card piutang-pending">
+        <div class="sum-icon" style="background:#fee2e2">⏳</div>
+        <div class="sum-value text-danger" id="sumPiutangPending">-</div>
+        <div class="sum-label">Piutang Belum Lunas</div>
+        <div class="sum-sublabel">Semua periode</div>
+    </div>
+    <div class="sum-card pengeluaran">
+        <div class="sum-icon" style="background:#ede9fe">💸</div>
+        <div class="sum-value" style="color:#5b21b6" id="sumPengeluaran">-</div>
+        <div class="sum-label">Pengeluaran Bulan Ini</div>
+        <div class="sum-sublabel">Lunas saja</div>
+    </div>
+    <div class="sum-card" style="border-left-color:#0ea5e9">
+        <div class="sum-icon" style="background:#e0f2fe">💰</div>
+        <div class="sum-value" style="color:#0369a1" id="sumTotalLunas">-</div>
+        <div class="sum-label">Total Transaksi Lunas</div>
+        <div class="sum-sublabel">SO + PO + Finance bulan ini</div>
+    </div>
+</div>
 
     {{-- TABS --}}
     <div class="fin-tabs">
@@ -178,38 +169,22 @@
     {{-- ===== TAB INVOICE ===== --}}
     <div id="tab-invoice" class="tab-pane active">
         <div class="toolbar">
-            <input type="text" id="searchInv" placeholder="🔍 Cari invoice / SO / customer..."
-                style="flex:1;min-width:180px;" oninput="debounceInv()">
+            <input type="text" id="searchInv" placeholder="🔍 Cari invoice / SO / customer..." style="flex:1;min-width:180px;" oninput="debounceInv()">
             <select id="filterInvStatus" onchange="loadInvoice()">
                 <option value="">Semua Status</option>
                 <option value="pending">⏳ Belum Lunas</option>
                 <option value="lunas">✅ Sudah Lunas</option>
             </select>
-            <button class="btn btn-outline-secondary btn-sm" onclick="loadInvoice()">
-                <i class="bi bi-arrow-clockwise"></i> Refresh
-            </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="loadInvoice()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
         </div>
 
         <div class="table-card">
-            <div id="loadingInv" class="loading-overlay">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p class="mt-2">Memuat invoice...</p>
-            </div>
+            <div id="loadingInv" class="loading-overlay"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Memuat invoice...</p></div>
             <div id="invContainer" style="display:none">
                 <div class="table-responsive">
                     <table class="table mb-0">
                         <thead>
-                            <tr>
-                                <th>Invoice</th>
-                                <th>SO</th>
-                                <th>Customer</th>
-                                <th>Tgl Invoice</th>
-                                <th>Tipe Bayar</th>
-                                <th>Jatuh Tempo</th>
-                                <th class="text-end">Total</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">Aksi</th>
-                            </tr>
+                            <tr><th>Invoice</th><th>SO</th><th>Customer</th><th>Tgl Invoice</th><th>Tipe Bayar</th><th>Jatuh Tempo</th><th class="text-end">Total</th><th class="text-center">Status</th><th class="text-center">Aksi</th></tr>
                         </thead>
                         <tbody id="invTableBody"></tbody>
                     </table>
@@ -221,11 +196,11 @@
     {{-- ===== TAB TRANSAKSI ===== --}}
     <div id="tab-transaksi" class="tab-pane">
         <div class="toolbar">
-            <input type="text" id="searchInput" placeholder="🔍 Cari transaksi / kode / nama..."
-                style="flex:1;min-width:180px;" oninput="debounceLoad()">
+            <input type="text" id="searchInput" placeholder="🔍 Cari transaksi / kode / nama..." style="flex:1;min-width:180px;" oninput="debounceLoad()">
             <select id="filterTipe" onchange="loadTransaksi()">
                 <option value="">Semua Tipe</option>
-                <option value="piutang">💰 Piutang</option>
+                <option value="penjualan">🛍️ Penjualan (Lunas)</option>
+                <option value="piutang">💰 Piutang (Tempo)</option>
                 <option value="pengeluaran">💸 Pengeluaran</option>
             </select>
             <select id="filterStatus" onchange="loadTransaksi()">
@@ -234,26 +209,15 @@
                 <option value="pending">⏳ Pending</option>
                 <option value="batal">❌ Batal</option>
             </select>
-            <button class="btn btn-outline-secondary btn-sm" onclick="loadTransaksi()">
-                <i class="bi bi-arrow-clockwise"></i> Refresh
-            </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="loadTransaksi()"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
         </div>
         <div class="table-card">
-            <div id="loadingTrx" class="loading-overlay">
-                <div class="spinner-border text-primary" role="status"></div>
-                <p class="mt-2">Memuat data...</p>
-            </div>
+            <div id="loadingTrx" class="loading-overlay"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Memuat data...</p></div>
             <div id="tableContainer" style="display:none">
                 <div class="table-responsive">
                     <table class="table mb-0">
                         <thead>
-                            <tr>
-                                <th>Kode</th><th>Tanggal</th><th>Tipe</th><th>Deskripsi</th>
-                                <th>Pihak Terkait</th><th>Kategori</th>
-                                <th class="text-end">Jumlah</th>
-                                <th class="text-center">Status</th>
-                                <th class="text-center">Aksi</th>
-                            </tr>
+                            <tr><th>Kode</th><th>Tanggal</th><th>Tipe</th><th>Deskripsi</th><th>Pihak Terkait</th><th>Kategori</th><th class="text-end">Jumlah</th><th class="text-center">Status</th><th class="text-center">Aksi</th></tr>
                         </thead>
                         <tbody id="trxTableBody"></tbody>
                     </table>
@@ -274,12 +238,8 @@
             <div class="modal-body" id="detailInvBody"></div>
             <div class="modal-footer">
                 <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-                <button class="btn btn-dark btn-sm" id="btnDownloadInv" onclick="downloadInv()">
-                    <i class="bi bi-file-pdf me-1"></i>Download PDF
-                </button>
-                <button class="btn btn-success btn-sm" id="btnLunasInv" onclick="tandaiLunasInv()">
-                    ✅ Tandai Lunas
-                </button>
+                <button class="btn btn-dark btn-sm" id="btnDownloadInv" onclick="downloadInv()"><i class="bi bi-file-pdf me-1"></i>Download PDF</button>
+                <button class="btn btn-success btn-sm" id="btnLunasInv" onclick="tandaiLunasInv()">✅ Tandai Lunas</button>
             </div>
         </div>
     </div>
@@ -316,7 +276,8 @@
                     <div class="col-md-6">
                         <label class="form-label">Tipe <span class="text-danger">*</span></label>
                         <select class="form-select" id="inputTipe" onchange="updateKategori()">
-                            <option value="piutang">💰 Piutang</option>
+                            <option value="penjualan">🛍️ Penjualan Tunai / Lunas</option>
+                            <option value="piutang">💰 Piutang (Tempo)</option>
                             <option value="pengeluaran">💸 Pengeluaran</option>
                         </select>
                     </div>
@@ -325,8 +286,8 @@
                         <select class="form-select" id="inputKategori"></select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Pihak Terkait <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="inputPihak" placeholder="Nama customer / perusahaan">
+                        <label class="form-label">Pihak Terkait (Customer/Supplier) <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="inputPihak" placeholder="Nama entitas">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Jumlah (Rp) <span class="text-danger">*</span></label>
@@ -336,7 +297,7 @@
                         <label class="form-label">Tanggal <span class="text-danger">*</span></label>
                         <input type="date" class="form-control" id="inputTanggal">
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6" id="wrapJatuhTempo">
                         <label class="form-label">Jatuh Tempo</label>
                         <input type="date" class="form-control" id="inputJatuhTempo">
                         <div class="form-text">Khusus piutang — opsional</div>
@@ -358,11 +319,11 @@
                             <option value="kartu_kredit">💳 Kartu Kredit</option>
                         </select>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6" id="wrapStatus">
                         <label class="form-label">Status</label>
                         <select class="form-select" id="inputStatus">
-                            <option value="pending">⏳ Pending</option>
                             <option value="lunas">✅ Lunas</option>
+                            <option value="pending">⏳ Pending</option>
                             <option value="batal">❌ Batal</option>
                         </select>
                     </div>
@@ -374,9 +335,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn fw-bold" id="btnSimpan" onclick="simpanTransaksi()">
-                    <i class="bi bi-save me-1"></i>Simpan
-                </button>
+                <button type="button" class="btn fw-bold" id="btnSimpan" onclick="simpanTransaksi()"><i class="bi bi-save me-1"></i>Simpan</button>
             </div>
         </div>
     </div>
@@ -423,7 +382,7 @@
                     </select>
                     <select id="lapTahun" class="form-select form-select-sm" style="width:auto;" onchange="lapLoadAll()">
                         @for($y=date('Y');$y>=date('Y')-3;$y--)
-                            <option value="{{ $y }}">{{ $y }}</option>
+                            <option value="{{ $y }}" {{ $y==date('Y')?'selected':'' }}>{{ $y }}</option>
                         @endfor
                     </select>
                     <div class="ms-auto d-flex gap-2 flex-wrap">
@@ -490,6 +449,7 @@ const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || 
 let currentInvId = null;
 
 const KATEGORI = {
+    penjualan: ['Penjualan Online','Penjualan Toko','Proyek Instalasi','Jasa Maintenance','Lain-lain'],
     piutang: ['Piutang Dagang','Piutang Jasa','Piutang Instalasi','Piutang Maintenance','Uang Muka / DP','Lain-lain'],
     pengeluaran: ['Pembelian Stok','Operasional Kantor','Gaji Karyawan','Transport & Pengiriman','Marketing & Iklan','Listrik & Internet','Sewa Tempat','Pajak','Peralatan','Lain-lain'],
 };
@@ -505,7 +465,11 @@ function getTahun() { return document.getElementById('filterTahun').value; }
 function debounceLoad() { clearTimeout(debounceTimer); debounceTimer = setTimeout(loadTransaksi, 400); }
 function debounceInv()  { clearTimeout(debounceInvTimer); debounceInvTimer = setTimeout(loadInvoice, 400); }
 
-function loadAll() { loadSummary(); loadInvoice(); loadTransaksi(); }
+function loadAll() {
+    loadSummary();
+    loadInvoice();
+    loadTransaksi();
+}
 
 function switchTab(name, btn) {
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
@@ -517,13 +481,21 @@ function switchTab(name, btn) {
 // ===== SUMMARY =====
 async function loadSummary() {
     try {
-        const res = await fetch(`/api/admin/finance/summary?bulan=${getBulan()}&tahun=${getTahun()}`);
-        const d   = await res.json();
-        document.getElementById('sumPiutangBulan').textContent   = formatRp(d.piutang_bulan);
-        document.getElementById('sumPiutangPending').textContent = formatRp(d.piutang_pending);
-        document.getElementById('sumPiutangLunas').textContent   = formatRp(d.piutang_lunas);
-        document.getElementById('sumPengeluaran').textContent    = formatRp(d.pengeluaran_bulan);
-    } catch(e) { console.error(e); }
+        const url = `/api/admin/finance/summary?bulan=${getBulan()}&tahun=${getTahun()}`;
+        const res = await fetch(url);
+        
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        
+        const d = await res.json();
+        
+        document.getElementById('sumPenjualanBulan').textContent  = formatRp(d.penjualan_bulan || 0);
+        document.getElementById('sumPiutangLunas').textContent    = formatRp(d.piutang_lunas || 0);
+        document.getElementById('sumPiutangPending').textContent  = formatRp(d.piutang_pending || 0);
+        document.getElementById('sumPengeluaran').textContent     = formatRp(d.pengeluaran_bulan || 0);
+        document.getElementById('sumTotalLunas').textContent      = formatRp(d.total_lunas_bulan || 0);
+    } catch(e) { 
+        console.error("Gagal memuat summary:", e); 
+    }
 }
 
 // ===== LOAD INVOICE =====
@@ -531,18 +503,25 @@ async function loadInvoice() {
     document.getElementById('loadingInv').style.display  = 'block';
     document.getElementById('invContainer').style.display = 'none';
 
-    const search = document.getElementById('searchInv').value;
-    const status = document.getElementById('filterInvStatus').value;
+    try {
+        const search = document.getElementById('searchInv').value;
+        const status = document.getElementById('filterInvStatus').value;
 
-    const res  = await fetch(`/api/admin/finance/invoices?search=${encodeURIComponent(search)}&status=${status}`);
-    const data = await res.json();
-    const list = data.data || [];
+        const res  = await fetch(`/api/admin/finance/invoices?search=${encodeURIComponent(search)}&status=${status}`);
+        if (!res.ok) throw new Error('Network response was not ok');
+        
+        const data = await res.json();
+        const list = data.data || [];
 
-    document.getElementById('tabInvCount').textContent = list.length;
-    renderInvoice(list);
-
-    document.getElementById('loadingInv').style.display  = 'none';
-    document.getElementById('invContainer').style.display = 'block';
+        document.getElementById('tabInvCount').textContent = list.length;
+        renderInvoice(list);
+    } catch (error) {
+        console.error("Gagal memuat data invoice:", error);
+        document.getElementById('invTableBody').innerHTML = `<tr><td colspan="9" class="text-center py-5 text-danger">Terjadi kesalahan saat memuat data.</td></tr>`;
+    } finally {
+        document.getElementById('loadingInv').style.display  = 'none';
+        document.getElementById('invContainer').style.display = 'block';
+    }
 }
 
 function renderInvoice(list) {
@@ -596,103 +575,105 @@ function renderInvoice(list) {
 // ===== LIHAT DETAIL INVOICE + ITEM + SN =====
 async function lihatDetailInv(id) {
     currentInvId = id;
-    const res  = await fetch(`/api/admin/finance/invoice-detail/${id}`);
-    const data = await res.json();
-    if (!data.success) return;
+    try {
+        const res  = await fetch(`/api/admin/finance/invoice-detail/${id}`);
+        if (!res.ok) throw new Error('Network response was not ok');
+        const data = await res.json();
+        if (!data.success) return;
 
-    const inv   = data.invoice;
-    const so    = data.so;
-    const items = data.items || [];
+        const inv   = data.invoice;
+        const so    = data.so;
+        const items = data.items || [];
 
-    const isLunas = inv.status === 'lunas';
+        const isLunas = inv.status === 'lunas';
 
-    document.getElementById('btnLunasInv').style.display  = isLunas ? 'none' : 'inline-flex';
-    document.getElementById('btnDownloadInv').href = `/admin/gudang/sales-orders/${so?.id}/invoice/download`;
+        document.getElementById('btnLunasInv').style.display  = isLunas ? 'none' : 'inline-flex';
+        document.getElementById('btnDownloadInv').href = `/admin/gudang/sales-orders/${so?.id}/invoice/download`;
 
-    // Items dengan SN
-    const itemRows = items.map(item => {
-        const snBadges = (item.serials || []).map(s =>
-            `<span class="sn-badge">${s.serial_number}</span>`
-        ).join('');
-        const snSection = item.serials?.length
-            ? `<div class="mt-1">${snBadges}
-               <button class="btn btn-xs btn-outline-primary py-0 px-2 ms-1" onclick="cetakSN(${JSON.stringify(item.serials).replace(/"/g,"'")}, '${item.nama_produk}')">
-                   🖨️ Cetak SN
-               </button></div>`
-            : '';
-        return `<tr>
-            <td>${item.nama_produk||item.notes||'—'}</td>
-            <td class="text-center">${item.qty}</td>
-            <td>Rp ${parseInt(item.harga_satuan).toLocaleString('id-ID')}</td>
-            <td class="fw-bold text-success">Rp ${parseInt(item.subtotal).toLocaleString('id-ID')}</td>
-            <td>${snSection || '<span class="text-muted small">—</span>'}</td>
-        </tr>`;
-    }).join('');
+        // Items dengan SN
+        const itemRows = items.map(item => {
+            const snBadges = (item.serials || []).map(s =>
+                `<span class="sn-badge">${s.serial_number}</span>`
+            ).join('');
+            const snSection = item.serials?.length
+                ? `<div class="mt-1">${snBadges}
+                   <button class="btn btn-xs btn-outline-primary py-0 px-2 ms-1" onclick="cetakSN(${JSON.stringify(item.serials).replace(/"/g,"'")}, '${item.nama_produk}')">
+                       🖨️ Cetak SN
+                   </button></div>`
+                : '';
+            return `<tr>
+                <td>${item.nama_produk||item.notes||'—'}</td>
+                <td class="text-center">${item.qty}</td>
+                <td>Rp ${parseInt(item.harga_satuan).toLocaleString('id-ID')}</td>
+                <td class="fw-bold text-success">Rp ${parseInt(item.subtotal).toLocaleString('id-ID')}</td>
+                <td>${snSection || '<span class="text-muted small">—</span>'}</td>
+            </tr>`;
+        }).join('');
 
-    const dpRows = (inv.dp_nominal > 0) ? `
-        <tr>
-            <td colspan="3" class="text-end text-muted">DP / Uang Muka</td>
-            <td colspan="2" class="fw-bold text-warning">- ${formatRp(inv.dp_nominal)}</td>
-        </tr>
-        <tr style="background:#f0fdf4;">
-            <td colspan="3" class="text-end fw-bold">SISA TAGIHAN</td>
-            <td colspan="2" class="fw-bold text-danger fs-6">${formatRp(inv.sisa_tagihan)}</td>
-        </tr>` : '';
+        const dpRows = (inv.dp_nominal > 0) ? `
+            <tr>
+                <td colspan="3" class="text-end text-muted">DP / Uang Muka</td>
+                <td colspan="2" class="fw-bold text-warning">- ${formatRp(inv.dp_nominal)}</td>
+            </tr>
+            <tr style="background:#f0fdf4;">
+                <td colspan="3" class="text-end fw-bold">SISA TAGIHAN</td>
+                <td colspan="2" class="fw-bold text-danger fs-6">${formatRp(inv.sisa_tagihan)}</td>
+            </tr>` : '';
 
-    const dpInfoRows = (inv.dp_nominal > 0) ? `
-        <tr><td class="text-muted">DP / Uang Muka</td><td><strong class="text-warning">${formatRp(inv.dp_nominal)}</strong></td></tr>
-        <tr><td class="text-muted">Sisa Tagihan</td><td><strong class="text-danger">${formatRp(inv.sisa_tagihan)}</strong></td></tr>` : '';
+        const dpInfoRows = (inv.dp_nominal > 0) ? `
+            <tr><td class="text-muted">DP / Uang Muka</td><td><strong class="text-warning">${formatRp(inv.dp_nominal)}</strong></td></tr>
+            <tr><td class="text-muted">Sisa Tagihan</td><td><strong class="text-danger">${formatRp(inv.sisa_tagihan)}</strong></td></tr>` : '';
 
-    document.getElementById('detailInvBody').innerHTML = `
-        <div class="row g-3 mb-3">
-            <div class="col-md-6">
-                <div class="p-3" style="background:#f8fafc;border-radius:8px;border:1px solid #e5e7eb;">
-                    <div class="fw-bold mb-2 text-primary">🧾 Info Invoice</div>
-                    <table class="table table-borderless table-sm mb-0 small">
-                        <tr><td class="text-muted">No. Invoice</td><td><strong style="font-family:monospace">${inv.invoice_number||inv.kode_transaksi}</strong></td></tr>
-                        <tr><td class="text-muted">No. SO</td><td><span style="font-family:monospace">${inv.so_number||'—'}</span></td></tr>
-                        <tr><td class="text-muted">Customer</td><td><strong>${inv.pihak_terkait||'—'}</strong></td></tr>
-                        <tr><td class="text-muted">Tgl Invoice</td><td>${formatDate(inv.invoice_date||inv.tanggal)}</td></tr>
-                        <tr><td class="text-muted">Tipe Bayar</td><td>${inv.tipe_bayar==='tempo'?`⏱ Tempo ${inv.tempo_hari} hari`:'💵 Cash'}</td></tr>
-                        ${inv.jatuh_tempo?`<tr><td class="text-muted">Jatuh Tempo</td><td><strong>${formatDate(inv.jatuh_tempo)}</strong></td></tr>`:''}
-                        <tr><td class="text-muted">Status</td><td><span class="status-badge ${inv.status}">${inv.status}</span></td></tr>
-                        ${dpInfoRows}
-                    </table>
+        document.getElementById('detailInvBody').innerHTML = `
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <div class="p-3" style="background:#f8fafc;border-radius:8px;border:1px solid #e5e7eb;">
+                        <div class="fw-bold mb-2 text-primary">🧾 Info Invoice</div>
+                        <table class="table table-borderless table-sm mb-0 small">
+                            <tr><td class="text-muted">No. Invoice</td><td><strong style="font-family:monospace">${inv.invoice_number||inv.kode_transaksi}</strong></td></tr>
+                            <tr><td class="text-muted">No. SO</td><td><span style="font-family:monospace">${inv.so_number||'—'}</span></td></tr>
+                            <tr><td class="text-muted">Customer</td><td><strong>${inv.pihak_terkait||'—'}</strong></td></tr>
+                            <tr><td class="text-muted">Tgl Invoice</td><td>${formatDate(inv.invoice_date||inv.tanggal)}</td></tr>
+                            <tr><td class="text-muted">Tipe Bayar</td><td>${inv.tipe_bayar==='tempo'?`⏱ Tempo ${inv.tempo_hari} hari`:'💵 Cash'}</td></tr>
+                            ${inv.jatuh_tempo?`<tr><td class="text-muted">Jatuh Tempo</td><td><strong>${formatDate(inv.jatuh_tempo)}</strong></td></tr>`:''}
+                            <tr><td class="text-muted">Status</td><td><span class="status-badge ${inv.status}">${inv.status}</span></td></tr>
+                            ${dpInfoRows}
+                        </table>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3" style="background:#eff6ff;border-radius:8px;border:1px solid #bfdbfe;">
+                        <div class="fw-bold mb-2 text-primary">🏦 Rekening Tujuan</div>
+                        <div class="fw-bold fs-5">${inv.nama_bank||'—'}</div>
+                        <div style="font-family:monospace;font-size:1.1rem;font-weight:700">${inv.no_rekening||'—'}</div>
+                        <div class="text-muted small">a.n. ${inv.nama_rekening||'—'}</div>
+                        <div class="mt-2"><span class="badge bg-light text-dark">${inv.metode_bayar||'—'}</span></div>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="p-3" style="background:#eff6ff;border-radius:8px;border:1px solid #bfdbfe;">
-                    <div class="fw-bold mb-2 text-primary">🏦 Rekening Tujuan</div>
-                    <div class="fw-bold fs-5">${inv.nama_bank||'—'}</div>
-                    <div style="font-family:monospace;font-size:1.1rem;font-weight:700">${inv.no_rekening||'—'}</div>
-                    <div class="text-muted small">a.n. ${inv.nama_rekening||'—'}</div>
-                    <div class="mt-2"><span class="badge bg-light text-dark">${inv.metode_bayar||'—'}</span></div>
-                </div>
-            </div>
-        </div>
-        <div class="fw-bold mb-2">📦 Item Produk</div>
-        <div style="overflow-x:auto;">
-            <table class="table table-bordered table-sm">
-                <thead class="table-light">
-                    <tr><th>Produk</th><th>Qty</th><th>Harga</th><th>Subtotal</th><th>Serial Number</th></tr>
-                </thead>
-                <tbody>${itemRows||'<tr><td colspan="5" class="text-center text-muted">Data item tidak tersedia</td></tr>'}</tbody>
-                <tfoot class="table-light">
-                    <tr><td colspan="3" class="text-end fw-bold">TOTAL</td><td colspan="2" class="fw-bold text-success">${formatRp(inv.jumlah)}</td></tr>
-                    ${dpRows}
-                </tfoot>
-            </table>
-        </div>`;
+            <div class="fw-bold mb-2">📦 Item Produk</div>
+            <div style="overflow-x:auto;">
+                <table class="table table-bordered table-sm">
+                    <thead class="table-light">
+                        <tr><th>Produk</th><th>Qty</th><th>Harga</th><th>Subtotal</th><th>Serial Number</th></tr>
+                    </thead>
+                    <tbody>${itemRows||'<tr><td colspan="5" class="text-center text-muted">Data item tidak tersedia</td></tr>'}</tbody>
+                    <tfoot class="table-light">
+                        <tr><td colspan="3" class="text-end fw-bold">TOTAL</td><td colspan="2" class="fw-bold text-success">${formatRp(inv.jumlah)}</td></tr>
+                        ${dpRows}
+                    </tfoot>
+                </table>
+            </div>`;
 
-    // Kita passing 'piutang' default karena ini tab invoice
-    document.getElementById('btnLunasInv').setAttribute('onclick', `bukaModalLunas(${id},'${inv.invoice_number||inv.kode_transaksi}','${inv.pihak_terkait||'-'}',${inv.jumlah},'piutang')`);
-    new bootstrap.Modal(document.getElementById('modalDetailInv')).show();
+        document.getElementById('btnLunasInv').setAttribute('onclick', `bukaModalLunas(${id},'${inv.invoice_number||inv.kode_transaksi}','${inv.pihak_terkait||'-'}',${inv.jumlah},'piutang')`);
+        new bootstrap.Modal(document.getElementById('modalDetailInv')).show();
+    } catch(e) {
+        console.error("Gagal memuat detail invoice:", e);
+    }
 }
 
-// ===== TANDAI LUNAS DARI DETAIL MODAL =====
 function tandaiLunasInv() {
     bootstrap.Modal.getInstance(document.getElementById('modalDetailInv')).hide();
-    // Logic modal lunas sudah di-handle oleh onclick dari btnLunasInv
 }
 
 function downloadInv() {
@@ -700,7 +681,6 @@ function downloadInv() {
     window.open(href, '_blank');
 }
 
-// ===== CETAK SN =====
 function cetakSN(serials, produk) {
     const snList = serials.map(s => `
         <div style="border:1px solid #e5e7eb;border-radius:6px;padding:8px 12px;margin-bottom:6px;display:flex;align-items:center;gap:8px;">
@@ -716,73 +696,58 @@ function cetakSN(serials, produk) {
     new bootstrap.Modal(document.getElementById('modalCetakSN')).show();
 }
 
-// ===== KONFIRMASI LUNAS =====
-async function konfirmasiLunas() {
-    const id  = document.getElementById('lunasId').value;
-    const res = await fetch(`/api/admin/finance/transaksi/${id}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':csrfToken },
-        body: JSON.stringify({ status: 'lunas' }),
-    });
-    const data = await res.json();
-    if (data.success) {
-        bootstrap.Modal.getInstance(document.getElementById('modalLunas')).hide();
-        showToast('✅ ' + data.message, 'success');
-        loadAll();
-    } else {
-        showToast('❌ Gagal memperbarui status', 'danger');
-    }
-}
-
-// ===== BUKA MODAL LUNAS DARI TABEL =====
-function bukaModalLunas(id, kode, pihak, jumlah, tipe) {
-    document.getElementById('lunasId').value = id;
-    const jenis = (tipe === 'pengeluaran') ? 'HUTANG (Pengeluaran)' : 'PIUTANG';
-    document.getElementById('lunasKeterangan').innerHTML = `
-        <span class="badge bg-dark mb-1">${jenis}</span><br>
-        ${kode} — ${pihak} — <strong>${formatRp(jumlah)}</strong><br>
-        <small class="text-muted">Akan ditandai sebagai Lunas.</small>
-    `;
-    new bootstrap.Modal(document.getElementById('modalLunas')).show();
-}
-
 // ===== TRANSAKSI =====
 async function loadTransaksi() {
     document.getElementById('loadingTrx').style.display     = 'block';
     document.getElementById('tableContainer').style.display = 'none';
 
-    const search = document.getElementById('searchInput').value;
-    const tipe   = document.getElementById('filterTipe').value;
-    const status = document.getElementById('filterStatus').value;
+    try {
+        const search = document.getElementById('searchInput').value;
+        const tipe   = document.getElementById('filterTipe').value;
+        const status = document.getElementById('filterStatus').value;
 
-    const res  = await fetch(`/api/admin/finance/transaksi?bulan=${getBulan()}&tahun=${getTahun()}&search=${encodeURIComponent(search)}&tipe=${tipe}&status=${status}`);
-    const data = await res.json();
+        const res  = await fetch(`/api/admin/finance/transaksi?bulan=${getBulan()}&tahun=${getTahun()}&search=${encodeURIComponent(search)}&tipe=${tipe}&status=${status}`);
+        if (!res.ok) throw new Error('Network response was not ok');
+        const data = await res.json();
 
-    renderTransaksi(data.data || []);
-    document.getElementById('loadingTrx').style.display     = 'none';
-    document.getElementById('tableContainer').style.display = 'block';
+        renderTransaksi(data.data || []);
+    } catch (error) {
+        console.error("Gagal memuat data transaksi:", error);
+        document.getElementById('trxTableBody').innerHTML = `<tr><td colspan="9" class="text-center py-5 text-danger">Terjadi kesalahan saat memuat data.</td></tr>`;
+    } finally {
+        document.getElementById('loadingTrx').style.display     = 'none';
+        document.getElementById('tableContainer').style.display = 'block';
+    }
 }
 
 function renderTransaksi(list) {
     const tbody = document.getElementById('trxTableBody');
     if (!list.length) {
-        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-5 text-muted"><i class="bi bi-inbox fs-1 d-block mb-2"></i>Belum ada transaksi</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center py-5 text-muted">Belum ada transaksi</td></tr>`;
         return;
     }
     tbody.innerHTML = list.map(t => {
         const isPiutang = t.tipe === 'piutang';
+        const isPenjualan = t.tipe === 'penjualan';
         const isPending = t.status === 'pending';
-        // Hapus (isPiutang &&) agar tombol lunas muncul di hutang pending juga
+        
+        let iconTipe = '💸'; 
+        let warnaNominal = 'text-danger';
+        
+        if(isPiutang) { iconTipe = '💰'; warnaNominal = 'text-warning'; }
+        if(isPenjualan) { iconTipe = '🛍️'; warnaNominal = 'text-success'; }
+
         const btnLunas = isPending
             ? `<button class="btn btn-xs btn-outline-success py-0 px-2" onclick="bukaModalLunas(${t.id},'${t.kode_transaksi}','${t.pihak_terkait}',${t.jumlah},'${t.tipe}')" title="Tandai Lunas">✅</button>` : '';
+            
         return `<tr>
             <td><span class="badge bg-light text-dark border" style="font-family:monospace">${t.kode_transaksi}</span></td>
             <td>${formatDate(t.tanggal)}</td>
-            <td><span class="tipe-badge ${t.tipe}">${isPiutang?'💰':'💸'} ${t.tipe}</span></td>
+            <td><span class="tipe-badge ${t.tipe}">${iconTipe} ${t.tipe}</span></td>
             <td><div class="fw-semibold">${t.deskripsi}</div>${t.referensi?`<small class="text-muted">${t.referensi}</small>`:''}</td>
             <td>${t.pihak_terkait||'<span class="text-muted">-</span>'}</td>
             <td><span class="badge bg-light text-dark">${t.kategori}</span></td>
-            <td class="text-end fw-bold ${isPiutang?'text-warning':'text-danger'}">${formatRp(t.jumlah)}</td>
+            <td class="text-end fw-bold ${warnaNominal}">${formatRp(t.jumlah)}</td>
             <td class="text-center"><span class="status-badge ${t.status}">${t.status}</span></td>
             <td class="text-center">
                 <div class="d-flex gap-1 justify-content-center">
@@ -795,18 +760,49 @@ function renderTransaksi(list) {
     }).join('');
 }
 
+// ===== BUKA MODAL LUNAS =====
+function bukaModalLunas(id, kode, pihak, jumlah, tipe) {
+    document.getElementById('lunasId').value = id;
+    const jenis = (tipe === 'pengeluaran') ? 'HUTANG (Pengeluaran)' : (tipe === 'penjualan' ? 'PENJUALAN' : 'PIUTANG');
+    document.getElementById('lunasKeterangan').innerHTML = `
+        <span class="badge bg-dark mb-1">${jenis}</span><br>
+        ${kode} — ${pihak} — <strong>${formatRp(jumlah)}</strong><br>
+        <small class="text-muted">Akan ditandai sebagai Lunas.</small>
+    `;
+    new bootstrap.Modal(document.getElementById('modalLunas')).show();
+}
+
 // ===== MODAL INPUT =====
-function bukaModal(tipe='piutang') {
+function bukaModal(tipe='penjualan') {
     resetModal();
-    document.getElementById('inputTipe').value   = tipe;
-    document.getElementById('inputStatus').value = tipe==='piutang'?'pending':'lunas';
+    document.getElementById('inputTipe').value = tipe;
     updateKategori();
+    
+    document.getElementById('inputStatus').value = (tipe==='piutang') ? 'pending' : 'lunas';
+    
+    // UI Adjustments based on Tipe
     const header = document.getElementById('modalHeader');
-    header.style.background = tipe==='piutang'?'linear-gradient(135deg,#78350f,#f59e0b)':'linear-gradient(135deg,#4c1d95,#8b5cf6)';
-    header.style.color = 'white';
-    document.getElementById('modalTitle').textContent = tipe==='piutang'?'💰 Input Piutang':'💸 Input Pengeluaran';
     const btn = document.getElementById('btnSimpan');
-    btn.style.background = tipe==='piutang'?'#f59e0b':'#8b5cf6';
+    const wrapJt = document.getElementById('wrapJatuhTempo');
+    
+    if(tipe === 'penjualan') {
+        header.style.background = 'linear-gradient(135deg,#1d4ed8,#3b82f6)';
+        document.getElementById('modalTitle').textContent = '🛍️ Input Penjualan';
+        btn.style.background = '#3b82f6';
+        wrapJt.style.display = 'none';
+    } else if(tipe === 'piutang') {
+        header.style.background = 'linear-gradient(135deg,#78350f,#f59e0b)';
+        document.getElementById('modalTitle').textContent = '💰 Input Piutang';
+        btn.style.background = '#f59e0b';
+        wrapJt.style.display = 'block';
+    } else {
+        header.style.background = 'linear-gradient(135deg,#4c1d95,#8b5cf6)';
+        document.getElementById('modalTitle').textContent = '💸 Input Pengeluaran';
+        btn.style.background = '#8b5cf6';
+        wrapJt.style.display = 'none';
+    }
+    
+    header.style.color = 'white';
     btn.style.color = 'white'; btn.style.borderColor = 'transparent';
     new bootstrap.Modal(document.getElementById('modalInput')).show();
 }
@@ -815,6 +811,9 @@ function updateKategori() {
     const tipe = document.getElementById('inputTipe').value;
     const sel  = document.getElementById('inputKategori');
     sel.innerHTML = (KATEGORI[tipe]||[]).map(k=>`<option value="${k}">${k}</option>`).join('');
+    
+    // Toggle Jatuh Tempo
+    document.getElementById('wrapJatuhTempo').style.display = (tipe === 'piutang') ? 'block' : 'none';
 }
 
 async function simpanTransaksi() {
@@ -851,41 +850,83 @@ async function simpanTransaksi() {
 }
 
 async function editTransaksi(id) {
-    const res=await fetch(`/api/admin/finance/transaksi/${id}`);
-    const data=await res.json();
-    if(!data.success)return;
-    const t=data.data;
-    document.getElementById('editId').value=t.id;
-    document.getElementById('inputTipe').value=t.tipe; updateKategori();
-    document.getElementById('inputKategori').value=t.kategori;
-    document.getElementById('inputPihak').value=t.pihak_terkait||'';
-    document.getElementById('inputJumlah').value=t.jumlah;
-    document.getElementById('inputTanggal').value=t.tanggal;
-    document.getElementById('inputJatuhTempo').value=t.jatuh_tempo||'';
-    document.getElementById('inputDeskripsi').value=t.deskripsi;
-    document.getElementById('inputReferensi').value=t.referensi||'';
-    document.getElementById('inputMetode').value=t.metode_bayar||'transfer';
-    document.getElementById('inputStatus').value=t.status;
-    document.getElementById('inputCatatan').value=t.catatan||'';
-    const header=document.getElementById('modalHeader');
-    header.style.background='#1f2937'; header.style.color='white';
-    document.getElementById('modalTitle').textContent='✏️ Edit Transaksi';
-    const btn=document.getElementById('btnSimpan');
-    btn.style.background='#374151'; btn.style.color='white';
-    new bootstrap.Modal(document.getElementById('modalInput')).show();
+    try {
+        const res=await fetch(`/api/admin/finance/transaksi/${id}`);
+        if (!res.ok) throw new Error('Network response was not ok');
+        const data=await res.json();
+        if(!data.success)return;
+        const t=data.data;
+        
+        document.getElementById('editId').value=t.id;
+        
+        // Tentukan tipe untuk frontend
+        let uiTipe = t.tipe;
+        if (t.tipe === 'pemasukan') {
+            uiTipe = (t.status === 'pending') ? 'piutang' : 'penjualan';
+        }
+        
+        document.getElementById('inputTipe').value = uiTipe; 
+        updateKategori();
+        
+        document.getElementById('inputKategori').value=t.kategori;
+        document.getElementById('inputPihak').value=t.pihak_terkait||'';
+        document.getElementById('inputJumlah').value=t.jumlah;
+        document.getElementById('inputTanggal').value=t.tanggal;
+        document.getElementById('inputJatuhTempo').value=t.jatuh_tempo||'';
+        document.getElementById('inputDeskripsi').value=t.deskripsi;
+        document.getElementById('inputReferensi').value=t.referensi||'';
+        document.getElementById('inputMetode').value=t.metode_bayar||'transfer';
+        document.getElementById('inputStatus').value=t.status;
+        document.getElementById('inputCatatan').value=t.catatan||'';
+        
+        const header=document.getElementById('modalHeader');
+        header.style.background='#1f2937'; header.style.color='white';
+        document.getElementById('modalTitle').textContent='✏️ Edit Transaksi';
+        const btn=document.getElementById('btnSimpan');
+        btn.style.background='#374151'; btn.style.color='white';
+        new bootstrap.Modal(document.getElementById('modalInput')).show();
+    } catch (e) {
+        console.error("Gagal memuat data edit:", e);
+        showToast('❌ Gagal memuat data transaksi', 'danger');
+    }
 }
 
 async function hapusTransaksi(id,kode) {
     if(!confirm(`Hapus transaksi ${kode}?`))return;
-    const res=await fetch(`/api/admin/finance/transaksi/${id}`,{method:'DELETE',headers:{'Accept':'application/json','X-CSRF-TOKEN':csrfToken}});
-    const data=await res.json();
-    if(data.success){showToast('✅ '+data.message,'success');loadAll();}
+    try {
+        const res=await fetch(`/api/admin/finance/transaksi/${id}`,{method:'DELETE',headers:{'Accept':'application/json','X-CSRF-TOKEN':csrfToken}});
+        const data=await res.json();
+        if(data.success){showToast('✅ '+data.message,'success');loadAll();}
+    } catch(e) {
+        showToast('❌ Gagal menghapus', 'danger');
+    }
 }
 
 function resetModal() {
-    ['editId','inputPihak','inputJumlah','inputDeskripsi','inputReferensi','inputCatatan'].forEach(id=>document.getElementById(id).value='');
+    ['editId','inputPihak','inputJumlah','inputDeskripsi','inputReferensi','inputCatatan','inputJatuhTempo'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('inputMetode').value='transfer';
     document.getElementById('inputTanggal').value=new Date().toISOString().split('T')[0];
+}
+
+async function konfirmasiLunas() {
+    const id  = document.getElementById('lunasId').value;
+    try {
+        const res = await fetch(`/api/admin/finance/transaksi/${id}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type':'application/json','Accept':'application/json','X-CSRF-TOKEN':csrfToken },
+            body: JSON.stringify({ status: 'lunas' }),
+        });
+        const data = await res.json();
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('modalLunas')).hide();
+            showToast('✅ ' + data.message, 'success');
+            loadAll();
+        } else {
+            showToast('❌ Gagal memperbarui status', 'danger');
+        }
+    } catch (e) {
+        showToast('❌ Terjadi kesalahan jaringan', 'danger');
+    }
 }
 
 // ===== LAPORAN =====
@@ -943,7 +984,7 @@ async function lapLoadCashFlow(){
 function lapExportExcel(){window.open(`/api/admin/laporan/export-excel?bulan=${lapGetBulan()}&tahun=${lapGetTahun()}&jenis=semua`,'_blank');}
 function lapExportPdf(){window.open(`/admin/finance/laporan/pdf?bulan=${lapGetBulan()}&tahun=${lapGetTahun()}&jenis=${lapCurrentTab==='lr'?'laba_rugi':'cashflow'}`,'_blank');}
 
-// ===== HELPERS =====
+// ===== UTILS =====
 function formatRp(num){return 'Rp '+parseInt(num||0).toLocaleString('id-ID')}
 function formatDate(str){if(!str)return '-';return new Date(str).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}
 function showToast(msg,type){const el=document.createElement('div');el.className=`alert alert-${type} position-fixed bottom-0 end-0 m-3 shadow`;el.style.zIndex=9999;el.style.minWidth='280px';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),3500);}
