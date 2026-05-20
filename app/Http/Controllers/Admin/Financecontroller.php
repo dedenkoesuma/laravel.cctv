@@ -1,4 +1,7 @@
 <?php
+// =====================================================
+// FILE: app/Http/Controllers/Admin/FinanceController.php
+// =====================================================
 
 namespace App\Http\Controllers\Admin;
 
@@ -8,70 +11,77 @@ use Illuminate\Support\Facades\DB;
 
 class FinanceController extends Controller
 {
+    // ===== HALAMAN STAFF FINANCE =====
     public function index()
     {
         return view('admin.finance.index');
     }
 
-   public function getSummary(Request $request)
-{
-    $bulan = $request->bulan ?? date('m');
-    $tahun = $request->tahun ?? date('Y');
+    // ===== API: SUMMARY KHUSUS FINANCE =====
+    public function getSummary(Request $request)
+    {
+        $bulan = $request->bulan ?? date('m');
+        $tahun = $request->tahun ?? date('Y');
 
-    // Penjualan lunas bulan ini (TRX- saja, bukan PIU-)
-    $penjualanBulan = DB::table('keuangan_transaksi')
-        ->where('tipe', 'pemasukan')
-        ->where('status', 'lunas')
-        ->where('kode_transaksi', 'not like', 'PIU-%')
-        ->whereMonth('tanggal', $bulan)
-        ->whereYear('tanggal', $tahun)
-        ->sum('jumlah');
+        // PIUTANG LUNAS (Hanya yang kodenya PIU)
+        $piutangLunas = DB::table('keuangan_transaksi')
+            ->where('tipe', 'pemasukan')
+            ->where('status', 'lunas')
+            ->where('kode_transaksi', 'like', 'PIU-%')
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->sum('jumlah');
 
-    // Piutang belum lunas (PIU- + pending)
-    $piutangPending = DB::table('keuangan_transaksi')
-        ->where('tipe', 'pemasukan')
-        ->where('status', 'pending')
-        ->where('kode_transaksi', 'like', 'PIU-%')
-        ->sum('jumlah');
+        // PIUTANG PENDING (Hanya yang kodenya PIU, agar TRX Pending tidak masuk sini)
+        $piutangPending = DB::table('keuangan_transaksi')
+            ->where('tipe', 'pemasukan')
+            ->where('status', 'pending')
+            ->where('kode_transaksi', 'like', 'PIU-%')
+            ->sum('jumlah');
 
-    // Piutang lunas bulan ini (PIU- + lunas)
-    $piutangLunas = DB::table('keuangan_transaksi')
-        ->where('tipe', 'pemasukan')
-        ->where('status', 'lunas')
-        ->where('kode_transaksi', 'like', 'PIU-%')
-        ->whereMonth('tanggal', $bulan)
-        ->whereYear('tanggal', $tahun)
-        ->sum('jumlah');
+        // PENJUALAN LUNAS BULAN INI (Hanya yang kodenya TRX atau INV)
+        $penjualanBulan = DB::table('keuangan_transaksi')
+            ->where('tipe', 'pemasukan')
+            ->where('status', 'lunas')
+            ->where(function($q) {
+                $q->where('kode_transaksi', 'like', 'TRX-%')
+                  ->orWhere('kode_transaksi', 'like', 'INV-%');
+            })
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->sum('jumlah');
 
-    // Pengeluaran lunas bulan ini
-    $pengeluaranBulan = DB::table('keuangan_transaksi')
-        ->where('tipe', 'pengeluaran')
-        ->where('status', 'lunas')
-        ->whereMonth('tanggal', $bulan)
-        ->whereYear('tanggal', $tahun)
-        ->sum('jumlah');
+        $pengeluaranBulan = DB::table('keuangan_transaksi')
+            ->where('tipe', 'pengeluaran')
+            ->where('status', 'lunas')
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->sum('jumlah');
 
-    // Total semua transaksi lunas bulan ini (finance + SO invoice + PO)
-    $totalLunasBulan = DB::table('keuangan_transaksi')
-        ->where('status', 'lunas')
-        ->whereMonth('tanggal', $bulan)
-        ->whereYear('tanggal', $tahun)
-        ->sum('jumlah');
+        // TOTAL LUNAS BULAN INI (Semua Pemasukan yang Lunas)
+        $totalLunasBulan = DB::table('keuangan_transaksi')
+            ->where('tipe', 'pemasukan')
+            ->where('status', 'lunas')
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->sum('jumlah');
 
-    return response()->json([
-        'piutang_pending'   => $piutangPending,
-        'piutang_lunas'     => $piutangLunas,
-        'penjualan_bulan'   => $penjualanBulan,
-        'pengeluaran_bulan' => $pengeluaranBulan,
-        'total_lunas_bulan' => $totalLunasBulan,
-    ]);
-}
+        return response()->json([
+            'piutang_lunas'     => $piutangLunas,
+            'piutang_pending'   => $piutangPending,
+            'penjualan_bulan'   => $penjualanBulan,
+            'pengeluaran_bulan' => $pengeluaranBulan,
+            'total_lunas_bulan' => $totalLunasBulan,
+        ]);
+    }
 
+    // ===== API: LIST TRANSAKSI FINANCE =====
     public function getTransaksi(Request $request)
     {
         $query = DB::table('keuangan_transaksi')
             ->whereIn('tipe', ['pemasukan', 'pengeluaran']);
 
+        // Filter Dropdown Berdasarkan Kode (Agar tidak nyasar)
         if ($request->tipe) {
             if ($request->tipe === 'pengeluaran') {
                 $query->where('tipe', 'pengeluaran');
@@ -80,10 +90,13 @@ class FinanceController extends Controller
                       ->where('kode_transaksi', 'like', 'PIU-%');
             } elseif ($request->tipe === 'penjualan') {
                 $query->where('tipe', 'pemasukan')
-                      ->where('kode_transaksi', 'not like', 'PIU-%');
+                      ->where(function($q) {
+                          $q->where('kode_transaksi', 'like', 'TRX-%')
+                            ->orWhere('kode_transaksi', 'like', 'INV-%');
+                      });
             }
         }
-
+        
         if ($request->status) $query->where('status', $request->status);
         if ($request->bulan)  $query->whereMonth('tanggal', $request->bulan);
         if ($request->tahun)  $query->whereYear('tanggal', $request->tahun);
@@ -98,11 +111,21 @@ class FinanceController extends Controller
 
         $transaksi = $query->orderByDesc('tanggal')->orderByDesc('id')->get();
 
+        // KUNCI UTAMA: Konversi label untuk Frontend secara cerdas
         $transaksi->transform(function ($t) {
             if ($t->tipe === 'pemasukan') {
-                // Tentukan tipe dari prefix kode, BUKAN dari status
-                // PIU- = piutang (tempo), TRX- = penjualan
-                $t->tipe = str_starts_with($t->kode_transaksi, 'PIU-') ? 'piutang' : 'penjualan';
+                // Jika kodenya TRX atau INV = MURNI PENJUALAN
+                if (str_starts_with($t->kode_transaksi, 'TRX') || str_starts_with($t->kode_transaksi, 'INV')) {
+                    $t->tipe = 'penjualan';
+                } 
+                // Jika kodenya PIU = MURNI PIUTANG
+                elseif (str_starts_with($t->kode_transaksi, 'PIU')) {
+                    $t->tipe = 'piutang';
+                } 
+                // Fallback untuk data lama
+                else {
+                    $t->tipe = ($t->status === 'pending') ? 'piutang' : 'penjualan';
+                }
             }
             return $t;
         });
@@ -110,6 +133,7 @@ class FinanceController extends Controller
         return response()->json(['success' => true, 'data' => $transaksi]);
     }
 
+    // ===== API: LIST INVOICE =====
     public function getInvoices(Request $request)
     {
         $query = DB::table('keuangan_transaksi')
@@ -120,7 +144,7 @@ class FinanceController extends Controller
         if ($request->search) {
             $query->where(function ($q) use ($request) {
                 $q->where('invoice_number', 'like', '%' . $request->search . '%')
-                  ->orWhere('no_order',      'like', '%' . $request->search . '%')
+                  ->orWhere('no_order',     'like', '%' . $request->search . '%')
                   ->orWhere('pihak_terkait', 'like', '%' . $request->search . '%')
                   ->orWhere('kode_transaksi','like', '%' . $request->search . '%');
             });
@@ -136,6 +160,7 @@ class FinanceController extends Controller
         return response()->json(['success' => true, 'data' => $data]);
     }
 
+    // ===== API: DETAIL INVOICE + ITEM SO + SERIAL NUMBER =====
     public function getInvoiceDetail($id)
     {
         $invoice = DB::table('keuangan_transaksi')->where('id', $id)->first();
@@ -163,6 +188,7 @@ class FinanceController extends Controller
                         if (!$item->nama_produk && $item->notes) {
                             $item->nama_produk = $item->notes;
                         }
+
                         $item->serials = $item->product_id
                             ? DB::table('barang_masuk')
                                 ->where('product_id', $item->product_id)
@@ -172,6 +198,7 @@ class FinanceController extends Controller
                                 ->select('id', 'serial_number')
                                 ->get()
                             : collect();
+
                         return $item;
                     });
             }
@@ -185,6 +212,7 @@ class FinanceController extends Controller
         ]);
     }
 
+    // ===== SIMPAN TRANSAKSI =====
     public function store(Request $request)
     {
         $request->validate([
@@ -198,15 +226,15 @@ class FinanceController extends Controller
         ]);
 
         $kode   = $this->generateKode($request->tipe);
+        
+        // Penjualan & Piutang sama-sama masuk sebagai 'pemasukan' di DB
         $tipeDb = in_array($request->tipe, ['piutang', 'penjualan']) ? 'pemasukan' : 'pengeluaran';
-
-        // Piutang selalu pending, penjualan & pengeluaran ikut input (default lunas)
+        
+        // Cek status dari input, jika tidak ada baru gunakan default
         $defaultStatus = $request->tipe === 'piutang' ? 'pending' : 'lunas';
-
+        
         $allowedMetode = ['cash', 'transfer', 'qris', 'kartu_kredit'];
-        $metode = in_array($request->metode_bayar, $allowedMetode)
-            ? $request->metode_bayar
-            : 'transfer';
+        $metode = in_array($request->metode_bayar, $allowedMetode) ? $request->metode_bayar : 'transfer';
 
         DB::table('keuangan_transaksi')->insert([
             'kode_transaksi' => $kode,
@@ -220,23 +248,53 @@ class FinanceController extends Controller
             'metode_bayar'   => $metode,
             'status'         => $request->status ?? $defaultStatus,
             'pihak_terkait'  => $request->pihak_terkait,
-            'catatan'        => $request->catatan
-                . ($request->metode_bayar && !in_array($request->metode_bayar, $allowedMetode)
-                    ? ' | Tipe bayar: ' . $request->metode_bayar
-                    : ''),
-            'created_by'     => $this->getCreatedBy(),
+            'catatan'        => $request->catatan 
+            . ($request->metode_bayar && !in_array($request->metode_bayar, $allowedMetode) 
+                ? ' | Tipe bayar: ' . $request->metode_bayar 
+                : ''),
+            'created_by'     => session('admin_id', 1),
             'created_at'     => now(),
             'updated_at'     => now(),
         ]);
 
         if ($request->tipe === 'piutang' && ($request->status ?? $defaultStatus) === 'pending' && !empty($request->jatuh_tempo)) {
-            $this->buatNotifikasiPiutang($request->pihak_terkait, $request->jumlah, $request->jatuh_tempo);
+            $jatuhTempo = \Carbon\Carbon::parse($request->jatuh_tempo);
+            $selisih = (int) now()->startOfDay()->diffInDays($jatuhTempo->startOfDay(), false);
+            $total = 'Rp ' . number_format($request->jumlah, 0, ',', '.');
+            $tglFmt = $jatuhTempo->format('d/m/Y');
+            $pihak = $request->pihak_terkait;
+
+            $tipeNotif = 'h3'; 
+            $judul = "Piutang baru dicatat — {$pihak}";
+            $pesan = "Piutang atas nama {$pihak} senilai {$total} dengan jatuh tempo {$tglFmt}.";
+
+            if ($selisih < 0) {
+                $tipeNotif = 'overdue';
+                $judul = "Piutang overdue — {$pihak}";
+                $pesan = "Piutang atas nama {$pihak} senilai {$total} telah melewati jatuh tempo ({$tglFmt}).";
+            } elseif ($selisih === 1) {
+                $tipeNotif = 'h1';
+                $judul = "Jatuh tempo besok! — {$pihak}";
+                $pesan = "Piutang atas nama {$pihak} senilai {$total} jatuh tempo besok ({$tglFmt}). Segera follow up.";
+            } elseif ($selisih <= 3) {
+                $tipeNotif = 'h3';
+                $judul = "Jatuh tempo {$selisih} hari lagi — {$pihak}";
+                $pesan = "Piutang atas nama {$pihak} senilai {$total} akan jatuh tempo pada {$tglFmt}.";
+            }
+
+            \App\Models\Notification::create([
+                'tipe'       => $tipeNotif,
+                'judul'      => $judul,
+                'pesan'      => $pesan,
+                'invoice_id' => null,
+                'dibaca'     => false 
+            ]);
         }
 
         $msgType = match($request->tipe) {
-            'piutang'    => 'Piutang',
-            'penjualan'  => 'Penjualan',
-            default      => 'Pengeluaran'
+            'piutang' => 'Piutang',
+            'penjualan' => 'Penjualan',
+            default => 'Pengeluaran'
         };
 
         return response()->json([
@@ -246,6 +304,7 @@ class FinanceController extends Controller
         ]);
     }
 
+    // ===== UPDATE STATUS =====
     public function updateStatus(Request $request, $id)
     {
         $request->validate(['status' => 'required|in:lunas,pending,batal']);
@@ -256,7 +315,7 @@ class FinanceController extends Controller
         ]);
 
         $pesan = match($request->status) {
-            'lunas' => 'Transaksi ditandai LUNAS ✅ — otomatis masuk laporan pemasukan/penjualan.',
+            'lunas' => 'Transaksi ditandai LUNAS ✅ — otomatis masuk ke pendapatan bulan ini.',
             'batal' => 'Transaksi dibatalkan.',
             default => 'Status diperbarui.',
         };
@@ -264,10 +323,17 @@ class FinanceController extends Controller
         return response()->json(['success' => true, 'message' => $pesan]);
     }
 
+    // ===== UPDATE TRANSAKSI =====
     public function update(Request $request, $id)
     {
         $tipe = $request->tipe;
-        $tipeDb = in_array($tipe, ['piutang', 'penjualan']) ? 'pemasukan' : 'pengeluaran';
+        if (in_array($tipe, ['piutang', 'penjualan'])) {
+            $tipeDb = 'pemasukan';
+        } elseif ($tipe === 'pengeluaran') {
+            $tipeDb = 'pengeluaran';
+        } else {
+            $tipeDb = $tipe;
+        }
 
         DB::table('keuangan_transaksi')->where('id', $id)->update([
             'tipe'          => $tipeDb,
@@ -287,28 +353,31 @@ class FinanceController extends Controller
         return response()->json(['success' => true, 'message' => 'Transaksi berhasil diupdate!']);
     }
 
+    // ===== HAPUS =====
     public function destroy($id)
     {
         DB::table('keuangan_transaksi')->where('id', $id)->delete();
         return response()->json(['success' => true, 'message' => 'Transaksi dihapus!']);
     }
 
+    // ===== DETAIL =====
     public function show($id)
     {
         $trx = DB::table('keuangan_transaksi')->where('id', $id)->first();
         if (!$trx) return response()->json(['success' => false, 'message' => 'Data tidak ditemukan'], 404);
+
         return response()->json(['success' => true, 'data' => $trx]);
     }
 
-    // ===== PRIVATE HELPERS =====
-
+    // ===== GENERATE KODE (ANTI DUPLIKAT) =====
     private function generateKode(string $tipe): string
     {
         $tahun  = date('Y');
+        
         $prefix = match($tipe) {
-            'piutang'   => 'PIU',
+            'piutang' => 'PIU',
             'penjualan' => 'TRX',
-            default     => 'EXP'
+            default => 'EXP'
         };
 
         $prefixFull = $prefix . '-' . $tahun . '-';
@@ -318,52 +387,13 @@ class FinanceController extends Controller
             ->orderBy('kode_transaksi', 'desc')
             ->first();
 
-        $newNumber = $lastTrx ? ((int) substr($lastTrx->kode_transaksi, -4)) + 1 : 1;
+        if ($lastTrx) {
+            $lastNumber = (int) substr($lastTrx->kode_transaksi, -4);
+            $newNumber = $lastNumber + 1;
+        } else {
+            $newNumber = 1;
+        }
 
         return $prefixFull . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
-    }
-
-    private function getCreatedBy(): int
-    {
-        foreach (array_keys(config('auth.guards')) as $guard) {
-            if (\Auth::guard($guard)->check()) {
-                return (int) \Auth::guard($guard)->user()->id;
-            }
-        }
-        return 0;
-    }
-
-    private function buatNotifikasiPiutang(string $pihak, float $jumlah, string $jatuhTempo): void
-    {
-        $jatuhTempoCarbon = \Carbon\Carbon::parse($jatuhTempo);
-        $selisih = (int) now()->startOfDay()->diffInDays($jatuhTempoCarbon->startOfDay(), false);
-        $total   = 'Rp ' . number_format($jumlah, 0, ',', '.');
-        $tglFmt  = $jatuhTempoCarbon->format('d/m/Y');
-
-        $tipeNotif = 'h3';
-        $judul     = "Piutang baru dicatat — {$pihak}";
-        $pesan     = "Piutang atas nama {$pihak} senilai {$total} dengan jatuh tempo {$tglFmt}.";
-
-        if ($selisih < 0) {
-            $tipeNotif = 'overdue';
-            $judul     = "Piutang overdue — {$pihak}";
-            $pesan     = "Piutang atas nama {$pihak} senilai {$total} telah melewati jatuh tempo ({$tglFmt}).";
-        } elseif ($selisih === 1) {
-            $tipeNotif = 'h1';
-            $judul     = "Jatuh tempo besok! — {$pihak}";
-            $pesan     = "Piutang atas nama {$pihak} senilai {$total} jatuh tempo besok ({$tglFmt}). Segera follow up.";
-        } elseif ($selisih <= 3) {
-            $tipeNotif = 'h3';
-            $judul     = "Jatuh tempo {$selisih} hari lagi — {$pihak}";
-            $pesan     = "Piutang atas nama {$pihak} senilai {$total} akan jatuh tempo pada {$tglFmt}.";
-        }
-
-        \App\Models\Notification::create([
-            'tipe'       => $tipeNotif,
-            'judul'      => $judul,
-            'pesan'      => $pesan,
-            'invoice_id' => null,
-            'dibaca'     => false,
-        ]);
     }
 }
