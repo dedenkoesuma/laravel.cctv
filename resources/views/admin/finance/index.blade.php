@@ -140,7 +140,7 @@
         <div class="sum-icon" style="background:#fee2e2">⏳</div>
         <div class="sum-value text-danger" id="sumPengeluaranPending">-</div>
         <div class="sum-label">Pengeluaran Belum Lunas</div>
-        <div class="sum-sublabel">Pengeluaran Tertunda</div>
+        <div class="sum-sublabel">Hutang / Tagihan</div>
     </div>
     <div class="sum-card pengeluaran">
         <div class="sum-icon" style="background:#ede9fe">💸</div>
@@ -199,8 +199,8 @@
             <input type="text" id="searchInput" placeholder="🔍 Cari transaksi / kode / nama..." style="flex:1;min-width:180px;" oninput="debounceLoad()">
             <select id="filterTipe" onchange="loadTransaksi()">
                 <option value="">Semua Tipe</option>
-                <option value="penjualan">🛍️ Penjualan</option>
-                <option value="piutang">💰 Piutang</option>
+                <option value="penjualan">🛍️ Penjualan (Lunas)</option>
+                <option value="piutang">💰 Piutang (Tempo)</option>
                 <option value="pengeluaran">💸 Pengeluaran</option>
             </select>
             <select id="filterStatus" onchange="loadTransaksi()">
@@ -727,8 +727,18 @@ function renderTransaksi(list) {
         return;
     }
     tbody.innerHTML = list.map(t => {
-        const isPiutang = t.tipe === 'piutang';
-        const isPenjualan = t.tipe === 'penjualan';
+        // Tentukan UI Tipe dari awalan Kodenya
+        let uiTipe = t.tipe;
+        if (t.kode_transaksi && t.kode_transaksi.startsWith('TRX')) {
+            uiTipe = 'penjualan';
+        } else if (t.kode_transaksi && t.kode_transaksi.startsWith('PIU')) {
+            uiTipe = 'piutang';
+        } else if (t.kode_transaksi && t.kode_transaksi.startsWith('EXP')) {
+            uiTipe = 'pengeluaran';
+        }
+
+        const isPiutang = uiTipe === 'piutang';
+        const isPenjualan = uiTipe === 'penjualan';
         const isPending = t.status === 'pending';
         
         let iconTipe = '💸'; 
@@ -738,12 +748,12 @@ function renderTransaksi(list) {
         if(isPenjualan) { iconTipe = '🛍️'; warnaNominal = 'text-success'; }
 
         const btnLunas = isPending
-            ? `<button class="btn btn-xs btn-outline-success py-0 px-2" onclick="bukaModalLunas(${t.id},'${t.kode_transaksi}','${t.pihak_terkait}',${t.jumlah},'${t.tipe}')" title="Tandai Lunas">✅</button>` : '';
+            ? `<button class="btn btn-xs btn-outline-success py-0 px-2" onclick="bukaModalLunas(${t.id},'${t.kode_transaksi}','${t.pihak_terkait}',${t.jumlah},'${uiTipe}')" title="Tandai Lunas">✅</button>` : '';
             
         return `<tr>
             <td><span class="badge bg-light text-dark border" style="font-family:monospace">${t.kode_transaksi}</span></td>
             <td>${formatDate(t.tanggal)}</td>
-            <td><span class="tipe-badge ${t.tipe}">${iconTipe} ${t.tipe}</span></td>
+            <td><span class="tipe-badge ${uiTipe}">${iconTipe} ${uiTipe}</span></td>
             <td><div class="fw-semibold">${t.deskripsi}</div>${t.referensi?`<small class="text-muted">${t.referensi}</small>`:''}</td>
             <td>${t.pihak_terkait||'<span class="text-muted">-</span>'}</td>
             <td><span class="badge bg-light text-dark">${t.kategori}</span></td>
@@ -859,16 +869,14 @@ async function editTransaksi(id) {
         
         document.getElementById('editId').value=t.id;
         
-        // REVISI PENTING: Tentukan UI Tipe dari awalan Kodenya!
+        // Tentukan tipe untuk frontend dari awalan Kodenya
         let uiTipe = t.tipe;
-        if (t.tipe === 'pemasukan') {
-            if (t.kode_transaksi && t.kode_transaksi.startsWith('TRX')) {
-                uiTipe = 'penjualan';
-            } else if (t.kode_transaksi && t.kode_transaksi.startsWith('PIU')) {
-                uiTipe = 'piutang';
-            } else {
-                uiTipe = (t.status === 'pending') ? 'piutang' : 'penjualan';
-            }
+        if (t.kode_transaksi && t.kode_transaksi.startsWith('TRX')) {
+            uiTipe = 'penjualan';
+        } else if (t.kode_transaksi && t.kode_transaksi.startsWith('PIU')) {
+            uiTipe = 'piutang';
+        } else if (t.kode_transaksi && t.kode_transaksi.startsWith('EXP')) {
+            uiTipe = 'pengeluaran';
         }
         
         document.getElementById('inputTipe').value = uiTipe; 

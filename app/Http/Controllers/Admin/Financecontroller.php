@@ -23,7 +23,7 @@ class FinanceController extends Controller
         $bulan = $request->bulan ?? date('m');
         $tahun = $request->tahun ?? date('Y');
 
-        // PIUTANG LUNAS (Hanya yang kodenya PIU)
+        // PIUTANG LUNAS (Kodenya PIU dan Lunas)
         $piutangLunas = DB::table('keuangan_transaksi')
             ->where('tipe', 'pemasukan')
             ->where('status', 'lunas')
@@ -32,13 +32,7 @@ class FinanceController extends Controller
             ->whereYear('tanggal', $tahun)
             ->sum('jumlah');
 
-        // PENGELUARAN PENDING / HUTANG (Semua pengeluaran yang belum dibayar)
-        $pengeluaranPending = DB::table('keuangan_transaksi')
-            ->where('tipe', 'pengeluaran')
-            ->where('status', 'pending')
-            ->sum('jumlah');
-
-        // PENJUALAN LUNAS BULAN INI (Hanya yang kodenya TRX atau INV)
+        // PENJUALAN LUNAS BULAN INI (Kodenya TRX atau INV dan Lunas)
         $penjualanBulan = DB::table('keuangan_transaksi')
             ->where('tipe', 'pemasukan')
             ->where('status', 'lunas')
@@ -50,7 +44,13 @@ class FinanceController extends Controller
             ->whereYear('tanggal', $tahun)
             ->sum('jumlah');
 
-        // PENGELUARAN LUNAS BULAN INI
+        // PENGELUARAN PENDING / HUTANG (Semua EXP yang Pending)
+        $pengeluaranPending = DB::table('keuangan_transaksi')
+            ->where('tipe', 'pengeluaran')
+            ->where('status', 'pending')
+            ->sum('jumlah');
+
+        // PENGELUARAN LUNAS BULAN INI (Semua EXP yang Lunas)
         $pengeluaranBulan = DB::table('keuangan_transaksi')
             ->where('tipe', 'pengeluaran')
             ->where('status', 'lunas')
@@ -81,7 +81,7 @@ class FinanceController extends Controller
         $query = DB::table('keuangan_transaksi')
             ->whereIn('tipe', ['pemasukan', 'pengeluaran']);
 
-        // Filter Dropdown Berdasarkan Kode (Agar tidak nyasar)
+        // Filter Dropdown Berdasarkan Kode
         if ($request->tipe) {
             if ($request->tipe === 'pengeluaran') {
                 $query->where('tipe', 'pengeluaran');
@@ -111,19 +111,19 @@ class FinanceController extends Controller
 
         $transaksi = $query->orderByDesc('tanggal')->orderByDesc('id')->get();
 
-        // KUNCI UTAMA: Konversi label untuk Frontend secara cerdas
+        // KUNCI UTAMA: Konversi label untuk Frontend berdasarkan Kode Transaksi
         $transaksi->transform(function ($t) {
-            if ($t->tipe === 'pemasukan') {
-                // Jika kodenya TRX atau INV = MURNI PENJUALAN
+            // Deteksi Pengeluaran
+            if ($t->tipe === 'pengeluaran' || str_starts_with($t->kode_transaksi, 'EXP')) {
+                $t->tipe = 'pengeluaran';
+            }
+            // Deteksi Pemasukan (Penjualan / Piutang)
+            elseif ($t->tipe === 'pemasukan') {
                 if (str_starts_with($t->kode_transaksi, 'TRX') || str_starts_with($t->kode_transaksi, 'INV')) {
                     $t->tipe = 'penjualan';
-                } 
-                // Jika kodenya PIU = MURNI PIUTANG
-                elseif (str_starts_with($t->kode_transaksi, 'PIU')) {
+                } elseif (str_starts_with($t->kode_transaksi, 'PIU')) {
                     $t->tipe = 'piutang';
-                } 
-                // Fallback untuk data lama
-                else {
+                } else {
                     $t->tipe = ($t->status === 'pending') ? 'piutang' : 'penjualan';
                 }
             }
@@ -227,12 +227,8 @@ class FinanceController extends Controller
 
         $kode   = $this->generateKode($request->tipe);
         
-        // Penjualan & Piutang sama-sama masuk sebagai 'pemasukan' di DB
         $tipeDb = in_array($request->tipe, ['piutang', 'penjualan']) ? 'pemasukan' : 'pengeluaran';
-        
-        // Cek status dari input, jika tidak ada baru gunakan default
         $defaultStatus = $request->tipe === 'piutang' ? 'pending' : 'lunas';
-        
         $allowedMetode = ['cash', 'transfer', 'qris', 'kartu_kredit'];
         $metode = in_array($request->metode_bayar, $allowedMetode) ? $request->metode_bayar : 'transfer';
 
@@ -315,7 +311,7 @@ class FinanceController extends Controller
         ]);
 
         $pesan = match($request->status) {
-            'lunas' => 'Transaksi ditandai LUNAS ✅ — otomatis masuk ke pendapatan bulan ini.',
+            'lunas' => 'Transaksi ditandai LUNAS ✅ — otomatis masuk ke laporan bulan ini.',
             'batal' => 'Transaksi dibatalkan.',
             default => 'Status diperbarui.',
         };

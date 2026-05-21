@@ -54,7 +54,7 @@ class PurchaseOrderController extends Controller
         DB::beginTransaction();
         try {
             $calc   = $this->calculate($request);
-            $poNum  = $this->generatePoNumber(); // Menggunakan fungsi generatePoNumber yang sudah diperbaiki
+            $poNum  = $this->generatePoNumber();
 
             $poId = DB::table('purchase_orders')->insertGetId([
                 'po_number'       => $poNum,
@@ -99,36 +99,40 @@ class PurchaseOrderController extends Controller
                 ]);
             }
 
-            // ===== INTEGRASI KE FINANCE (SEBAGAI PIUTANG DAGANG) =====
-            // Generate Kode Transaksi Finance (Pakai Prefix PIU) - ANTI BENTROK
-            $tahun = date('Y');
-            $prefixFinance = 'PIU-' . $tahun . '-';
+           // ===== INTEGRASI KE FINANCE =====
+            $isTempo = ($request->payment_method === 'tempo');
             
+            // 1. Definisikan $tahun (Bisa dari tanggal PO atau tahun saat ini)
+            $tahun = date('Y', strtotime($request->po_date)); 
+            $prefixFinance = $isTempo ? 'PIU-' . $tahun . '-' : 'EXP-' . $tahun . '-'; 
+
+            // 2. Generate $kodeFinance (Contoh implementasi basic agar tidak error)
             $lastFinance = DB::table('keuangan_transaksi')
                 ->where('kode_transaksi', 'like', $prefixFinance . '%')
                 ->orderBy('kode_transaksi', 'desc')
                 ->first();
 
             if ($lastFinance) {
-                $lastNumberFinance = (int) substr($lastFinance->kode_transaksi, -4);
-                $newNumberFinance = $lastNumberFinance + 1;
+                $lastNumber = (int) substr($lastFinance->kode_transaksi, -4);
+                $newNumber = $lastNumber + 1;
             } else {
-                $newNumberFinance = 1;
+                $newNumber = 1;
             }
-
-            $kodeFinance = $prefixFinance . str_pad($newNumberFinance, 4, '0', STR_PAD_LEFT);
+            $kodeFinance = $prefixFinance . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
 
             DB::table('keuangan_transaksi')->insert([
                 'kode_transaksi' => $kodeFinance,
-                'tipe'           => 'pemasukan', // Di sistemmu, piutang disimpan sbg pemasukan + pending
-                'kategori'       => 'Piutang Dagang',
+                'tipe'           => $isTempo ? 'pemasukan' : 'pengeluaran',
+                'kategori'       => $isTempo ? 'Piutang Dagang' : 'Pembelian Stok',
                 'jumlah'         => $calc['total'],
                 'tanggal'        => $request->po_date,
+                'jatuh_tempo'    => $isTempo ? $request->required_date : null, 
                 'deskripsi'      => 'Pembayaran PO: ' . $poNum,
                 'referensi'      => $poNum,
                 'no_order'       => $poNum,
                 'metode_bayar'   => $request->payment_method ?? 'transfer',
-                'status'         => 'pending', 
+                // LOGIKA PENTING: Jika tempo -> 'pending', jika transfer -> 'lunas'
+                'status' => $request->finance_status ?? 'pending',
                 'pihak_terkait'  => $request->supplier_name,
                 'created_by'     => session('admin_id', 1),
                 'created_at'     => now(),
@@ -204,10 +208,15 @@ class PurchaseOrderController extends Controller
                 ]);
             }
 
-            // ===== SYNC UPDATE KE FINANCE =====
+           // ===== SYNC UPDATE KE FINANCE =====
+            $isTempo = ($request->payment_method === 'tempo');
+
             DB::table('keuangan_transaksi')->where('no_order', $po->po_number)->update([
+                'tipe'          => $isTempo ? 'pemasukan' : 'pengeluaran',
+               'status' => $request->finance_status ?? 'pending',
                 'jumlah'        => $calc['total'],
                 'tanggal'       => $request->po_date,
+                'jatuh_tempo'   => $isTempo ? $request->required_date : null,
                 'pihak_terkait' => $request->supplier_name,
                 'metode_bayar'  => $request->payment_method,
                 'updated_at'    => now(),
@@ -242,7 +251,6 @@ class PurchaseOrderController extends Controller
         ]);
 
         // ===== SYNC BATAL KE FINANCE =====
-        // Jika PO dibatalkan, batalkan juga hutangnya di finance
         if ($status === 'cancelled') {
             DB::table('keuangan_transaksi')->where('no_order', $po->po_number)->update([
                 'status' => 'batal',
@@ -273,9 +281,7 @@ class PurchaseOrderController extends Controller
             return response()->json(['success' => false, 'message' => 'Hanya Draft yang bisa dihapus!'], 422);
         }
 
-        // Hapus data finance terkait
         DB::table('keuangan_transaksi')->where('no_order', $po->po_number)->delete();
-
         DB::table('purchase_order_items')->where('purchase_order_id', $id)->delete();
         DB::table('purchase_order_logs')->where('purchase_order_id', $id)->delete();
         DB::table('purchase_orders')->where('id', $id)->delete();
@@ -419,7 +425,6 @@ class PurchaseOrderController extends Controller
     {
         $query = DB::table('purchase_orders');
 
-        // Filter sesuai yang ada di halaman depan
         if ($request->search)  $query->where(function($q) use ($request) {
             $q->where('po_number', 'like', '%'.$request->search.'%')
               ->orWhere('supplier_name', 'like', '%'.$request->search.'%');

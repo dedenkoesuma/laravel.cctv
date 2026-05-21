@@ -70,17 +70,31 @@
                     <div class="col-6">
                         <label class="form-label">Metode Pembayaran</label>
                         <select id="paymentMethod" class="form-select">
-                            <option value="transfer">🏦 Transfer Bank</option><option value="cash">💵 Cash</option>
-                            <option value="tempo_30">⏱ Tempo 30 Hari</option><option value="tempo_60">⏱ Tempo 60 Hari</option>
+                            <option value="transfer">🏦 Transfer Bank</option>
+                            <option value="cash">💵 Cash</option>
+                            <option value="tempo_30">⏱ Tempo 30 Hari</option>
+                            <option value="tempo_60">⏱ Tempo 60 Hari</option>
                         </select>
                     </div>
                     <div class="col-6">
                         <label class="form-label">Kirim ke Gudang</label>
                         <select id="deliveryTo" class="form-select">
-                            <option value="Gudang Utama">Gudang Utama</option><option value="Gudang Cabang">Gudang Cabang</option>
+                            <option value="Gudang Utama">Gudang Utama</option>
+                            <option value="Gudang Cabang">Gudang Cabang</option>
                         </select>
                     </div>
                 </div>
+
+                {{-- ===== STATUS PEMBAYARAN FINANCE ===== --}}
+                <div class="mb-3">
+                    <label class="form-label">Status Pembayaran Finance</label>
+                    <select id="financeStatus" class="form-select">
+                        <option value="pending">⏳ Pending (Belum Lunas)</option>
+                        <option value="lunas">✅ Lunas</option>
+                    </select>
+                </div>
+                {{-- ====================================== --}}
+
                 <div><label class="form-label">Catatan / Syarat Khusus</label><textarea id="notes" class="form-control" rows="3"></textarea></div>
             </div>
         </div>
@@ -203,7 +217,7 @@ function togglePpn() {
     const wrap   = document.getElementById('ppnWrap');
     const detail = document.getElementById('ppnDetail');
     const row    = document.getElementById('ppnRow');
-    wrap.className   = on ? 'ppn-toggle-wrap ppn-on mb-3' : 'ppn-toggle-wrap ppn-off mb-3';
+    wrap.className       = on ? 'ppn-toggle-wrap ppn-on mb-3' : 'ppn-toggle-wrap ppn-off mb-3';
     detail.style.display = on ? 'block' : 'none';
     row.classList.toggle('hidden', !on);
     calcTotal();
@@ -212,30 +226,27 @@ function togglePpn() {
 function calcTotal() {
     let grossSubtotal = 0;
     let totalDiscountNominal = 0;
-    
-    // Looping semua item pesanan
+
     document.querySelectorAll('#itemBody tr').forEach(row => {
-        const id    = row.id.replace('row-', '');
-        const qty   = parseFloat(document.getElementById(`qty-${id}`)?.value || 0);
-        const price = parseFloat(document.getElementById(`price-${id}`)?.value || 0);
+        const id      = row.id.replace('row-', '');
+        const qty     = parseFloat(document.getElementById(`qty-${id}`)?.value || 0);
+        const price   = parseFloat(document.getElementById(`price-${id}`)?.value || 0);
         const discPct = parseFloat(document.getElementById(`disc-${id}`)?.value || 0);
-        
-        const gross = qty * price;
+
+        const gross      = qty * price;
         const discNominal = gross * (discPct / 100);
-        
-        grossSubtotal += gross;
+
+        grossSubtotal        += gross;
         totalDiscountNominal += discNominal;
     });
 
     const netSubtotal = Math.max(0, grossSubtotal - totalDiscountNominal);
-    const shipping  = parseFloat(document.getElementById('shippingCost')?.value || 0);
-    
-    const usePpn    = document.getElementById('usePpn')?.checked;
-    const ppnPct    = parseFloat(document.getElementById('ppnPercent')?.value || 11);
-    const ppnAmt    = usePpn ? Math.round(netSubtotal * (ppnPct / 100)) : 0;
-    const total     = netSubtotal + ppnAmt + shipping;
+    const shipping    = parseFloat(document.getElementById('shippingCost')?.value || 0);
+    const usePpn      = document.getElementById('usePpn')?.checked;
+    const ppnPct      = parseFloat(document.getElementById('ppnPercent')?.value || 11);
+    const ppnAmt      = usePpn ? Math.round(netSubtotal * (ppnPct / 100)) : 0;
+    const total       = netSubtotal + ppnAmt + shipping;
 
-    // Update UI Summary
     document.getElementById('dispSubtotal').textContent = 'Rp ' + grossSubtotal.toLocaleString('id-ID');
     document.getElementById('dispDiscount').textContent = '- Rp ' + totalDiscountNominal.toLocaleString('id-ID');
     document.getElementById('dispPpn').textContent      = 'Rp ' + ppnAmt.toLocaleString('id-ID');
@@ -255,13 +266,14 @@ function collectItems() {
         const name  = document.getElementById(`pname-${id}`)?.value.trim();
         const qty   = parseFloat(document.getElementById(`qty-${id}`)?.value || 0);
         const price = parseFloat(document.getElementById(`price-${id}`)?.value || 0);
-        
+
         if (!name) { valid = false; return; }
         items.push({
             product_name       : name,
             product_description: document.getElementById(`pdesc-${id}`)?.value.trim(),
             unit               : document.getElementById(`unit-${id}`)?.value,
-            qty, unit_price    : price,
+            qty,
+            unit_price         : price,
             discount_item      : parseFloat(document.getElementById(`disc-${id}`)?.value || 0),
         });
     });
@@ -271,12 +283,12 @@ function collectItems() {
 async function simpanPO(status = 'draft') {
     const supplierName = document.getElementById('supplierName').value.trim();
     if (!supplierName) { alert('Nama supplier wajib diisi!'); document.getElementById('supplierName').focus(); return; }
-    
+
     const { items, valid } = collectItems();
     if (!valid || items.length === 0) { alert('Isi nama produk untuk semua item!'); return; }
-    
-    const usePpn   = document.getElementById('usePpn').checked;
-    const payload  = {
+
+    const usePpn = document.getElementById('usePpn').checked;
+    const payload = {
         supplier_name   : supplierName,
         supplier_phone  : document.getElementById('supplierPhone').value,
         supplier_email  : document.getElementById('supplierEmail').value,
@@ -286,9 +298,10 @@ async function simpanPO(status = 'draft') {
         required_date   : document.getElementById('requiredDate').value,
         payment_method  : document.getElementById('paymentMethod').value,
         delivery_to     : document.getElementById('deliveryTo').value,
+        finance_status  : document.getElementById('financeStatus').value, // ← BARU
         use_ppn         : usePpn,
         ppn_percent     : usePpn ? parseFloat(document.getElementById('ppnPercent')?.value || 11) : 0,
-        discount        : 0, // Diskon global diset 0 karena hanya dari item
+        discount        : 0,
         shipping_cost   : document.getElementById('shippingCost').value,
         notes           : document.getElementById('notes').value,
         items,
@@ -296,7 +309,7 @@ async function simpanPO(status = 'draft') {
 
     const btnDraft = document.querySelector('button[onclick="simpanPO(\'draft\')"]');
     const btnSend  = document.querySelector('button[onclick="simpanPO(\'sent\')"]');
-    [btnDraft, btnSend].forEach(b => { if(b) b.disabled = true; });
+    [btnDraft, btnSend].forEach(b => { if (b) b.disabled = true; });
     btnSend.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan...';
 
     try {
@@ -316,9 +329,9 @@ async function simpanPO(status = 'draft') {
             }
             window.location.href = '/admin/purchase-orders?success=' + encodeURIComponent(data.po_number);
         } else alert('❌ ' + (data.message || 'Gagal menyimpan'));
-    } catch(e) { alert('❌ Error: ' + e.message); } 
+    } catch (e) { alert('❌ Error: ' + e.message); }
     finally {
-        [btnDraft, btnSend].forEach(b => { if(b) b.disabled = false; });
+        [btnDraft, btnSend].forEach(b => { if (b) b.disabled = false; });
         btnSend.innerHTML = '<i class="bi bi-send me-1"></i>Simpan & Kirim';
     }
 }
