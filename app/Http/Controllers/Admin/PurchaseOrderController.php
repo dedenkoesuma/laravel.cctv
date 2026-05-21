@@ -100,11 +100,11 @@ class PurchaseOrderController extends Controller
             }
 
            // ===== INTEGRASI KE FINANCE =====
-            $isTempo = ($request->payment_method === 'tempo');
+            $isTempo = str_starts_with($request->payment_method ?? '', 'tempo');
             
             // 1. Definisikan $tahun (Bisa dari tanggal PO atau tahun saat ini)
-            $tahun = date('Y', strtotime($request->po_date)); 
-            $prefixFinance = $isTempo ? 'PIU-' . $tahun . '-' : 'EXP-' . $tahun . '-'; 
+            $tahun = date('Y', strtotime($request->po_date));
+            $prefixFinance = $isTempo ? 'PIU-' . $tahun . '-' : 'EXP-' . $tahun . '-';
 
             // 2. Generate $kodeFinance (Contoh implementasi basic agar tidak error)
             $lastFinance = DB::table('keuangan_transaksi')
@@ -122,8 +122,9 @@ class PurchaseOrderController extends Controller
 
             DB::table('keuangan_transaksi')->insert([
                 'kode_transaksi' => $kodeFinance,
-                'tipe'           => $isTempo ? 'pemasukan' : 'pengeluaran',
-                'kategori'       => $isTempo ? 'Piutang Dagang' : 'Pembelian Stok',
+                'tipe'     => $isTempo ? 'pemasukan' : 'pengeluaran', // piutang = pemasukan
+                'kategori' => $isTempo ? 'Piutang Dagang' : 'Pembelian Stok',
+                'status'   => $isTempo ? 'pending' : ($request->finance_status ?? 'pending'),
                 'jumlah'         => $calc['total'],
                 'tanggal'        => $request->po_date,
                 'jatuh_tempo'    => $isTempo ? $request->required_date : null, 
@@ -132,7 +133,6 @@ class PurchaseOrderController extends Controller
                 'no_order'       => $poNum,
                 'metode_bayar'   => $request->payment_method ?? 'transfer',
                 // LOGIKA PENTING: Jika tempo -> 'pending', jika transfer -> 'lunas'
-                'status' => $request->finance_status ?? 'pending',
                 'pihak_terkait'  => $request->supplier_name,
                 'created_by'     => session('admin_id', 1),
                 'created_at'     => now(),
@@ -209,10 +209,11 @@ class PurchaseOrderController extends Controller
             }
 
            // ===== SYNC UPDATE KE FINANCE =====
-            $isTempo = ($request->payment_method === 'tempo');
+           $isTempo = str_starts_with($request->payment_method ?? '', 'tempo'); 
 
-            DB::table('keuangan_transaksi')->where('no_order', $po->po_number)->update([
-                'tipe'          => $isTempo ? 'pemasukan' : 'pengeluaran',
+          DB::table('keuangan_transaksi')->where('no_order', $po->po_number)->update([
+                'tipe'     => $isTempo ? 'pemasukan' : 'pengeluaran',
+                'kategori' => $isTempo ? 'Piutang Dagang' : 'Pembelian Stok',
                'status' => $request->finance_status ?? 'pending',
                 'jumlah'        => $calc['total'],
                 'tanggal'       => $request->po_date,
