@@ -7,7 +7,7 @@
 .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
 .sum-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); border-left: 4px solid #e5e7eb; transition: transform 0.2s; }
 .sum-card:hover { transform: translateY(-2px); }
-.sum-card.piutang-pending { border-left-color: #ef4444; }
+.sum-card.pengeluaran-pending { border-left-color: #ef4444; }
 .sum-card.penjualan-lunas { border-left-color: #10b981; }
 .sum-card.pengeluaran     { border-left-color: #8b5cf6; }
 .sum-icon { width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:12px; }
@@ -136,11 +136,11 @@
         <div class="sum-label">Piutang Lunas Bulan Ini</div>
         <div class="sum-sublabel">Tagihan terbayar</div>
     </div>
-    <div class="sum-card piutang-pending">
+    <div class="sum-card pengeluaran-pending">
         <div class="sum-icon" style="background:#fee2e2">⏳</div>
-        <div class="sum-value text-danger" id="sumPiutangPending">-</div>
-        <div class="sum-label">Piutang Belum Lunas</div>
-        <div class="sum-sublabel">Semua periode</div>
+        <div class="sum-value text-danger" id="sumPengeluaranPending">-</div>
+        <div class="sum-label">Pengeluaran Belum Lunas</div>
+        <div class="sum-sublabel">Pengeluaran Tertunda</div>
     </div>
     <div class="sum-card pengeluaran">
         <div class="sum-icon" style="background:#ede9fe">💸</div>
@@ -199,8 +199,8 @@
             <input type="text" id="searchInput" placeholder="🔍 Cari transaksi / kode / nama..." style="flex:1;min-width:180px;" oninput="debounceLoad()">
             <select id="filterTipe" onchange="loadTransaksi()">
                 <option value="">Semua Tipe</option>
-                <option value="penjualan">🛍️ Penjualan (Lunas)</option>
-                <option value="piutang">💰 Piutang (Tempo)</option>
+                <option value="penjualan">🛍️ Penjualan</option>
+                <option value="piutang">💰 Piutang</option>
                 <option value="pengeluaran">💸 Pengeluaran</option>
             </select>
             <select id="filterStatus" onchange="loadTransaksi()">
@@ -488,11 +488,11 @@ async function loadSummary() {
         
         const d = await res.json();
         
-        document.getElementById('sumPenjualanBulan').textContent  = formatRp(d.penjualan_bulan || 0);
-        document.getElementById('sumPiutangLunas').textContent    = formatRp(d.piutang_lunas || 0);
-        document.getElementById('sumPiutangPending').textContent  = formatRp(d.piutang_pending || 0);
-        document.getElementById('sumPengeluaran').textContent     = formatRp(d.pengeluaran_bulan || 0);
-        document.getElementById('sumTotalLunas').textContent      = formatRp(d.total_lunas_bulan || 0);
+        document.getElementById('sumPenjualanBulan').textContent      = formatRp(d.penjualan_bulan || 0);
+        document.getElementById('sumPiutangLunas').textContent        = formatRp(d.piutang_lunas || 0);
+        document.getElementById('sumPengeluaranPending').textContent  = formatRp(d.pengeluaran_pending || 0);
+        document.getElementById('sumPengeluaran').textContent         = formatRp(d.pengeluaran_bulan || 0);
+        document.getElementById('sumTotalLunas').textContent          = formatRp(d.total_lunas_bulan || 0);
     } catch(e) { 
         console.error("Gagal memuat summary:", e); 
     }
@@ -859,10 +859,16 @@ async function editTransaksi(id) {
         
         document.getElementById('editId').value=t.id;
         
-        // Tentukan tipe untuk frontend
+        // REVISI PENTING: Tentukan UI Tipe dari awalan Kodenya!
         let uiTipe = t.tipe;
         if (t.tipe === 'pemasukan') {
-            uiTipe = (t.status === 'pending') ? 'piutang' : 'penjualan';
+            if (t.kode_transaksi && t.kode_transaksi.startsWith('TRX')) {
+                uiTipe = 'penjualan';
+            } else if (t.kode_transaksi && t.kode_transaksi.startsWith('PIU')) {
+                uiTipe = 'piutang';
+            } else {
+                uiTipe = (t.status === 'pending') ? 'piutang' : 'penjualan';
+            }
         }
         
         document.getElementById('inputTipe').value = uiTipe; 

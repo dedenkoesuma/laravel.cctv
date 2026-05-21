@@ -32,11 +32,10 @@ class FinanceController extends Controller
             ->whereYear('tanggal', $tahun)
             ->sum('jumlah');
 
-        // PIUTANG PENDING (Hanya yang kodenya PIU, agar TRX Pending tidak masuk sini)
-        $piutangPending = DB::table('keuangan_transaksi')
-            ->where('tipe', 'pemasukan')
+        // PENGELUARAN PENDING / HUTANG (Semua pengeluaran yang belum dibayar)
+        $pengeluaranPending = DB::table('keuangan_transaksi')
+            ->where('tipe', 'pengeluaran')
             ->where('status', 'pending')
-            ->where('kode_transaksi', 'like', 'PIU-%')
             ->sum('jumlah');
 
         // PENJUALAN LUNAS BULAN INI (Hanya yang kodenya TRX atau INV)
@@ -51,6 +50,7 @@ class FinanceController extends Controller
             ->whereYear('tanggal', $tahun)
             ->sum('jumlah');
 
+        // PENGELUARAN LUNAS BULAN INI
         $pengeluaranBulan = DB::table('keuangan_transaksi')
             ->where('tipe', 'pengeluaran')
             ->where('status', 'lunas')
@@ -67,11 +67,11 @@ class FinanceController extends Controller
             ->sum('jumlah');
 
         return response()->json([
-            'piutang_lunas'     => $piutangLunas,
-            'piutang_pending'   => $piutangPending,
-            'penjualan_bulan'   => $penjualanBulan,
-            'pengeluaran_bulan' => $pengeluaranBulan,
-            'total_lunas_bulan' => $totalLunasBulan,
+            'piutang_lunas'       => $piutangLunas,
+            'pengeluaran_pending' => $pengeluaranPending,
+            'penjualan_bulan'     => $penjualanBulan,
+            'pengeluaran_bulan'   => $pengeluaranBulan,
+            'total_lunas_bulan'   => $totalLunasBulan,
         ]);
     }
 
