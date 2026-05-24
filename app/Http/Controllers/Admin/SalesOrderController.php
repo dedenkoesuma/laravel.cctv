@@ -117,77 +117,93 @@ class SalesOrderController extends Controller
     }
 
     // ===== SIMPAN SO =====
-    public function store(Request $request)
-    {
-        // Ganti Auth::id() dengan fungsi Helper cerdas kita
-        $adminId = $this->getAdminId();
+   public function store(Request $request)
+{
+    $adminId = $this->getAdminId();
 
-        $request->validate([
-            'customer_name'        => 'required|string|max:255',
-            'customer_phone'       => 'nullable|string|max:20',
-            'customer_address'     => 'nullable|string',
-            'customer_email'       => 'nullable|email|max:255',
-            'so_date'              => 'required|date',
-            'notes'                => 'nullable|string',
-            'items'                => 'required|array|min:1',
-            'items.*.product_id'   => 'required|exists:gudang_products,id',
-            'items.*.qty'          => 'required|integer|min:1',
-            'items.*.harga_satuan' => 'required|numeric|min:0',
+    $request->validate([
+        'customer_name'        => 'required|string|max:255',
+        'customer_phone'       => 'nullable|string|max:20',
+        'customer_address'     => 'nullable|string',
+        'customer_email'       => 'nullable|email|max:255',
+        'so_date'              => 'required|date',
+        'notes'                => 'nullable|string',
+        'items'                => 'required|array|min:1',
+        'items.*.product_id'   => 'required|exists:gudang_products,id',
+        'items.*.qty'          => 'required|integer|min:1',
+        'items.*.harga_satuan' => 'required|numeric|min:0',
+    ]);
+
+    DB::beginTransaction();
+    try {
+        $soNumber = $this->generateSoNumber();
+
+        $subtotal = 0;
+        foreach ($request->items as $item) {
+            $subtotal += ($item['qty'] * $item['harga_satuan']);
+        }
+
+        $ppn_aktif   = $request->ppn_aktif ? 1 : 0;
+        $ppn_rate    = $ppn_aktif ? $request->ppn_rate : 0;
+        $ppn_nominal = $ppn_aktif ? ($subtotal * ($ppn_rate / 100)) : 0;
+        $grand_total = $subtotal + $ppn_nominal;
+
+        $soId = DB::table('sales_orders')->insertGetId([
+            'so_number'        => $soNumber,
+            'customer_name'    => $request->customer_name,
+            'customer_phone'   => $request->customer_phone,
+            'customer_address' => $request->customer_address,
+            'customer_email'   => $request->customer_email,
+            'so_date'          => $request->so_date,
+            'status'           => 'draft',
+            'notes'            => $request->notes,
+            'ppn_aktif'        => $ppn_aktif,
+            'ppn_rate'         => $ppn_rate,
+            'ppn_nominal'      => $ppn_nominal,
+            'total_amount'     => $grand_total,
+            'created_by'       => $adminId,
+            'created_at'       => now(),
+            'updated_at'       => now(),
         ]);
 
-        DB::beginTransaction();
-        try {
-            $soNumber = $this->generateSoNumber();
+        // Cari nomor QUO dari field notes jika SO dibuat dari Quotation
+        preg_match('/QUO-[\d-]+/', $request->notes ?? '', $matches);
+        $quoNumber = $matches[0] ?? null;
 
-            $subtotal = 0;
-            foreach ($request->items as $item) {
-                $subtotal += ($item['qty'] * $item['harga_satuan']);
-            }
+        foreach ($request->items as $item) {
+            $subtotal_item = $item['qty'] * $item['harga_satuan'];
 
-            $ppn_aktif   = $request->ppn_aktif ? 1 : 0;
-            $ppn_rate    = $ppn_aktif ? $request->ppn_rate : 0;
-            $ppn_nominal = $ppn_aktif ? ($subtotal * ($ppn_rate / 100)) : 0;
-            $grand_total = $subtotal + $ppn_nominal;
-
-            $soId = DB::table('sales_orders')->insertGetId([
-                'so_number'        => $soNumber,
-                'customer_name'    => $request->customer_name,
-                'customer_phone'   => $request->customer_phone,
-                'customer_address' => $request->customer_address,
-                'customer_email'   => $request->customer_email,
-                'so_date'          => $request->so_date,
-                'status'           => 'draft',
-                'notes'            => $request->notes,
-                'ppn_aktif'        => $ppn_aktif,
-                'ppn_rate'         => $ppn_rate,
-                'ppn_nominal'      => $ppn_nominal,
-                'total_amount'     => $grand_total,
-                'created_by'       => $adminId, // PASTI ANGKA SEKARANG
-                'created_at'       => now(),
-                'updated_at'       => now(),
+            DB::table('sales_order_items')->insert([
+                'sales_order_id' => $soId,
+                'product_id'     => $item['product_id'],
+                'qty'            => $item['qty'],
+                'harga_satuan'   => $item['harga_satuan'],
+                'subtotal'       => $subtotal_item,
+                'notes'          => $item['notes'] ?? null,
+                'created_at'     => now(),
+                'updated_at'     => now(),
             ]);
 
-            foreach ($request->items as $item) {
-                $subtotal_item = $item['qty'] * $item['harga_satuan'];
-                DB::table('sales_order_items')->insert([
-                    'sales_order_id' => $soId,
-                    'product_id'     => $item['product_id'],
-                    'qty'            => $item['qty'],
-                    'harga_satuan'   => $item['harga_satuan'],
-                    'subtotal'       => $subtotal_item,
-                    'notes'          => $item['notes'] ?? null,
-                    'created_at'     => now(),
-                    'updated_at'     => now(),
-                ]);
-            }
+            // Hapus entry barang_keluar dari Quotation agar tidak double saat approve
+            if ($quoNumber) {
+                DB::table('barang_keluar')
+                    ->where('product_id', $item['product_id'])
+                    ->where('catatan', 'like', "%{$quoNumber}%")
+                    ->delete();
 
-            DB::commit();
-            return response()->json(['success' => true, 'message' => "SO {$soNumber} berhasil dibuat."]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return response()->json(['success' => false, 'message' => 'Gagal membuat SO: ' . $e->getMessage()], 500);
+                // Recalculate stok setelah hapus entry quotation
+                $this->recalculateStock($item['product_id']);
+            }
         }
+
+        DB::commit();
+        return response()->json(['success' => true, 'message' => "SO {$soNumber} berhasil dibuat."]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return response()->json(['success' => false, 'message' => 'Gagal membuat SO: ' . $e->getMessage()], 500);
     }
+}
 
     // ===== DETAIL SO =====
     public function show($id)
@@ -824,17 +840,19 @@ class SalesOrderController extends Controller
 
     // ===== HELPER: Recalculate stok =====
     private function recalculateStock($productId)
-    {
-        $totalMasuk  = DB::table('barang_masuk')->where('product_id', $productId)->sum('jumlah');
-        $totalKeluar = DB::table('barang_keluar')->where('product_id', $productId)->sum('jumlah');
+{
+    // Gunakan kolom yang benar sesuai tabel
+    $totalMasuk = DB::table('barang_masuk')->where('product_id', $productId)->sum('jumlah');
+   // ← fix: qty bukan jumlah
+    $totalKeluar = DB::table('barang_keluar')->where('product_id', $productId)->sum('jumlah');
 
-        DB::table('gudang_products')->where('id', $productId)->update([
-            'total_masuk'  => $totalMasuk,
-            'total_keluar' => $totalKeluar,
-            'sisa_stok'    => $totalMasuk - $totalKeluar,
-            'updated_at'   => now(),
-        ]);
-    }
+    DB::table('gudang_products')->where('id', $productId)->update([
+        'total_masuk'  => $totalMasuk,
+        'total_keluar' => $totalKeluar,
+        'sisa_stok'    => $totalMasuk - $totalKeluar,
+        'updated_at'   => now(),
+    ]);
+}
 
     // ===== HELPER: Status label & color =====
     private function statusLabel($status): string

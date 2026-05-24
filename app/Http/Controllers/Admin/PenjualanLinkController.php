@@ -139,6 +139,7 @@ class PenjualanLinkController extends Controller
             'kode_transaksi' => $kode,
             'tipe'           => 'pemasukan',
             'kategori'       => 'Penjualan Online',
+            'sub_kategori'   => $request->platform,
             'jumlah'         => $request->jumlah,
             'tanggal'        => $request->tanggal,
             'deskripsi'      => $request->deskripsi,

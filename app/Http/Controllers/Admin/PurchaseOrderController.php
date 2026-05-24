@@ -43,9 +43,9 @@ class PurchaseOrderController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'supplier_name' => 'required|string',
-            'po_date'       => 'required|date',
-            'items'         => 'required|array|min:1',
+            'supplier_name'        => 'required|string',
+            'po_date'              => 'required|date',
+            'items'                => 'required|array|min:1',
             'items.*.product_name' => 'required|string',
             'items.*.qty'          => 'required|numeric|min:0.1',
             'items.*.unit_price'   => 'required|numeric|min:0',
@@ -53,94 +53,84 @@ class PurchaseOrderController extends Controller
 
         DB::beginTransaction();
         try {
-            $calc   = $this->calculate($request);
-            $poNum  = $this->generatePoNumber();
+            $calc  = $this->calculate($request);
+            $poNum = $this->generatePoNumber();
 
             $poId = DB::table('purchase_orders')->insertGetId([
-                'po_number'       => $poNum,
-                'supplier_name'   => $request->supplier_name,
-                'supplier_phone'  => $request->supplier_phone,
-                'supplier_email'  => $request->supplier_email,
-                'supplier_address'=> $request->supplier_address,
-                'supplier_pic'    => $request->supplier_pic,
-                'po_date'         => $request->po_date,
-                'required_date'   => $request->required_date,
-                'payment_method'  => $request->payment_method ?? 'transfer',
-                'delivery_to'     => $request->delivery_to,
-                'use_ppn'         => $calc['use_ppn'],
-                'ppn_percent'     => $calc['ppn_percent'],
-                'ppn_amount'      => $calc['ppn_amount'],
-                'subtotal'        => $calc['subtotal'],
-                'discount'        => $calc['discount'],
-                'shipping_cost'   => $request->shipping_cost ?? 0,
-                'total_amount'    => $calc['total'],
-                'status'          => 'draft',
-                'notes'           => $request->notes,
-                'created_by'      => session('admin_id', 1),
-                'created_at'      => now(),
-                'updated_at'      => now(),
+                'po_number'        => $poNum,
+                'supplier_name'    => $request->supplier_name,
+                'supplier_phone'   => $request->supplier_phone,
+                'supplier_email'   => $request->supplier_email,
+                'supplier_address' => $request->supplier_address,
+                'supplier_pic'     => $request->supplier_pic,
+                'po_date'          => $request->po_date,
+                'required_date'    => $request->required_date,
+                'payment_method'   => $request->payment_method ?? 'transfer',
+                'delivery_to'      => $request->delivery_to,
+                'use_ppn'          => $calc['use_ppn'],
+                'ppn_percent'      => $calc['ppn_percent'],
+                'ppn_amount'       => $calc['ppn_amount'],
+                'subtotal'         => $calc['subtotal'],
+                'discount'         => $calc['discount'],
+                'shipping_cost'    => $request->shipping_cost ?? 0,
+                'total_amount'     => $calc['total'],
+                'status'           => 'draft',
+                'notes'            => $request->notes,
+                'created_by'       => session('admin_id', 1),
+                'created_at'       => now(),
+                'updated_at'       => now(),
             ]);
 
             // Simpan items
             foreach ($request->items as $item) {
                 $sub = ($item['qty'] * $item['unit_price']) - ($item['discount_item'] ?? 0);
                 DB::table('purchase_order_items')->insert([
-                    'purchase_order_id'  => $poId,
-                    'product_name'       => $item['product_name'],
-                    'product_description'=> $item['product_description'] ?? null,
-                    'unit'               => $item['unit'] ?? 'pcs',
-                    'qty'                => $item['qty'],
-                    'qty_received'       => 0,
-                    'unit_price'         => $item['unit_price'],
-                    'discount_item'      => $item['discount_item'] ?? 0,
-                    'subtotal'           => $sub,
-                    'created_at'         => now(),
-                    'updated_at'         => now(),
+                    'purchase_order_id'   => $poId,
+                    'product_name'        => $item['product_name'],
+                    'product_description' => $item['product_description'] ?? null,
+                    'unit'                => $item['unit'] ?? 'pcs',
+                    'qty'                 => $item['qty'],
+                    'qty_received'        => 0,
+                    'unit_price'          => $item['unit_price'],
+                    'discount_item'       => $item['discount_item'] ?? 0,
+                    'subtotal'            => $sub,
+                    'created_at'          => now(),
+                    'updated_at'          => now(),
                 ]);
             }
 
-           // ===== INTEGRASI KE FINANCE =====
-            $isTempo = str_starts_with($request->payment_method ?? '', 'tempo');
-            
-            // 1. Definisikan $tahun (Bisa dari tanggal PO atau tahun saat ini)
-            $tahun = date('Y', strtotime($request->po_date));
+            // ===== INTEGRASI KE FINANCE =====
+            $isTempo       = str_starts_with($request->payment_method ?? '', 'tempo');
+            $tahun         = date('Y', strtotime($request->po_date));
             $prefixFinance = $isTempo ? 'PIU-' . $tahun . '-' : 'EXP-' . $tahun . '-';
 
-            // 2. Generate $kodeFinance (Contoh implementasi basic agar tidak error)
             $lastFinance = DB::table('keuangan_transaksi')
                 ->where('kode_transaksi', 'like', $prefixFinance . '%')
                 ->orderBy('kode_transaksi', 'desc')
                 ->first();
 
-            if ($lastFinance) {
-                $lastNumber = (int) substr($lastFinance->kode_transaksi, -4);
-                $newNumber = $lastNumber + 1;
-            } else {
-                $newNumber = 1;
-            }
+            $newNumber   = $lastFinance ? ((int) substr($lastFinance->kode_transaksi, -4)) + 1 : 1;
             $kodeFinance = $prefixFinance . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
 
             DB::table('keuangan_transaksi')->insert([
                 'kode_transaksi' => $kodeFinance,
-                'tipe'     => $isTempo ? 'pemasukan' : 'pengeluaran', // piutang = pemasukan
-                'kategori' => $isTempo ? 'Piutang Dagang' : 'Pembelian Stok',
-                'status'   => $isTempo ? 'pending' : ($request->finance_status ?? 'pending'),
+                'tipe'           => $isTempo ? 'pemasukan' : 'pengeluaran',
+                'kategori'       => $isTempo ? 'Piutang Dagang' : 'Pembelian Stok',
+                'status'         => $isTempo ? 'pending' : ($request->finance_status ?? 'pending'),
                 'jumlah'         => $calc['total'],
                 'tanggal'        => $request->po_date,
-                'jatuh_tempo'    => $isTempo ? $request->required_date : null, 
+                'jatuh_tempo'    => $isTempo ? $request->required_date : null,
                 'deskripsi'      => 'Pembayaran PO: ' . $poNum,
                 'referensi'      => $poNum,
                 'no_order'       => $poNum,
                 'metode_bayar'   => $request->payment_method ?? 'transfer',
-                // LOGIKA PENTING: Jika tempo -> 'pending', jika transfer -> 'lunas'
                 'pihak_terkait'  => $request->supplier_name,
                 'created_by'     => session('admin_id', 1),
                 'created_at'     => now(),
                 'updated_at'     => now(),
             ]);
-            // ========================================================
+            // ================================
 
-            // Log
             $this->log($poId, 'created', "Draft PO {$poNum} dibuat", session('admin_name', 'Admin'));
 
             DB::commit();
@@ -169,24 +159,24 @@ class PurchaseOrderController extends Controller
             $calc = $this->calculate($request);
 
             DB::table('purchase_orders')->where('id', $id)->update([
-                'supplier_name'   => $request->supplier_name,
-                'supplier_phone'  => $request->supplier_phone,
-                'supplier_email'  => $request->supplier_email,
-                'supplier_address'=> $request->supplier_address,
-                'supplier_pic'    => $request->supplier_pic,
-                'po_date'         => $request->po_date,
-                'required_date'   => $request->required_date,
-                'payment_method'  => $request->payment_method,
-                'delivery_to'     => $request->delivery_to,
-                'use_ppn'         => $calc['use_ppn'],
-                'ppn_percent'     => $calc['ppn_percent'],
-                'ppn_amount'      => $calc['ppn_amount'],
-                'subtotal'        => $calc['subtotal'],
-                'discount'        => $calc['discount'],
-                'shipping_cost'   => $request->shipping_cost ?? 0,
-                'total_amount'    => $calc['total'],
-                'notes'           => $request->notes,
-                'updated_at'      => now(),
+                'supplier_name'    => $request->supplier_name,
+                'supplier_phone'   => $request->supplier_phone,
+                'supplier_email'   => $request->supplier_email,
+                'supplier_address' => $request->supplier_address,
+                'supplier_pic'     => $request->supplier_pic,
+                'po_date'          => $request->po_date,
+                'required_date'    => $request->required_date,
+                'payment_method'   => $request->payment_method,
+                'delivery_to'      => $request->delivery_to,
+                'use_ppn'          => $calc['use_ppn'],
+                'ppn_percent'      => $calc['ppn_percent'],
+                'ppn_amount'       => $calc['ppn_amount'],
+                'subtotal'         => $calc['subtotal'],
+                'discount'         => $calc['discount'],
+                'shipping_cost'    => $request->shipping_cost ?? 0,
+                'total_amount'     => $calc['total'],
+                'notes'            => $request->notes,
+                'updated_at'       => now(),
             ]);
 
             // Hapus lama, insert baru
@@ -194,27 +184,26 @@ class PurchaseOrderController extends Controller
             foreach ($request->items as $item) {
                 $sub = ($item['qty'] * $item['unit_price']) - ($item['discount_item'] ?? 0);
                 DB::table('purchase_order_items')->insert([
-                    'purchase_order_id'  => $id,
-                    'product_name'       => $item['product_name'],
-                    'product_description'=> $item['product_description'] ?? null,
-                    'unit'               => $item['unit'] ?? 'pcs',
-                    'qty'                => $item['qty'],
-                    'qty_received'       => 0,
-                    'unit_price'         => $item['unit_price'],
-                    'discount_item'      => $item['discount_item'] ?? 0,
-                    'subtotal'           => $sub,
-                    'created_at'         => now(),
-                    'updated_at'         => now(),
+                    'purchase_order_id'   => $id,
+                    'product_name'        => $item['product_name'],
+                    'product_description' => $item['product_description'] ?? null,
+                    'unit'                => $item['unit'] ?? 'pcs',
+                    'qty'                 => $item['qty'],
+                    'qty_received'        => 0,
+                    'unit_price'          => $item['unit_price'],
+                    'discount_item'       => $item['discount_item'] ?? 0,
+                    'subtotal'            => $sub,
+                    'created_at'          => now(),
+                    'updated_at'          => now(),
                 ]);
             }
 
-           // ===== SYNC UPDATE KE FINANCE =====
-           $isTempo = str_starts_with($request->payment_method ?? '', 'tempo'); 
-
-          DB::table('keuangan_transaksi')->where('no_order', $po->po_number)->update([
-                'tipe'     => $isTempo ? 'pemasukan' : 'pengeluaran',
-                'kategori' => $isTempo ? 'Piutang Dagang' : 'Pembelian Stok',
-               'status' => $request->finance_status ?? 'pending',
+            // ===== SYNC UPDATE KE FINANCE =====
+            $isTempo = str_starts_with($request->payment_method ?? '', 'tempo');
+            DB::table('keuangan_transaksi')->where('no_order', $po->po_number)->update([
+                'tipe'          => $isTempo ? 'pemasukan' : 'pengeluaran',
+                'kategori'      => $isTempo ? 'Piutang Dagang' : 'Pembelian Stok',
+                'status'        => $request->finance_status ?? 'pending',
                 'jumlah'        => $calc['total'],
                 'tanggal'       => $request->po_date,
                 'jatuh_tempo'   => $isTempo ? $request->required_date : null,
@@ -222,7 +211,7 @@ class PurchaseOrderController extends Controller
                 'metode_bayar'  => $request->payment_method,
                 'updated_at'    => now(),
             ]);
-            // ===================================
+            // ==================================
 
             $this->log($id, 'edited', "PO diupdate oleh " . session('admin_name', 'Admin'));
             DB::commit();
@@ -235,44 +224,125 @@ class PurchaseOrderController extends Controller
     }
 
     // ===== UPDATE STATUS =====
-    public function updateStatus(Request $request, $id)
-    {
-        $po = DB::table('purchase_orders')->where('id', $id)->first();
-        if (!$po) return response()->json(['success' => false, 'message' => 'PO tidak ditemukan'], 404);
+   // PurchaseOrderController.php
 
-        $status   = $request->status;
-        $allowed  = ['draft', 'sent', 'confirmed', 'partial', 'completed', 'cancelled'];
-        if (!in_array($status, $allowed)) {
-            return response()->json(['success' => false, 'message' => 'Status tidak valid'], 422);
-        }
-
-        DB::table('purchase_orders')->where('id', $id)->update([
-            'status'     => $status,
-            'updated_at' => now(),
-        ]);
-
-        // ===== SYNC BATAL KE FINANCE =====
-        if ($status === 'cancelled') {
-            DB::table('keuangan_transaksi')->where('no_order', $po->po_number)->update([
-                'status' => 'batal',
-                'updated_at' => now()
-            ]);
-        }
-        // ==================================
-
-        $labels = [
-            'sent'      => 'PO dikirim ke supplier',
-            'confirmed' => 'PO dikonfirmasi supplier',
-            'partial'   => 'Sebagian barang diterima',
-            'completed' => 'Semua barang diterima — PO selesai',
-            'cancelled' => 'PO dibatalkan',
-        ];
-
-        $this->log($id, $status, $labels[$status] ?? "Status diubah ke {$status}", session('admin_name', 'Admin'));
-
-        return response()->json(['success' => true, 'message' => 'Status PO diupdate!']);
+// ===== UPDATE STATUS =====
+// ===== UPDATE STATUS =====
+// ===== UPDATE STATUS =====
+public function updateStatus(Request $request, $id)
+{
+    $po = DB::table('purchase_orders')->where('id', $id)->first();
+    if (!$po) {
+        return response()->json(['success' => false, 'message' => 'PO tidak ditemukan'], 404);
     }
 
+    $newStatus = $request->status;
+
+    DB::table('purchase_orders')->where('id', $id)->update([
+        'status'     => $newStatus,
+        'updated_at' => now(),
+    ]);
+
+    // ✅ Sync produk ke gudang hanya saat status = 'sent' & belum pernah sync
+    if ($newStatus === 'sent' && !$po->synced_to_warehouse) {
+
+        $items = DB::table('purchase_order_items')
+            ->where('purchase_order_id', $id)
+            ->get();
+
+        foreach ($items as $item) {
+            $namaProduk = trim($item->product_name);
+            $hargaBeli  = floatval($item->unit_price ?? 0);
+            $qty        = intval($item->qty);
+
+            // Cari produk di gudang berdasarkan nama (case-insensitive)
+            $gudang = DB::table('gudang_products')
+                ->whereRaw('LOWER(nama_produk) = ?', [strtolower($namaProduk)])
+                ->first();
+
+            if ($gudang) {
+                // ✅ Produk sudah ada → update harga + tambah stok
+                $hargaJual  = floatval($gudang->harga_jual ?? 0);
+                $margin     = $hargaJual > 0
+                    ? round((($hargaJual - $hargaBeli) / $hargaJual) * 100, 2)
+                    : 0;
+
+                DB::table('gudang_products')
+                    ->where('id', $gudang->id)
+                    ->update([
+                        'harga_beli'            => $hargaBeli,
+                        'margin_persen'         => $margin,
+                        'last_po_id'            => $id,
+                        'harga_beli_updated_at' => now(),
+                        'total_masuk'           => $gudang->total_masuk + $qty,
+                        'sisa_stok'             => $gudang->sisa_stok + $qty,
+                        'updated_at'            => now(),
+                    ]);
+
+                DB::table('barang_masuk')->insert([
+                    'product_id'    => $gudang->id,
+                    'jumlah'        => $qty,
+                    'supplier'      => $po->supplier_name,
+                    'tanggal_masuk' => $po->po_date,
+                    'harga_beli'    => $hargaBeli,
+                    'status'        => 'tersedia',
+                    'catatan'       => 'Auto dari PO: ' . $po->po_number,
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]);
+
+            } else {
+                // ✅ Produk belum ada → buat produk baru dengan stok awal
+                $newProductId = DB::table('gudang_products')->insertGetId([
+                    'nama_produk'           => $namaProduk,
+                    'brand'                 => null,
+                    'sku'                   => null,
+                    'category'              => null,
+                    'use_serial_number'     => 0,
+                    'harga_beli'            => $hargaBeli,
+                    'harga_jual'            => 0,
+                    'margin_persen'         => 0,
+                    'last_po_id'            => $id,
+                    'harga_beli_updated_at' => now(),
+                    'total_masuk'           => $qty,
+                    'total_keluar'          => 0,
+                    'sisa_stok'             => $qty,
+                    'created_at'            => now(),
+                    'updated_at'            => now(),
+                ]);
+
+                DB::table('barang_masuk')->insert([
+                    'product_id'    => $newProductId,
+                    'jumlah'        => $qty,
+                    'supplier'      => $po->supplier_name,
+                    'tanggal_masuk' => $po->po_date,
+                    'harga_beli'    => $hargaBeli,
+                    'status'        => 'tersedia',
+                    'catatan'       => 'Auto dari PO: ' . $po->po_number,
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
+                ]);
+            }
+        }
+
+        // Tandai PO sudah disync agar tidak double
+        DB::table('purchase_orders')->where('id', $id)->update([
+            'synced_to_warehouse' => true,
+            'updated_at'          => now(),
+        ]);
+
+        $this->log($id, 'synced', 'Produk PO ' . $po->po_number . ' disync ke gudang', session('admin_name', 'System'));
+    }
+
+    // Update harga beli saat completed/partial
+    if (in_array($newStatus, ['completed', 'partial'])) {
+        $this->updateHargaBeli($id);
+    }
+
+    $this->log($id, 'status_changed', "Status diubah ke {$newStatus}", session('admin_name', 'Admin'));
+
+    return response()->json(['success' => true, 'message' => 'Status berhasil diupdate']);
+}
     // ===== HAPUS PO =====
     public function destroy($id)
     {
@@ -295,20 +365,20 @@ class PurchaseOrderController extends Controller
     {
         $query = DB::table('purchase_orders');
 
-        if ($request->search)  $query->where(function($q) use ($request) {
-            $q->where('po_number', 'like', '%'.$request->search.'%')
-              ->orWhere('supplier_name', 'like', '%'.$request->search.'%');
+        if ($request->search) $query->where(function ($q) use ($request) {
+            $q->where('po_number', 'like', '%' . $request->search . '%')
+              ->orWhere('supplier_name', 'like', '%' . $request->search . '%');
         });
-        if ($request->status)  $query->where('status', $request->status);
-        if ($request->bulan)   $query->whereMonth('po_date', $request->bulan);
-        if ($request->tahun)   $query->whereYear('po_date', $request->tahun);
+        if ($request->status) $query->where('status', $request->status);
+        if ($request->bulan)  $query->whereMonth('po_date', $request->bulan);
+        if ($request->tahun)  $query->whereYear('po_date', $request->tahun);
 
         $list = $query->orderByDesc('id')->get();
 
         $summary = [
-            'draft'     => DB::table('purchase_orders')->where('status', 'draft')->count(),
-            'sent'      => DB::table('purchase_orders')->where('status', 'sent')->count(),
-            'confirmed' => DB::table('purchase_orders')->where('status', 'confirmed')->count(),
+            'draft'        => DB::table('purchase_orders')->where('status', 'draft')->count(),
+            'sent'         => DB::table('purchase_orders')->where('status', 'sent')->count(),
+            'confirmed'    => DB::table('purchase_orders')->where('status', 'confirmed')->count(),
             'total_amount' => DB::table('purchase_orders')
                 ->whereMonth('po_date', $request->bulan ?? date('m'))
                 ->whereYear('po_date', $request->tahun ?? date('Y'))
@@ -330,7 +400,7 @@ class PurchaseOrderController extends Controller
         return response()->json(['success' => true, 'po' => $po, 'items' => $items, 'logs' => $logs]);
     }
 
-    // ===== CETAK PDF (halaman view) =====
+    // ===== CETAK PDF =====
     public function printPdf($id)
     {
         $po    = DB::table('purchase_orders')->where('id', $id)->first();
@@ -339,7 +409,7 @@ class PurchaseOrderController extends Controller
         return view('admin.purchase-orders.pdf', compact('po', 'items'));
     }
 
-    // ===== DOWNLOAD PDF (pakai DomPDF) =====
+    // ===== DOWNLOAD PDF =====
     public function downloadPdf($id)
     {
         $po    = DB::table('purchase_orders')->where('id', $id)->first();
@@ -354,6 +424,100 @@ class PurchaseOrderController extends Controller
         return $pdf->download("PO-{$po->po_number}.pdf");
     }
 
+    // ===== HISTORY =====
+    public function history()
+    {
+        return view('admin.purchase-orders.history');
+    }
+
+    // ===== EXPORT CSV =====
+    public function export(Request $request)
+    {
+        $query = DB::table('purchase_orders');
+
+        if ($request->search) $query->where(function ($q) use ($request) {
+            $q->where('po_number', 'like', '%' . $request->search . '%')
+              ->orWhere('supplier_name', 'like', '%' . $request->search . '%');
+        });
+        if ($request->status) $query->where('status', $request->status);
+        if ($request->bulan)  $query->whereMonth('po_date', $request->bulan);
+        if ($request->tahun)  $query->whereYear('po_date', $request->tahun);
+
+        $list     = $query->orderByDesc('id')->get();
+        $fileName = 'Export_PO_' . date('Y-m-d_H-i-s') . '.csv';
+        $headers  = [
+            'Content-type'        => 'text/csv',
+            'Content-Disposition' => "attachment; filename=$fileName",
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
+        ];
+
+        $columns  = ['No PO', 'Tanggal', 'Supplier', 'Status', 'Subtotal', 'PPN', 'Diskon', 'Ongkir', 'Total'];
+
+        $callback = function () use ($list, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            foreach ($list as $po) {
+                fputcsv($file, [
+                    $po->po_number,
+                    $po->po_date,
+                    $po->supplier_name,
+                    strtoupper($po->status),
+                    $po->subtotal,
+                    $po->ppn_amount,
+                    $po->discount,
+                    $po->shipping_cost,
+                    $po->total_amount,
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    // ===================================================
+    // ⭐ PRIVATE: UPDATE HARGA BELI DARI PO KE GUDANG
+    // Dipanggil saat status PO → completed / partial
+    // ===================================================
+    private function updateHargaBeli(int $poId): void
+    {
+        try {
+            $items = DB::table('purchase_order_items')
+                ->where('purchase_order_id', $poId)
+                ->get();
+
+            foreach ($items as $item) {
+                // Cari produk di gudang berdasarkan nama (case-insensitive)
+                $produk = DB::table('gudang_products')
+                    ->whereRaw('LOWER(nama_produk) = ?', [strtolower(trim($item->product_name))])
+                    ->first();
+
+                if (!$produk) continue; // skip kalau nama produk tidak cocok
+
+                $hargaBeli = floatval($item->unit_price ?? 0);
+                $hargaJual = floatval($produk->harga_jual ?? 0);
+                $margin    = $hargaJual > 0
+                    ? round((($hargaJual - $hargaBeli) / $hargaJual) * 100, 2)
+                    : 0;
+
+                DB::table('gudang_products')
+                    ->where('id', $produk->id)
+                    ->update([
+                        'harga_beli'            => $hargaBeli,
+                        'margin_persen'         => $margin,
+                        'last_po_id'            => $poId,
+                        'harga_beli_updated_at' => now(),
+                        'updated_at'            => now(),
+                    ]);
+            }
+        } catch (\Exception $e) {
+            // Jangan sampai gagalkan update status kalau ini error
+            \Log::warning("updateHargaBeli gagal untuk PO #{$poId}: " . $e->getMessage());
+        }
+    }
+
     // ===== HELPER: HITUNG TOTAL =====
     private function calculate(Request $request): array
     {
@@ -363,13 +527,13 @@ class PurchaseOrderController extends Controller
             $subtotal += max(0, $sub);
         }
 
-        $discount    = floatval($request->discount ?? 0);
-        $shipping    = floatval($request->shipping_cost ?? 0);
-        $usePpn      = $request->boolean('use_ppn');
-        $ppnPercent  = floatval($request->ppn_percent ?? 11);
-        $afterDisc   = $subtotal - $discount;
-        $ppnAmount   = $usePpn ? round($afterDisc * ($ppnPercent / 100), 2) : 0;
-        $total       = $afterDisc + $ppnAmount + $shipping;
+        $discount   = floatval($request->discount ?? 0);
+        $shipping   = floatval($request->shipping_cost ?? 0);
+        $usePpn     = $request->boolean('use_ppn');
+        $ppnPercent = floatval($request->ppn_percent ?? 11);
+        $afterDisc  = $subtotal - $discount;
+        $ppnAmount  = $usePpn ? round($afterDisc * ($ppnPercent / 100), 2) : 0;
+        $total      = $afterDisc + $ppnAmount + $shipping;
 
         return [
             'subtotal'    => $subtotal,
@@ -381,10 +545,10 @@ class PurchaseOrderController extends Controller
         ];
     }
 
-    // ===== HELPER: GENERATE NO. PO (ANTI DUPLIKAT) =====
+    // ===== HELPER: GENERATE NO. PO =====
     private function generatePoNumber(): string
     {
-        $tahun = date('Y');
+        $tahun  = date('Y');
         $prefix = 'PO-' . $tahun . '-';
 
         $lastPo = DB::table('purchase_orders')
@@ -392,12 +556,7 @@ class PurchaseOrderController extends Controller
             ->orderBy('po_number', 'desc')
             ->first();
 
-        if ($lastPo) {
-            $lastNumber = (int) substr($lastPo->po_number, -4);
-            $newNumber = $lastNumber + 1;
-        } else {
-            $newNumber = 1;
-        }
+        $newNumber = $lastPo ? ((int) substr($lastPo->po_number, -4)) + 1 : 1;
 
         return $prefix . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
     }
@@ -413,60 +572,5 @@ class PurchaseOrderController extends Controller
             'created_at'        => now(),
             'updated_at'        => now(),
         ]);
-    }
-    
-    // ===== HISTORY =====
-    public function history()
-    {
-        return view('admin.purchase-orders.history');
-    }
-    
-    // ===== EXPORT KE CSV =====
-    public function export(Request $request)
-    {
-        $query = DB::table('purchase_orders');
-
-        if ($request->search)  $query->where(function($q) use ($request) {
-            $q->where('po_number', 'like', '%'.$request->search.'%')
-              ->orWhere('supplier_name', 'like', '%'.$request->search.'%');
-        });
-        if ($request->status)  $query->where('status', $request->status);
-        if ($request->bulan)   $query->whereMonth('po_date', $request->bulan);
-        if ($request->tahun)   $query->whereYear('po_date', $request->tahun);
-
-        $list = $query->orderByDesc('id')->get();
-
-        $fileName = 'Export_PO_' . date('Y-m-d_H-i-s') . '.csv';
-        $headers = [
-            "Content-type"        => "text/csv",
-            "Content-Disposition" => "attachment; filename=$fileName",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
-        ];
-
-        $columns = ['No PO', 'Tanggal', 'Supplier', 'Status', 'Subtotal', 'PPN', 'Diskon', 'Ongkir', 'Total'];
-
-        $callback = function() use($list, $columns) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, $columns);
-
-            foreach ($list as $po) {
-                fputcsv($file, [
-                    $po->po_number,
-                    $po->po_date,
-                    $po->supplier_name,
-                    strtoupper($po->status),
-                    $po->subtotal,
-                    $po->ppn_amount,
-                    $po->discount,
-                    $po->shipping_cost,
-                    $po->total_amount
-                ]);
-            }
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
     }
 }

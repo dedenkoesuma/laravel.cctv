@@ -213,60 +213,75 @@ class QuotationController extends Controller
         ]);
     }
 
-    // ===== KONVERSI KE SALES ORDER =====
-    public function convertToSO($id)
-    {
-        $quo = Quotation::with('items')->findOrFail($id);
+   // ===== KONVERSI KE SALES ORDER =====
+public function convertToSO($id)
+{
+    $quo = Quotation::with('items')->findOrFail($id);
 
-        if ($quo->status !== 'approved') {
-            return response()->json(['success' => false, 'message' => 'Penawaran harus Disetujui terlebih dahulu.']);
-        }
-        if ($quo->sales_order_id) {
-            return response()->json(['success' => false, 'message' => 'Sudah pernah dikonversi ke SO.']);
-        }
-
-        $soNumber = null;
-
-        DB::transaction(function () use ($quo, &$soNumber) {
-            $so = SalesOrder::create([
-                'so_number'        => SalesOrder::generateSoNumber(),
-                'customer_name'    => $quo->customer_name,
-                'customer_phone'   => $quo->customer_phone,
-                'customer_email'   => $quo->customer_email,
-                'customer_address' => $quo->customer_address,
-                'so_date'          => now()->toDateString(),
-                'status'           => 'draft',
-                'notes'            => "Dari Penawaran {$quo->quo_number}.",
-                'total_amount'     => $quo->total_amount,
-                'created_by'       => $this->adminId(), // ✅ SUDAH MENGGUNAKAN HELPER CERDAS
-            ]);
-
-            foreach ($quo->items as $item) {
-                // ✅ Cari product_id berdasarkan nama_item di gudang_products
-                $product = DB::table('gudang_products')
-                    ->where('nama_produk', $item->nama_item)
-                    ->first();
-
-                SalesOrderItem::create([
-                    'sales_order_id' => $so->id,
-                    'product_id'     => $product ? $product->id : null, // ✅ null jika tidak ditemukan, bukan 0
-                    'qty'            => $item->qty,
-                    'harga_satuan'   => $item->harga_satuan,
-                    'subtotal'       => $item->subtotal,
-                    'notes'          => $item->nama_item, // ✅ simpan nama item di notes sebagai referensi
-                ]);
-            }
-
-            $quo->update(['status' => 'converted', 'sales_order_id' => $so->id]);
-            $soNumber = $so->so_number;
-        });
-
-        return response()->json([
-            'success' => true,
-            'message' => "Berhasil dikonversi ke Sales Order {$soNumber}!",
-        ]);
+    if ($quo->status !== 'approved') {
+        return response()->json(['success' => false, 'message' => 'Penawaran harus Disetujui terlebih dahulu.']);
+    }
+    if ($quo->sales_order_id) {
+        return response()->json(['success' => false, 'message' => 'Sudah pernah dikonversi ke SO.']);
     }
 
+    $soNumber = null;
+
+    DB::transaction(function () use ($quo, &$soNumber) {
+        $so = SalesOrder::create([
+            'so_number'        => SalesOrder::generateSoNumber(),
+            'customer_name'    => $quo->customer_name,
+            'customer_phone'   => $quo->customer_phone,
+            'customer_email'   => $quo->customer_email,
+            'customer_address' => $quo->customer_address,
+            'so_date'          => now()->toDateString(),
+            'status'           => 'draft',
+            'notes'            => "Dari Penawaran {$quo->quo_number}.",
+            'total_amount'     => $quo->total_amount,
+            'created_by'       => $this->adminId(),
+        ]);
+
+        foreach ($quo->items as $item) {
+            $qty = intval($item->qty);
+
+            // Cari produk di gudang berdasarkan nama (case-insensitive)
+            $product = DB::table('gudang_products')
+                ->whereRaw('LOWER(nama_produk) = ?', [strtolower(trim($item->nama_item))])
+                ->first();
+
+            SalesOrderItem::create([
+                'sales_order_id' => $so->id,
+                'product_id'     => $product ? $product->id : null,
+                'qty'            => $qty,
+                'harga_satuan'   => $item->harga_satuan,
+                'subtotal'       => $item->subtotal,
+                'notes'          => $item->nama_item,
+            ]);
+
+            // ✅ Kurangi stok gudang jika produk ditemukan
+            if ($product) {
+                $sisaStokBaru = max(0, $product->sisa_stok - $qty);
+
+                DB::table('gudang_products')
+                    ->where('id', $product->id)
+                    ->update([
+                        'total_keluar' => $product->total_keluar + $qty,
+                        'sisa_stok'    => $sisaStokBaru,
+                        'updated_at'   => now(),
+                    ]);
+
+            }
+        }
+
+        $quo->update(['status' => 'converted', 'sales_order_id' => $so->id]);
+        $soNumber = $so->so_number;
+    });
+
+    return response()->json([
+        'success' => true,
+        'message' => "Berhasil dikonversi ke Sales Order {$soNumber}!",
+    ]);
+}
     // ===== HAPUS =====
     public function destroy($id)
     {

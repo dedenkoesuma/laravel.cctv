@@ -13,7 +13,12 @@
 .summary-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 16px; margin-bottom: 24px;
+    gap: 16px; margin-bottom: 16px;
+}
+.hpp-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px; margin-bottom: 20px;
 }
 .sum-card {
     background: white; border-radius: 12px;
@@ -22,11 +27,15 @@
     transition: transform 0.2s;
 }
 .sum-card:hover { transform: translateY(-2px); }
-.sum-card.pemasukan  { border-left-color: #10b981; }
-.sum-card.pengeluaran{ border-left-color: #ef4444; }
-.sum-card.laba       { border-left-color: #3b82f6; }
-.sum-card.saldo      { border-left-color: #f59e0b; }
-.sum-card.piutang    { border-left-color: #f59e0b; }
+.sum-card.pemasukan   { border-left-color: #10b981; }
+.sum-card.pengeluaran { border-left-color: #ef4444; }
+.sum-card.laba        { border-left-color: #3b82f6; }
+.sum-card.saldo       { border-left-color: #f59e0b; }
+.sum-card.piutang     { border-left-color: #f59e0b; }
+.sum-card.hpp         { border-left-color: #8b5cf6; }
+.sum-card.laba-kotor  { border-left-color: #06b6d4; }
+.sum-card.laba-bersih { border-left-color: #10b981; }
+.sum-card.margin      { border-left-color: #f97316; }
 .sum-icon {
     width: 44px; height: 44px; border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
@@ -34,6 +43,28 @@
 }
 .sum-value { font-size: 1.5rem; font-weight: 800; color: #111827; }
 .sum-label { font-size: 0.78rem; color: #6b7280; margin-top: 2px; }
+.sum-sub   { font-size: 0.7rem; color: #9ca3af; margin-top: 4px; }
+
+/* ===== TAB KATEGORI ===== */
+.tab-kategori {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    background: white; padding: 12px 16px;
+    border-radius: 12px; margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid #e5e7eb;
+}
+.tab-btn {
+    padding: 6px 16px; border-radius: 20px;
+    font-size: 12px; font-weight: 700;
+    border: 1.5px solid transparent;
+    cursor: pointer; transition: all 0.15s;
+    background: #f3f4f6; color: #6b7280;
+}
+.tab-btn:hover { opacity: 0.85; }
+.tab-btn.active-all    { background: #111827; color: white; border-color: #111827; }
+.tab-btn.active-online { background: #dbeafe; color: #1d4ed8; border-color: #93c5fd; }
+.tab-btn.active-so     { background: #ede9fe; color: #6d28d9; border-color: #c4b5fd; }
+
 /* ===== TOOLBAR ===== */
 .toolbar {
     background: white; border-radius: 12px;
@@ -50,6 +81,11 @@
     border-color: #10b981; outline: none;
     box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
 }
+.toolbar select.filter-active {
+    border-color: #10b981; color: #065f46;
+    background: #f0fdf4; font-weight: 600;
+}
+
 /* ===== TABLE ===== */
 .table-card {
     background: white; border-radius: 12px;
@@ -67,6 +103,7 @@
     border-bottom: 1px solid #f3f4f6; vertical-align: middle;
 }
 .table-card table tbody tr:hover { background: #f9fafb; }
+
 /* ===== BADGES ===== */
 .tipe-badge {
     display: inline-flex; align-items: center; gap: 4px;
@@ -80,6 +117,21 @@
 .status-badge.lunas   { background: #d1fae5; color: #065f46; }
 .status-badge.pending { background: #fef3c7; color: #92400e; }
 .status-badge.batal   { background: #f3f4f6; color: #6b7280; }
+
+/* ===== KATEGORI BADGES ===== */
+.kat-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 9px; border-radius: 10px;
+    font-size: 0.72rem; font-weight: 700;
+}
+.kat-badge.online { background: #dbeafe; color: #1d4ed8; }
+.kat-badge.so     { background: #ede9fe; color: #6d28d9; }
+.kat-badge.other  { background: #f3f4f6; color: #374151; }
+.sub-kat {
+    font-size: 0.68rem; color: #9ca3af; margin-top: 2px;
+    display: flex; align-items: center; gap: 3px;
+}
+
 /* ===== PLATFORM BADGES ===== */
 .platform-badge {
     display: inline-flex; align-items: center; gap: 4px;
@@ -95,19 +147,19 @@
 .platform-badge.instagram  { background: #fce4ec; color: #880e4f; }
 .platform-badge.whatsapp   { background: #e8f5e9; color: #1b5e20; }
 .platform-badge.lainnya    { background: #f3f4f6; color: #374151; }
+
 /* ===== SECTION TOKO ONLINE DI MODAL ===== */
 .online-section {
     background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
     border: 1.5px solid #86efac;
-    border-radius: 10px;
-    padding: 16px;
-    margin-top: 4px;
+    border-radius: 10px; padding: 16px; margin-top: 4px;
 }
 .online-section-title {
     font-size: 0.8rem; font-weight: 700;
     color: #065f46; margin-bottom: 12px;
     display: flex; align-items: center; gap: 6px;
 }
+
 /* ===== CHART ===== */
 .chart-grid {
     display: grid; grid-template-columns: 2fr 1fr;
@@ -122,6 +174,7 @@
     color: #374151; margin-bottom: 16px;
     text-transform: uppercase; letter-spacing: 0.05em;
 }
+
 /* ===== MODAL ===== */
 .modal-content { border-radius: 14px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
 .modal-header  { border-bottom: 1px solid #e5e7eb; padding: 18px 24px; }
@@ -136,28 +189,30 @@
     border-color: #10b981;
     box-shadow: 0 0 0 3px rgba(16,185,129,0.1);
 }
+
 /* ===== LOADING ===== */
-.loading-overlay {
-    text-align: center; padding: 40px; color: #9ca3af;
+.loading-overlay { text-align: center; padding: 40px; color: #9ca3af; }
+
+/* ===== ACTIVE TAB INDICATOR ===== */
+.table-filter-info {
+    padding: 8px 16px;
+    background: #f0fdf4;
+    border-bottom: 1px solid #d1fae5;
+    font-size: 12px;
+    color: #065f46;
+    font-weight: 600;
+    display: none;
 }
-/* ===== LINK CARD ===== */
-.link-card {
-    border: 1px solid #e5e7eb; border-radius: 10px;
-    padding: 12px 14px; margin-bottom: 8px;
-    background: white; transition: box-shadow 0.2s;
-}
-.link-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
-.link-card.nonaktif { background: #f9fafb; opacity: 0.75; }
-.link-url {
-    font-size: 0.78rem; color: #6b7280;
-    font-family: monospace; word-break: break-all;
-}
+.table-filter-info.show { display: block; }
+
 @media (max-width: 768px) {
     .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .hpp-grid     { grid-template-columns: repeat(2, 1fr); }
     .chart-grid   { grid-template-columns: 1fr; }
     .toolbar      { flex-direction: column; }
 }
 </style>
+
 <div class="container py-4">
     {{-- HEADER --}}
     <div class="keu-header">
@@ -170,8 +225,7 @@
                 <button class="btn btn-light fw-bold" onclick="bukaModal('pemasukan')">
                     <i class="bi bi-plus-circle me-1"></i>Pemasukan
                 </button>
-                <button class="btn fw-bold" style="background:#f97316;color:white;"
-                        onclick="bukaModalOnline()">
+                <button class="btn fw-bold" style="background:#f97316;color:white;" onclick="bukaModalOnline()">
                     🛒 Penjualan Online
                 </button>
                 <button class="btn btn-danger fw-bold" onclick="bukaModal('pengeluaran')">
@@ -183,6 +237,7 @@
             </div>
         </div>
     </div>
+
     {{-- FILTER BULAN --}}
     <div class="d-flex gap-2 mb-3 align-items-center flex-wrap">
         <select id="filterBulan" class="form-select" style="width:auto;" onchange="loadAll()">
@@ -199,7 +254,8 @@
         </select>
         <span class="text-muted small" id="periodLabel"></span>
     </div>
-    {{-- SUMMARY CARDS --}}
+
+    {{-- SUMMARY CARDS Baris 1 --}}
     <div class="summary-grid">
         <div class="sum-card pemasukan">
             <div class="sum-icon" style="background:#d1fae5;">💚</div>
@@ -215,6 +271,7 @@
             <div class="sum-icon" style="background:#dbeafe;">💙</div>
             <div class="sum-value text-primary" id="sumLaba">-</div>
             <div class="sum-label">Laba / Rugi Bulan Ini</div>
+            <div class="sum-sub">(tanpa HPP)</div>
         </div>
         <div class="sum-card saldo">
             <div class="sum-icon" style="background:#fef3c7;">💛</div>
@@ -230,6 +287,35 @@
             </div>
         </div>
     </div>
+
+    {{-- SUMMARY CARDS Baris 2: HPP --}}
+    <div class="hpp-grid">
+        <div class="sum-card hpp">
+            <div class="sum-icon" style="background:#ede9fe;">📦</div>
+            <div class="sum-value" style="color:#7c3aed;" id="sumHpp">-</div>
+            <div class="sum-label">HPP / Modal Beli</div>
+            <div class="sum-sub">Total harga beli barang terjual</div>
+        </div>
+        <div class="sum-card laba-kotor">
+            <div class="sum-icon" style="background:#cffafe;">📊</div>
+            <div class="sum-value" style="color:#0891b2;" id="sumLabaKotor">-</div>
+            <div class="sum-label">Laba Kotor</div>
+            <div class="sum-sub">Pemasukan − HPP</div>
+        </div>
+        <div class="sum-card laba-bersih">
+            <div class="sum-icon" style="background:#d1fae5;">✅</div>
+            <div class="sum-value" id="sumLabaBersih">-</div>
+            <div class="sum-label">Laba Bersih</div>
+            <div class="sum-sub">Laba kotor − Pengeluaran operasional</div>
+        </div>
+        <div class="sum-card margin">
+            <div class="sum-icon" style="background:#ffedd5;">📈</div>
+            <div class="sum-value" style="color:#ea580c;" id="sumMargin">-</div>
+            <div class="sum-label">Margin Bersih</div>
+            <div class="sum-sub">% dari total pemasukan</div>
+        </div>
+    </div>
+
     {{-- CHART --}}
     <div class="chart-grid">
         <div class="chart-card">
@@ -242,15 +328,48 @@
             <div id="kategoriList" class="mt-3"></div>
         </div>
     </div>
+
+    {{-- ===== TAB KATEGORI (BARU) ===== --}}
+    <div class="tab-kategori">
+        <span style="font-size:12px;font-weight:700;color:#9ca3af;align-self:center;">Filter:</span>
+        <button class="tab-btn active-all" id="tabAll" onclick="setTabKategori('', this, 'active-all')">
+            📊 Semua Transaksi
+        </button>
+        <button class="tab-btn" id="tabOnline" onclick="setTabKategori('Penjualan Online', this, 'active-online')">
+            🛒 Penjualan Online
+        </button>
+        <button class="tab-btn" id="tabSO" onclick="setTabKategori('Penjualan Produk', this, 'active-so')">
+            📋 Sales Order (SO)
+        </button>
+        <button class="tab-btn" id="tabPengeluaran" onclick="setTabKategori('', this, 'active-all'); document.getElementById('filterTipe').value='pengeluaran'; loadTransaksi();">
+            ❤️ Pengeluaran
+        </button>
+        <button class="tab-btn" id="tabPiutang" onclick="setTabKategori('', this, 'active-all'); document.getElementById('filterTipe').value='piutang'; loadTransaksi();">
+            🧾 Piutang
+        </button>
+    </div>
+
     {{-- TOOLBAR --}}
     <div class="toolbar">
         <input type="text" id="searchInput" placeholder="🔍 Cari transaksi / kode / nama / no. order..."
-               style="flex:1; min-width:200px;" oninput="debounceLoad()">
+               style="flex:1;min-width:200px;" oninput="debounceLoad()">
         <select id="filterTipe" onchange="loadTransaksi()">
             <option value="">Semua Tipe</option>
             <option value="pemasukan">💚 Pemasukan</option>
             <option value="pengeluaran">❤️ Pengeluaran</option>
             <option value="piutang">🧾 Piutang</option>
+        </select>
+        {{-- FILTER KATEGORI (BARU) --}}
+        <select id="filterKategori" onchange="onKategoriChange()">
+            <option value="">Semua Kategori</option>
+            <option value="Penjualan Online">🛒 Penjualan Online</option>
+            <option value="Penjualan Produk">📋 Penjualan Produk (SO)</option>
+            <option value="Jasa Instalasi">🔧 Jasa Instalasi</option>
+            <option value="Jasa Maintenance">🛠 Jasa Maintenance</option>
+            <option value="Pembelian Stok">📦 Pembelian Stok</option>
+            <option value="Operasional Kantor">🏢 Operasional</option>
+            <option value="Gaji Karyawan">👤 Gaji</option>
+            <option value="Lain-lain">🔹 Lain-lain</option>
         </select>
         <select id="filterPlatform" onchange="loadTransaksi()">
             <option value="">Semua Platform</option>
@@ -270,12 +389,16 @@
             <option value="pending">Pending</option>
             <option value="batal">Batal</option>
         </select>
-        <button class="btn btn-outline-secondary btn-sm" onclick="loadTransaksi()">
-            <i class="bi bi-arrow-clockwise"></i>
+        <button class="btn btn-outline-secondary btn-sm" onclick="resetFilter()">
+            <i class="bi bi-x-circle"></i> Reset
         </button>
     </div>
+
     {{-- TABEL TRANSAKSI --}}
     <div class="table-card">
+        {{-- INFO BAR FILTER AKTIF (BARU) --}}
+        <div class="table-filter-info" id="filterInfoBar"></div>
+
         <div id="loadingTrx" class="loading-overlay">
             <div class="spinner-border text-success" role="status"></div>
             <p class="mt-2">Memuat transaksi...</p>
@@ -298,8 +421,13 @@
                 <tbody id="trxTableBody"></tbody>
             </table>
         </div>
+        <div id="tableFooter" class="px-4 py-2 bg-light border-top" style="font-size:12px;display:none;">
+            <span id="footerCount" class="text-muted"></span>
+            <span class="ms-3 fw-bold text-success" id="footerTotal"></span>
+        </div>
     </div>
 </div>
+
 {{-- ===== MODAL TRANSAKSI ===== --}}
 <div class="modal fade" id="modalTransaksi" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -334,7 +462,6 @@
                         <label class="form-label">Deskripsi <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="inputDeskripsi" placeholder="Keterangan singkat transaksi...">
                     </div>
-                    {{-- ===== SECTION TOKO ONLINE ===== --}}
                     <div class="col-12" id="onlineSection" style="display:none;">
                         <div class="online-section">
                             <div class="online-section-title">🛒 Detail Penjualan Toko Online</div>
@@ -358,7 +485,6 @@
                                     <label class="form-label">No. Order</label>
                                     <input type="text" class="form-control" id="inputNoOrder"
                                            placeholder="Contoh: TKP-20260425-001">
-                                    <div class="form-text">Nomor order dari marketplace</div>
                                 </div>
                             </div>
                         </div>
@@ -403,6 +529,7 @@
         </div>
     </div>
 </div>
+
 {{-- ===== MODAL DETAIL ===== --}}
 <div class="modal fade" id="modalDetail" tabindex="-1">
     <div class="modal-dialog">
@@ -415,6 +542,7 @@
         </div>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 let debounceTimer;
@@ -445,24 +573,69 @@ const WARNA_KATEGORI = [
     '#10b981','#3b82f6','#f59e0b','#ef4444','#8b5cf6',
     '#06b6d4','#84cc16','#f97316','#ec4899','#6b7280',
 ];
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('inputTanggal').value = new Date().toISOString().split('T')[0];
     updateKategori();
     loadAll();
 });
+
 function debounceLoad() {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(loadTransaksi, 400);
 }
 function getBulan() { return document.getElementById('filterBulan').value; }
 function getTahun() { return document.getElementById('filterTahun').value; }
-function loadAll() {
-    loadSummary();
+function loadAll()  { loadSummary(); loadTransaksi(); loadChart(); loadKategoriBreakdown(); }
+
+// ===== TAB KATEGORI =====
+function setTabKategori(kategori, el, activeClass) {
+    // Reset semua tab
+    ['tabAll','tabOnline','tabSO','tabPengeluaran','tabPiutang'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.className = 'tab-btn';
+    });
+    el.classList.add(activeClass);
+
+    // Reset filter tipe & set kategori
+    document.getElementById('filterKategori').value = kategori;
+    document.getElementById('filterTipe').value     = '';
+
+    // Highlight select jika ada filter
+    const katSel = document.getElementById('filterKategori');
+    katSel.classList.toggle('filter-active', kategori !== '');
+
     loadTransaksi();
-    loadChart();
-    loadKategoriBreakdown();
 }
+
+function onKategoriChange() {
+    // Reset tab highlight saat dropdown diubah manual
+    ['tabAll','tabOnline','tabSO','tabPengeluaran','tabPiutang'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.className = 'tab-btn';
+    });
+    document.getElementById('tabAll').classList.add('active-all');
+    const kat = document.getElementById('filterKategori').value;
+    document.getElementById('filterKategori').classList.toggle('filter-active', kat !== '');
+    loadTransaksi();
+}
+
+function resetFilter() {
+    document.getElementById('searchInput').value    = '';
+    document.getElementById('filterTipe').value     = '';
+    document.getElementById('filterKategori').value = '';
+    document.getElementById('filterPlatform').value = '';
+    document.getElementById('filterStatus').value   = '';
+    document.getElementById('filterKategori').classList.remove('filter-active');
+    ['tabAll','tabOnline','tabSO','tabPengeluaran','tabPiutang'].forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.className = 'tab-btn';
+    });
+    document.getElementById('tabAll').classList.add('active-all');
+    loadTransaksi();
+}
+
 // ===== TOGGLE SECTION ONLINE =====
 function toggleOnlineSection() {
     const kategori = document.getElementById('inputKategori').value;
@@ -476,71 +649,147 @@ function toggleOnlineSection() {
         document.getElementById('inputNoOrder').value  = '';
     }
 }
+
 // ===== LOAD SUMMARY =====
 async function loadSummary() {
     const res  = await fetch(`/api/admin/keuangan/summary?bulan=${getBulan()}&tahun=${getTahun()}`);
     const data = await res.json();
+
     document.getElementById('sumPemasukan').textContent   = formatRp(data.pemasukan_bulan);
     document.getElementById('sumPengeluaran').textContent = formatRp(data.pengeluaran_bulan);
     document.getElementById('sumSaldo').textContent       = formatRp(data.saldo_total);
+
     const laba   = data.laba_bulan;
     const labaEl = document.getElementById('sumLaba');
     labaEl.textContent = (laba >= 0 ? '+' : '') + formatRp(laba);
-    labaEl.className   = 'sum-value ' + (laba >= 0 ? 'text-success' : 'text-danger');
-    if (document.getElementById('sumPiutangPending')) {
-        document.getElementById('sumPiutangPending').textContent = formatRp(data.piutang_pending);
-    }
-    if (document.getElementById('sumPiutangLunas')) {
-        document.getElementById('sumPiutangLunas').textContent = formatRp(data.piutang_lunas_bulan);
+    labaEl.className   = 'sum-value ' + (laba >= 0 ? 'text-primary' : 'text-danger');
+
+    document.getElementById('sumPiutangPending').textContent = formatRp(data.piutang_pending);
+    document.getElementById('sumPiutangLunas').textContent   = formatRp(data.piutang_lunas_bulan);
+
+    if (data.hpp !== undefined) {
+        document.getElementById('sumHpp').textContent = formatRp(data.hpp);
+
+        const labaKotorEl = document.getElementById('sumLabaKotor');
+        labaKotorEl.textContent = (data.laba_kotor >= 0 ? '+' : '') + formatRp(data.laba_kotor);
+        labaKotorEl.style.color = data.laba_kotor >= 0 ? '#0891b2' : '#ef4444';
+
+        const labaBersihEl = document.getElementById('sumLabaBersih');
+        labaBersihEl.textContent = (data.laba_bersih >= 0 ? '+' : '') + formatRp(data.laba_bersih);
+        labaBersihEl.style.color = data.laba_bersih >= 0 ? '#059669' : '#ef4444';
+
+        const m = parseFloat(data.margin_persen || 0);
+        const marginEl = document.getElementById('sumMargin');
+        marginEl.textContent = (m >= 0 ? '+' : '') + m.toFixed(1) + '%';
+        marginEl.style.color = m >= 0 ? '#ea580c' : '#ef4444';
+    } else {
+        ['sumHpp','sumLabaKotor','sumLabaBersih','sumMargin'].forEach(id => {
+            document.getElementById(id).textContent = 'N/A';
+        });
     }
 }
+
 // ===== LOAD TRANSAKSI =====
 async function loadTransaksi() {
     document.getElementById('loadingTrx').style.display     = 'block';
     document.getElementById('tableContainer').style.display = 'none';
+    document.getElementById('tableFooter').style.display    = 'none';
+
     const search   = document.getElementById('searchInput').value;
     const tipe     = document.getElementById('filterTipe').value;
     const status   = document.getElementById('filterStatus').value;
     const platform = document.getElementById('filterPlatform').value;
-    const url = `/api/admin/keuangan/transaksi?bulan=${getBulan()}&tahun=${getTahun()}&search=${encodeURIComponent(search)}&tipe=${tipe}&status=${status}&platform=${encodeURIComponent(platform)}`;
+    const kategori = document.getElementById('filterKategori').value; // ← BARU
+
+    const url = `/api/admin/keuangan/transaksi?bulan=${getBulan()}&tahun=${getTahun()}`
+              + `&search=${encodeURIComponent(search)}`
+              + `&tipe=${tipe}&status=${status}`
+              + `&platform=${encodeURIComponent(platform)}`
+              + `&kategori=${encodeURIComponent(kategori)}`; // ← BARU
+
     const res  = await fetch(url);
     const data = await res.json();
+
     renderTransaksi(data.data);
+
+    // Update info bar
+    updateFilterInfoBar(kategori, tipe, data.data.length);
+
     document.getElementById('loadingTrx').style.display     = 'none';
     document.getElementById('tableContainer').style.display = 'block';
 }
+
+// ===== UPDATE INFO BAR =====
+function updateFilterInfoBar(kategori, tipe, count) {
+    const bar = document.getElementById('filterInfoBar');
+    if (kategori) {
+        const label = kategori === 'Penjualan Online'
+            ? '🛒 Menampilkan: Penjualan Online (Form Staff / Link)'
+            : '📋 Menampilkan: Penjualan Produk / Sales Order';
+        bar.textContent = label + ` — ${count} transaksi`;
+        bar.classList.add('show');
+    } else {
+        bar.classList.remove('show');
+    }
+}
+
+// ===== RENDER TRANSAKSI =====
 function renderTransaksi(list) {
     const tbody = document.getElementById('trxTableBody');
     if (!list.length) {
         tbody.innerHTML = `<tr><td colspan="9" class="text-center py-5 text-muted">
             <i class="bi bi-inbox fs-1 d-block mb-2"></i>Belum ada transaksi
         </td></tr>`;
+        document.getElementById('tableFooter').style.display = 'none';
         return;
     }
+
+    let grandTotal = 0;
     tbody.innerHTML = list.map(t => {
         const isPemasukan = t.tipe === 'pemasukan';
         const isPiutang   = t.tipe === 'piutang';
+        if (isPemasukan) grandTotal += parseFloat(t.jumlah || 0);
+
         const jumlahStr   = (isPemasukan ? '+' : (isPiutang ? '🧾 ' : '-')) + formatRp(t.jumlah);
         const jumlahColor = isPemasukan ? 'text-success' : (isPiutang ? 'text-warning' : 'text-danger');
+
+        // Platform badge
         const platformBadge = t.platform
-            ? `<span class="platform-badge ${(PLATFORM_CLASS[t.platform] || 'lainnya')}">
+            ? `<span class="platform-badge ${PLATFORM_CLASS[t.platform] || 'lainnya'}">
                  ${PLATFORM_ICON[t.platform] || '📦'} ${t.platform}
                </span>` : '';
+
         const noOrderLabel = t.no_order
-            ? `<div><small class="text-muted" style="font-family:monospace;">${t.no_order}</small></div>` : '';
+            ? `<div><small class="text-muted" style="font-family:monospace;font-size:0.7rem;">${t.no_order}</small></div>` : '';
+
+        // ===== KATEGORI BADGE + SUB_KATEGORI (BARU) =====
+        const isOnline = t.kategori === 'Penjualan Online';
+        const isSO     = t.kategori === 'Penjualan Produk';
+        const katClass = isOnline ? 'online' : (isSO ? 'so' : 'other');
+        const katIcon  = isOnline ? '🛒' : (isSO ? '📋' : (isPemasukan ? '💚' : '❤️'));
+
+        const subKatLabel = t.sub_kategori
+            ? `<div class="sub-kat">↳ ${t.sub_kategori}</div>` : '';
+
+        const kategoriCell = `
+            <span class="kat-badge ${katClass}">${katIcon} ${t.kategori}</span>
+            ${subKatLabel}
+        `;
+        // =================================================
+
         return `
         <tr>
-            <td><span class="badge bg-light text-dark border" style="font-family:monospace">${t.kode_transaksi}</span></td>
-            <td>${formatDate(t.tanggal)}</td>
+            <td><span class="badge bg-light text-dark border" style="font-family:monospace;font-size:0.72rem;">${t.kode_transaksi}</span></td>
+            <td style="white-space:nowrap;">${formatDate(t.tanggal)}</td>
             <td>
                 <div class="fw-semibold">${t.deskripsi}</div>
                 ${platformBadge}${noOrderLabel}
                 ${t.referensi && !t.no_order ? `<small class="text-muted">${t.referensi}</small>` : ''}
             </td>
-            <td><span class="tipe-badge ${t.tipe}">${isPemasukan ? '💚' : (isPiutang ? '🧾' : '❤️')} ${t.kategori}</span></td>
+            <td>${kategoriCell}</td>
             <td>${t.pihak_terkait || '<span class="text-muted">-</span>'}</td>
             <td><span class="badge bg-light text-dark">${metodeLabel(t.metode_bayar)}</span></td>
-            <td class="text-end fw-bold ${jumlahColor}">${jumlahStr}</td>
+            <td class="text-end fw-bold ${jumlahColor}" style="white-space:nowrap;">${jumlahStr}</td>
             <td class="text-center"><span class="status-badge ${t.status}">${t.status}</span></td>
             <td class="text-center">
                 <div class="d-flex gap-1 justify-content-center">
@@ -554,8 +803,15 @@ function renderTransaksi(list) {
             </td>
         </tr>`;
     }).join('');
+
+    // Footer total
+    const footer = document.getElementById('tableFooter');
+    document.getElementById('footerCount').textContent = `${list.length} transaksi`;
+    document.getElementById('footerTotal').textContent = `Total Pemasukan: ${formatRp(grandTotal)}`;
+    footer.style.display = 'block';
 }
-// ===== TANDAI PIUTANG/HUTANG LUNAS =====
+
+// ===== TANDAI LUNAS =====
 async function tandaiLunas(id, tipe) {
     const jenis = (tipe === 'pengeluaran') ? 'Hutang / Pengeluaran' : 'Piutang';
     if (!confirm(`Tandai ${jenis} ini sebagai Lunas?`)) return;
@@ -568,11 +824,10 @@ async function tandaiLunas(id, tipe) {
         const data = await res.json();
         if (data.success) { showToast('✅ ' + jenis + ' ditandai lunas!', 'success'); loadAll(); }
         else showToast('❌ ' + (data.message || 'Gagal'), 'danger');
-    } catch (e) {
-        showToast('❌ Error: ' + e.message, 'danger');
-    }
+    } catch (e) { showToast('❌ Error: ' + e.message, 'danger'); }
 }
-// ===== LOAD CHART BULANAN =====
+
+// ===== LOAD CHART =====
 async function loadChart() {
     const res  = await fetch(`/api/admin/keuangan/chart-data?tahun=${getTahun()}`);
     const json = await res.json();
@@ -589,17 +844,18 @@ async function loadChart() {
                 {
                     label: 'Laba', data: data.map(d => d.laba), type: 'line',
                     borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)',
-                    pointBackgroundColor: '#3b82f6', tension: 0.4, fill: true, yAxisID: 'y',
-                }
-            ]
+                    pointBackgroundColor: '#3b82f6', tension: 0.4, fill: true,
+                },
+            ],
         },
         options: {
             responsive: true,
             plugins: { legend: { position: 'top' } },
-            scales: { y: { ticks: { callback: val => 'Rp ' + (val/1000000).toFixed(1) + 'jt' } } }
-        }
+            scales: { y: { ticks: { callback: val => 'Rp ' + (val/1000000).toFixed(1) + 'jt' } } },
+        },
     });
 }
+
 // ===== LOAD KATEGORI PIE =====
 async function loadKategoriBreakdown() {
     const res  = await fetch(`/api/admin/keuangan/kategori-breakdown?bulan=${getBulan()}&tahun=${getTahun()}&tipe=pengeluaran`);
@@ -615,9 +871,9 @@ async function loadKategoriBreakdown() {
         type: 'doughnut',
         data: {
             labels: data.map(d => d.kategori),
-            datasets: [{ data: data.map(d => d.total), backgroundColor: WARNA_KATEGORI.slice(0, data.length), borderWidth: 2 }]
+            datasets: [{ data: data.map(d => d.total), backgroundColor: WARNA_KATEGORI.slice(0, data.length), borderWidth: 2 }],
         },
-        options: { responsive: true, plugins: { legend: { display: false } } }
+        options: { responsive: true, plugins: { legend: { display: false } } },
     });
     const total = data.reduce((s, d) => s + parseFloat(d.total), 0);
     document.getElementById('kategoriList').innerHTML = data.map((d, i) => `
@@ -633,7 +889,8 @@ async function loadKategoriBreakdown() {
         </div>
     `).join('');
 }
-// ===== BUKA MODAL NORMAL =====
+
+// ===== BUKA MODAL =====
 function bukaModal(tipe = 'pemasukan') {
     resetModal();
     document.getElementById('inputTipe').value   = tipe;
@@ -643,11 +900,11 @@ function bukaModal(tipe = 'pemasukan') {
     const header = document.getElementById('modalHeader');
     header.style.background = isPemasukan ? 'linear-gradient(135deg,#065f46,#10b981)' : 'linear-gradient(135deg,#7f1d1d,#dc2626)';
     header.style.color = 'white';
-    document.getElementById('modalTitle').textContent = isPemasukan ? '💚 Input Pemasukan' : '❤️ Input Pengeluaran';
-    document.getElementById('btnSimpan').className = isPemasukan ? 'btn btn-success fw-bold' : 'btn btn-danger fw-bold';
+    document.getElementById('modalTitle').textContent  = isPemasukan ? '💚 Input Pemasukan' : '❤️ Input Pengeluaran';
+    document.getElementById('btnSimpan').className     = isPemasukan ? 'btn btn-success fw-bold' : 'btn btn-danger fw-bold';
     new bootstrap.Modal(document.getElementById('modalTransaksi')).show();
 }
-// ===== BUKA PENJUALAN ONLINE =====
+
 function bukaModalOnline() { window.open('{{ url("/penjualan-online/staff") }}', '_blank'); }
 
 function resetModal() {
@@ -663,20 +920,20 @@ function resetModal() {
     document.getElementById('inputPlatform').value  = '';
     document.getElementById('inputNoOrder').value   = '';
     document.getElementById('onlineSection').style.display = 'none';
-    const btn = document.getElementById('btnSimpan');
-    btn.style.background = ''; btn.style.color = '';
 }
+
 function updateKategori() {
     const tipe = document.getElementById('inputTipe').value;
     const sel  = document.getElementById('inputKategori');
     sel.innerHTML = (KATEGORI[tipe] || []).map(k => `<option value="${k}">${k}</option>`).join('');
     toggleOnlineSection();
 }
+
 // ===== SIMPAN TRANSAKSI =====
 async function simpanTransaksi() {
     const editId   = document.getElementById('editId').value;
     const kategori = document.getElementById('inputKategori').value;
-    const payload = {
+    const payload  = {
         tipe         : document.getElementById('inputTipe').value,
         kategori,
         jumlah       : document.getElementById('inputJumlah').value,
@@ -694,6 +951,7 @@ async function simpanTransaksi() {
         if (!payload.platform) { showToast('❌ Platform toko online wajib dipilih!', 'danger'); return; }
     }
     if (!payload.jumlah || !payload.deskripsi) { showToast('❌ Jumlah dan deskripsi wajib diisi!', 'danger'); return; }
+
     const btn = document.getElementById('btnSimpan');
     btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan...';
     try {
@@ -709,16 +967,17 @@ async function simpanTransaksi() {
             bootstrap.Modal.getInstance(document.getElementById('modalTransaksi')).hide();
             showToast('✅ ' + data.message, 'success'); loadAll();
         } else { showToast('❌ ' + (data.message || 'Gagal menyimpan'), 'danger'); }
-    } catch (e) { showToast('❌ Error: ' + e.message, 'danger'); } 
+    } catch (e) { showToast('❌ Error: ' + e.message, 'danger'); }
     finally { btn.disabled = false; btn.innerHTML = '<i class="bi bi-save me-1"></i>Simpan'; }
 }
+
 // ===== EDIT TRANSAKSI =====
 async function editTransaksi(id) {
     const res  = await fetch(`/api/admin/keuangan/transaksi/${id}`);
     const data = await res.json();
     if (!data.success) return;
     const t = data.data;
-    document.getElementById('editId').value        = t.id;
+    document.getElementById('editId').value         = t.id;
     document.getElementById('inputTipe').value      = t.tipe;
     updateKategori();
     document.getElementById('inputKategori').value  = t.kategori;
@@ -738,6 +997,7 @@ async function editTransaksi(id) {
     document.getElementById('modalTitle').textContent = '✏️ Edit Transaksi';
     new bootstrap.Modal(document.getElementById('modalTransaksi')).show();
 }
+
 // ===== LIHAT DETAIL =====
 async function lihatDetail(id) {
     const res  = await fetch(`/api/admin/keuangan/transaksi/${id}`);
@@ -746,7 +1006,7 @@ async function lihatDetail(id) {
     const t = data.data;
     const isPemasukan = t.tipe === 'pemasukan';
     const isPiutang   = t.tipe === 'piutang';
-    const onlineRows = t.platform ? `
+    const onlineRows  = t.platform ? `
         <tr><th>Platform</th>
             <td><span class="platform-badge ${PLATFORM_CLASS[t.platform] || 'lainnya'}">
                 ${PLATFORM_ICON[t.platform] || '📦'} ${t.platform}
@@ -754,6 +1014,8 @@ async function lihatDetail(id) {
         </tr>
         ${t.no_order ? `<tr><th>No. Order</th><td><code>${t.no_order}</code></td></tr>` : ''}
     ` : '';
+    const subKatRow = t.sub_kategori
+        ? `<tr><th>Sub Kategori</th><td>${t.sub_kategori}</td></tr>` : '';
     document.getElementById('detailBody').innerHTML = `
         <div class="text-center mb-3">
             <div style="font-size:2.5rem">${isPemasukan ? (t.platform ? '🛒' : '💚') : (isPiutang ? '🧾' : '❤️')}</div>
@@ -765,6 +1027,7 @@ async function lihatDetail(id) {
         <table class="table table-bordered table-sm">
             <tr><th width="40%">Tipe</th><td><span class="tipe-badge ${t.tipe}">${t.tipe}</span></td></tr>
             <tr><th>Kategori</th><td>${t.kategori}</td></tr>
+            ${subKatRow}
             ${onlineRows}
             <tr><th>Tanggal</th><td>${formatDate(t.tanggal)}</td></tr>
             <tr><th>Deskripsi</th><td>${t.deskripsi}</td></tr>
@@ -777,7 +1040,8 @@ async function lihatDetail(id) {
     `;
     new bootstrap.Modal(document.getElementById('modalDetail')).show();
 }
-// ===== HAPUS TRANSAKSI =====
+
+// ===== HAPUS =====
 async function hapusTransaksi(id, kode) {
     if (!confirm(`Hapus transaksi ${kode}?`)) return;
     const res  = await fetch(`/api/admin/keuangan/transaksi/${id}`, {
@@ -787,15 +1051,23 @@ async function hapusTransaksi(id, kode) {
     const data = await res.json();
     if (data.success) { showToast('✅ ' + data.message, 'success'); loadAll(); }
 }
+
 // ===== EXPORT =====
 function exportLaporan() {
     window.open(`/api/admin/keuangan/transaksi?bulan=${getBulan()}&tahun=${getTahun()}&export=1`, '_blank');
     showToast('📥 Export sedang diproses...', 'info');
 }
+
 // ===== HELPERS =====
-function formatRp(num) { return 'Rp ' + parseInt(num || 0).toLocaleString('id-ID'); }
-function formatDate(str) { if (!str) return '-'; return new Date(str).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }); }
-function metodeLabel(m) { const map = { cash:'💵 Cash', transfer:'🏦 Transfer', qris:'📱 QRIS', kartu_kredit:'💳 Kartu' }; return map[m] || m; }
+function formatRp(num)   { return 'Rp ' + parseInt(num || 0).toLocaleString('id-ID'); }
+function formatDate(str) {
+    if (!str) return '-';
+    return new Date(str).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
+}
+function metodeLabel(m) {
+    const map = { cash:'💵 Cash', transfer:'🏦 Transfer', qris:'📱 QRIS', kartu_kredit:'💳 Kartu' };
+    return map[m] || m;
+}
 function showToast(msg, type) {
     const el = document.createElement('div');
     el.className = `alert alert-${type} position-fixed bottom-0 end-0 m-3 shadow`;

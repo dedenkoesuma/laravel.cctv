@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\HargaBeliService; // ⭐ PATCH: import HargaBeliService
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -59,7 +60,7 @@ class GudangController extends Controller
                     'total_stok'     => $products->sum('sisa_stok'),
                     'produk_habis'   => $products->where('sisa_stok', '<=', 0)->count(),
                     'produk_menipis' => $products->where('sisa_stok', '>', 0)->where('sisa_stok', '<=', 5)->count(),
-                ]
+                ],
             ]);
         } catch (\Exception $e) {
             Log::error("Gudang Error (getProducts): " . $e->getMessage());
@@ -112,37 +113,56 @@ class GudangController extends Controller
     public function storeBarangMasuk(Request $request)
     {
         $request->validate([
-            'nama_produk'    => 'required|string|max:255',
-            'jumlah'         => 'required|integer|min:1',
-            'tanggal_masuk'  => 'required|date',
-            'harga_beli'     => 'nullable|numeric',
+            'nama_produk'   => 'required|string|max:255',
+            'jumlah'        => 'required|integer|min:1',
+            'tanggal_masuk' => 'required|date',
+            'harga_beli'    => 'nullable|numeric|min:0', // ⭐ PATCH: tambah min:0
+            'harga_jual'    => 'nullable|numeric|min:0', // ⭐ PATCH: tambah min:0
         ]);
 
         return DB::transaction(function () use ($request) {
+            // ⭐ PATCH: hitung margin sebelum insert/update produk
+            $hargaBeli = floatval($request->harga_beli ?? 0);
+            $hargaJual = floatval($request->harga_jual ?? 0);
+            $margin    = $hargaJual > 0
+                ? round((($hargaJual - $hargaBeli) / $hargaJual) * 100, 2)
+                : 0;
+
             $product = DB::table('gudang_products')->where('nama_produk', $request->nama_produk)->first();
-            
+
             if (!$product) {
                 $productId = DB::table('gudang_products')->insertGetId([
-                    'nama_produk' => $request->nama_produk,
-                    'brand'       => $request->brand,
-                    'category'    => $request->category,
-                    'sku'         => $request->sku,
-                    'harga_jual'  => $request->harga_jual ?? 0,
-                    'created_at'  => now(),
-                    'updated_at'  => now(),
+                    'nama_produk'   => $request->nama_produk,
+                    'brand'         => $request->brand,
+                    'category'      => $request->category,
+                    'sku'           => $request->sku,
+                    'harga_jual'    => $hargaJual,
+                    'harga_beli'    => $hargaBeli,          // ⭐ PATCH
+                    'margin_persen' => $margin,             // ⭐ PATCH
+                    'created_at'    => now(),
+                    'updated_at'    => now(),
                 ]);
             } else {
                 $productId = $product->id;
-                DB::table('gudang_products')->where('id', $productId)->update([
+
+                $updateData = [
                     'brand'      => $request->brand ?? $product->brand,
                     'category'   => $request->category ?? $product->category,
                     'updated_at' => now(),
-                ]);
+                ];
+
+                // ⭐ PATCH: update harga_beli & margin jika dikirim
+                if ($request->filled('harga_beli')) {
+                    $updateData['harga_beli']    = $hargaBeli;
+                    $updateData['margin_persen'] = $margin;
+                }
+
+                DB::table('gudang_products')->where('id', $productId)->update($updateData);
             }
 
             $serialNumbers = [];
             if ($request->serial_numbers) {
-                $serialNumbers = is_array($request->serial_numbers) 
+                $serialNumbers = is_array($request->serial_numbers)
                     ? array_filter(array_map('trim', $request->serial_numbers))
                     : array_filter(array_map('trim', explode("\n", $request->serial_numbers)));
             }
@@ -156,7 +176,7 @@ class GudangController extends Controller
                         'product_id'    => $productId,
                         'serial_number' => $sn,
                         'jumlah'        => 1,
-                        'harga_beli'    => $request->harga_beli ?? 0,
+                        'harga_beli'    => $hargaBeli,
                         'tanggal_masuk' => $request->tanggal_masuk,
                         'status'        => 'tersedia',
                         'created_at'    => now(),
@@ -166,7 +186,7 @@ class GudangController extends Controller
                 DB::table('barang_masuk')->insert([
                     'product_id'    => $productId,
                     'jumlah'        => $request->jumlah,
-                    'harga_beli'    => $request->harga_beli ?? 0,
+                    'harga_beli'    => $hargaBeli,
                     'tanggal_masuk' => $request->tanggal_masuk,
                     'status'        => 'tersedia',
                     'created_at'    => now(),
@@ -232,9 +252,55 @@ class GudangController extends Controller
         });
     }
 
+    // ⭐ PATCH: Method baru untuk update harga beli manual per produk
+    // Catatan: HargaBeliService::updateManual() kemungkinan butuh Eloquent model.
+    // Jika error, pastikan ada App\Models\GudangProduct extends Model.
+    public function updateStock(Request $request, $id)
+    {
+        $product = DB::table('gudang_products')->where('id', $id)->first();
+        if (!$product) {
+            return response()->json(['success' => false, 'message' => 'Produk tidak ditemukan'], 404);
+        }
+
+        // ⭐ PATCH: update harga_beli via service agar margin ikut terupdate
+        if ($request->has('harga_beli')) {
+            // Jika HargaBeliService butuh Eloquent model, uncomment baris ini:
+            // $eloquentProduct = \App\Models\GudangProduct::findOrFail($id);
+            // app(HargaBeliService::class)->updateManual($eloquentProduct, (float) $request->harga_beli);
+
+            // Fallback manual via Query Builder jika tidak pakai Eloquent:
+            $hargaBeli = floatval($request->harga_beli);
+            $hargaJual = floatval($product->harga_jual ?? 0);
+            $margin    = $hargaJual > 0
+                ? round((($hargaJual - $hargaBeli) / $hargaJual) * 100, 2)
+                : 0;
+
+            DB::table('gudang_products')->where('id', $id)->update([
+                'harga_beli'    => $hargaBeli,
+                'margin_persen' => $margin,
+                'updated_at'    => now(),
+            ]);
+        }
+
+        // Update field lainnya (kecuali harga_beli — sudah ditangani di atas)
+        $allowed = ['brand', 'category', 'sku', 'harga_jual', 'nama_produk'];
+        $updateData = array_filter(
+            $request->only($allowed),
+            fn($v) => !is_null($v)
+        );
+
+        if (!empty($updateData)) {
+            $updateData['updated_at'] = now();
+            DB::table('gudang_products')->where('id', $id)->update($updateData);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Produk berhasil diupdate']);
+    }
+    // =====================================================
+
     private function recalculateStock($productId)
     {
-        $totalMasuk = DB::table('barang_masuk')->where('product_id', $productId)->sum('jumlah');
+        $totalMasuk  = DB::table('barang_masuk')->where('product_id', $productId)->sum('jumlah');
         $totalKeluar = DB::table('barang_keluar')->where('product_id', $productId)->sum('jumlah');
 
         DB::table('gudang_products')->where('id', $productId)->update([
@@ -261,7 +327,8 @@ class GudangController extends Controller
         return response()->json(['success' => true, 'message' => 'Produk dan semua riwayatnya berhasil dihapus']);
     }
 
-    public function destroyBarangMasuk($id) {
+    public function destroyBarangMasuk($id)
+    {
         $item = DB::table('barang_masuk')->where('id', $id)->first();
         if ($item) {
             DB::table('barang_masuk')->where('id', $id)->delete();
@@ -270,7 +337,8 @@ class GudangController extends Controller
         return response()->json(['success' => true]);
     }
 
-    public function destroyBarangKeluar($id) {
+    public function destroyBarangKeluar($id)
+    {
         $item = DB::table('barang_keluar')->where('id', $id)->first();
         if ($item) {
             if ($item->serial_number) {
@@ -289,7 +357,7 @@ class GudangController extends Controller
     {
         $product = DB::table('gudang_products')->where('nama_produk', $request->nama_produk)->first();
         if (!$product) return response()->json(['use_serial_number' => false]);
-        $hasSN = DB::table('barang_masuk')->where('product_id', $product->id)->whereNotNull('serial_number')->exists(); 
+        $hasSN = DB::table('barang_masuk')->where('product_id', $product->id)->whereNotNull('serial_number')->exists();
         return response()->json(['use_serial_number' => $hasSN]);
     }
 

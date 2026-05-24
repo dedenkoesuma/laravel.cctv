@@ -6,6 +6,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Services\HargaBeliService; // ⭐ PATCH: import HargaBeliService
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -47,21 +48,38 @@ class KeuanganController extends Controller
         $piutangLunasBulanIni = DB::table('keuangan_transaksi')
             ->where('tipe', 'pemasukan')->where('status', 'lunas')
             ->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)
-            ->sum('jumlah'); // *Catatan: Ini akan sama dengan total pemasukan jika semua pemasukan dianggap pelunasan piutang
+            ->sum('jumlah');
 
         $jumlahTransaksi = DB::table('keuangan_transaksi')
             ->whereMonth('tanggal', $bulan)->whereYear('tanggal', $tahun)
             ->count();
 
+        // ⭐ PATCH: Hitung HPP / modal beli & laba kotor via HargaBeliService
+        // Catatan: hitungHPPBulan() mengembalikan ['total_modal' => ..., 'items' => [...]]
+        $hppData      = app(HargaBeliService::class)->hitungHPPBulan($bulan, $tahun);
+        $hpp          = $hppData['total_modal'] ?? 0;
+        $labaKotor    = $pemasukan - $hpp;
+        $labaBersih   = $labaKotor - $pengeluaran;
+        $marginPersen = $pemasukan > 0 ? round(($labaBersih / $pemasukan) * 100, 2) : 0;
+        // =====================================================
+
         return response()->json([
-            'pemasukan_bulan'       => $pemasukan,
-            'pengeluaran_bulan'     => $pengeluaran,
-            'laba_bulan'            => $pemasukan - $pengeluaran,
-            'saldo_total'           => $totalPemasukan - $totalPengeluaran,
-            'jumlah_transaksi'      => $jumlahTransaksi,
-            'piutang_pending'       => $piutangPending,
-            'piutang_lunas_bulan'   => $piutangLunasBulanIni,
-            'pending'               => $piutangPending,
+            // ── Data lama (backward-compatible) ──────────────────
+            'pemasukan_bulan'     => $pemasukan,
+            'pengeluaran_bulan'   => $pengeluaran,
+            'laba_bulan'          => $pemasukan - $pengeluaran, // laba tanpa HPP (lama)
+            'saldo_total'         => $totalPemasukan - $totalPengeluaran,
+            'jumlah_transaksi'    => $jumlahTransaksi,
+            'piutang_pending'     => $piutangPending,
+            'piutang_lunas_bulan' => $piutangLunasBulanIni,
+            'pending'             => $piutangPending,
+
+            // ⭐ Data baru (HPP & margin) ──────────────────────────
+            'hpp'                 => $hpp,
+            'laba_kotor'          => $labaKotor,   // pemasukan - HPP
+            'laba_bersih'         => $labaBersih,  // laba_kotor - pengeluaran operasional
+            'margin_persen'       => $marginPersen,
+            'hpp_items'           => $hppData['items'] ?? [], // detail HPP per produk
         ]);
     }
 
@@ -78,13 +96,13 @@ class KeuanganController extends Controller
                 $query->where('tipe', $request->tipe);
             }
         }
-        
-        if ($request->kategori)  $query->where('kategori', $request->kategori);
-        if ($request->status)    $query->where('status', $request->status);
-        if ($request->platform)  $query->where('platform', $request->platform);
-        if ($request->bulan)     $query->whereMonth('tanggal', $request->bulan);
-        if ($request->tahun)     $query->whereYear('tanggal', $request->tahun);
-        if ($request->search)    $query->where(function ($q) use ($request) {
+
+        if ($request->kategori) $query->where('kategori', $request->kategori);
+        if ($request->status)   $query->where('status', $request->status);
+        if ($request->platform) $query->where('platform', $request->platform);
+        if ($request->bulan)    $query->whereMonth('tanggal', $request->bulan);
+        if ($request->tahun)    $query->whereYear('tanggal', $request->tahun);
+        if ($request->search)   $query->where(function ($q) use ($request) {
             $q->where('deskripsi', 'like', '%' . $request->search . '%')
               ->orWhere('kode_transaksi', 'like', '%' . $request->search . '%')
               ->orWhere('pihak_terkait', 'like', '%' . $request->search . '%')
@@ -108,8 +126,8 @@ class KeuanganController extends Controller
     public function getChartData(Request $request)
     {
         $tahun = $request->tahun ?? date('Y');
-        $data = [];
-        
+        $data  = [];
+
         for ($m = 1; $m <= 12; $m++) {
             $pemasukan = DB::table('keuangan_transaksi')
                 ->where('tipe', 'pemasukan')->where('status', 'lunas')
@@ -122,10 +140,10 @@ class KeuanganController extends Controller
                 ->sum('jumlah');
 
             $data[] = [
-                'bulan'        => date('M', mktime(0, 0, 0, $m, 1)),
-                'pemasukan'    => (float) $pemasukan,
-                'pengeluaran'  => (float) $pengeluaran,
-                'laba'         => (float) ($pemasukan - $pengeluaran),
+                'bulan'       => date('M', mktime(0, 0, 0, $m, 1)),
+                'pemasukan'   => (float) $pemasukan,
+                'pengeluaran' => (float) $pengeluaran,
+                'laba'        => (float) ($pemasukan - $pengeluaran),
             ];
         }
 
@@ -231,7 +249,7 @@ class KeuanganController extends Controller
     {
         $trx = DB::table('keuangan_transaksi')->where('id', $id)->first();
         if (!$trx) return response()->json(['success' => false, 'message' => 'Data tidak ditemukan'], 404);
-        
+
         // Sesuaikan tipe untuk form edit Bos
         if ($trx->tipe === 'pemasukan' && $trx->status === 'pending') {
             $trx->tipe = 'piutang';
