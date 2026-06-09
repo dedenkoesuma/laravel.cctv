@@ -51,6 +51,41 @@ tr:last-child td{border-bottom:none}
 .kbanner .lval{font-size:28px;font-weight:800;margin-top:3px}
 .kbanner .rsub{font-size:13px;opacity:.85;line-height:1.8;text-align:right}
 .note{font-size:13px;color:#9ca3af;padding:6px 0}
+
+/* ── MARKETPLACE ── */
+.mp-wrap{padding:16px 20px;border-top:1px solid #f3f4f6}
+.mp-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.mp-header-left{display:flex;align-items:center;gap:10px}
+.mp-ico{font-size:22px;line-height:1}
+.mp-title{font-size:14px;font-weight:700;color:#1a1a2e}
+.mp-subtitle{font-size:11px;color:#9ca3af;margin-top:1px}
+
+/* Toggle switch */
+.sw{position:relative;display:inline-block;width:46px;height:25px;flex-shrink:0}
+.sw input{opacity:0;width:0;height:0}
+.sw-track{position:absolute;inset:0;background:#d1d5db;border-radius:25px;cursor:pointer;transition:background .25s}
+.sw-track::before{content:'';position:absolute;width:19px;height:19px;left:3px;top:3px;background:white;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .25s}
+.sw input:checked + .sw-track{background:#10b981}
+.sw input:checked + .sw-track::before{transform:translateX(21px)}
+
+.mp-body{background:#f9fafb;border-radius:10px;padding:14px 16px;transition:opacity .2s}
+.mp-body.off{opacity:.35;pointer-events:none}
+
+.mp-presets{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.mp-preset{border:1.5px solid #e5e7eb;border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;background:white;color:#6b7280;transition:all .15s}
+.mp-preset:hover{border-color:#4f46e5;color:#4f46e5}
+.mp-preset.active{background:#4f46e5;border-color:#4f46e5;color:white}
+
+.mp-input-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.mp-input-row label{font-size:13px;color:#6b7280;white-space:nowrap}
+.mp-pct-inp{width:88px;border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:16px;font-weight:700;text-align:center;outline:none;color:#1a1a2e;transition:border .15s}
+.mp-pct-inp:focus{border-color:#4f46e5;box-shadow:0 0 0 2px rgba(79,70,229,.12)}
+.mp-pct-sym{font-size:16px;font-weight:700;color:#6b7280}
+.mp-plat-hint{font-size:11px;color:#9ca3af;margin-left:2px}
+
+.mp-result{display:flex;justify-content:space-between;align-items:center;background:#fff1f2;border:1px solid #fecdd3;border-radius:8px;padding:10px 14px}
+.mp-result-lbl{font-size:12px;font-weight:600;color:#e11d48}
+.mp-result-val{font-size:16px;font-weight:800;color:#e11d48}
 </style>
 </head>
 <body>
@@ -97,6 +132,7 @@ tr:last-child td{border-bottom:none}
     <div id="summary-box" style="padding:14px 18px"></div>
   </div>
 
+  <!-- Harga Jual + Marketplace dalam satu card -->
   <div class="card">
     <div class="sec-title">🏷️ Total Harga Jual</div>
     <div class="hj-body">
@@ -104,6 +140,49 @@ tr:last-child td{border-bottom:none}
       <div class="hj-input-wrap">
         <span class="hj-prefix">Rp</span>
         <input class="hj-inp" id="hj-inp" type="number" min="0" placeholder="0" oninput="updateHJ(this)">
+      </div>
+    </div>
+
+    <!-- ── POTONGAN MARKETPLACE ── -->
+    <div class="mp-wrap">
+      <div class="mp-header">
+        <div class="mp-header-left">
+          <span class="mp-ico">🛒</span>
+          <div>
+            <div class="mp-title">Potongan Marketplace</div>
+            <div class="mp-subtitle">Fee platform / komisi penjualan</div>
+          </div>
+        </div>
+        <label class="sw">
+          <input type="checkbox" id="mp-toggle" onchange="toggleMP()">
+          <span class="sw-track"></span>
+        </label>
+      </div>
+
+      <div class="mp-body off" id="mp-body">
+        <!-- Preset platform -->
+        <div class="mp-presets">
+          <button class="mp-preset" onclick="setPreset(this,'Tokopedia',2.5)">🟢 Tokopedia <small style="opacity:.7">2.5%</small></button>
+          <button class="mp-preset" onclick="setPreset(this,'Shopee',3)">🟠 Shopee <small style="opacity:.7">3%</small></button>
+          <button class="mp-preset" onclick="setPreset(this,'Lazada',2)">🔵 Lazada <small style="opacity:.7">2%</small></button>
+          <button class="mp-preset" onclick="setPreset(this,'TikTok Shop',5)">⚫ TikTok Shop <small style="opacity:.7">5%</small></button>
+          <button class="mp-preset" onclick="setPreset(this,'Blibli',3)">🔴 Blibli <small style="opacity:.7">3%</small></button>
+          <button class="mp-preset" id="btn-custom" onclick="setPreset(this,'Custom',null)">✏️ Custom</button>
+        </div>
+
+        <!-- Input % -->
+        <div class="mp-input-row">
+          <label>Fee marketplace:</label>
+          <input class="mp-pct-inp" id="mp-pct" type="number" min="0" max="100" step="0.1" value="0" oninput="onMpInput()">
+          <span class="mp-pct-sym">%</span>
+          <span class="mp-plat-hint" id="mp-plat-hint"></span>
+        </div>
+
+        <!-- Hasil nominal -->
+        <div class="mp-result">
+          <span class="mp-result-lbl">💸 Nominal Potongan Marketplace</span>
+          <span class="mp-result-val" id="mp-amount">Rp 0</span>
+        </div>
       </div>
     </div>
   </div>
@@ -122,7 +201,11 @@ const fmt = n => 'Rp ' + Math.round(n).toLocaleString('id-ID');
 let rows = [];
 let nextId = 1;
 let totalHargaJual = 0;
+let mpEnabled = false;
+let mpPct = 0;
+let mpPlatform = '';
 
+/* ── ROWS ── */
 function addRow() {
   rows.push({id: nextId++, nama:'', qty:0, harga:0, diskon:0});
   renderAll();
@@ -136,27 +219,15 @@ function delRow(id) {
 function update(id, field, val) {
   const r = rows.find(r => r.id === id);
   if (!r) return;
-  
   if (field === 'nama') r.nama = val;
   else r[field] = parseFloat(val) || 0;
-  
-  // Hitung ulang khusus untuk baris ini
   const subtotal = r.qty * r.harga;
   const hemat = subtotal * (r.diskon / 100);
   const total = subtotal - hemat;
-
-  // Update elemen teks hemat dan total modal di baris ini
   const elHemat = document.getElementById(`hemat-${id}`);
   const elTotal = document.getElementById(`total-${id}`);
-  
-  if (elHemat) {
-      elHemat.innerHTML = hemat > 0 ? '−'+fmt(hemat) : '<span style="color:#9ca3af">—</span>';
-  }
-  if (elTotal) {
-      elTotal.innerHTML = total > 0 ? fmt(total) : '<span style="color:#9ca3af">—</span>';
-  }
-
-  // Render ulang ringkasan di bawah (summary & banner)
+  if (elHemat) elHemat.innerHTML = hemat > 0 ? '−'+fmt(hemat) : '<span style="color:#9ca3af">—</span>';
+  if (elTotal) elTotal.innerHTML = total > 0 ? fmt(total) : '<span style="color:#9ca3af">—</span>';
   renderSummary();
   renderBanner();
 }
@@ -202,9 +273,7 @@ function renderSummary() {
   const subtotal = filled.reduce((s,r) => s + r.qty * r.harga, 0);
   const totalHemat = filled.reduce((s,r) => s + r.qty * r.harga * (r.diskon/100), 0);
   const totalModal = subtotal - totalHemat;
-
   document.getElementById('s-modal').textContent = fmt(totalModal);
-
   let html = '';
   if (filled.length > 0) {
     filled.forEach(r => {
@@ -226,7 +295,10 @@ function renderSummary() {
 
 function renderBanner() {
   const totalModal = getTotalModal();
-  const untung = totalHargaJual - totalModal;
+  const mpAmount = mpEnabled ? totalHargaJual * (mpPct / 100) : 0;
+  document.getElementById('mp-amount').textContent = fmt(mpAmount);
+
+  const untung = totalHargaJual - mpAmount - totalModal;
   const banner = document.getElementById('kbanner');
   const kval = document.getElementById('k-val');
   const kdet = document.getElementById('k-detail');
@@ -242,22 +314,67 @@ function renderBanner() {
   } else if (untung > 0) {
     banner.className = 'kbanner profit';
     const margin = (untung / totalHargaJual * 100).toFixed(1);
-    kdet.innerHTML = `Jual <strong>${fmt(totalHargaJual)}</strong> − modal <strong>${fmt(totalModal)}</strong><br>Margin keuntungan <strong>${margin}%</strong>`;
+    let detail = `Jual <strong>${fmt(totalHargaJual)}</strong> − modal <strong>${fmt(totalModal)}</strong>`;
+    if (mpEnabled && mpAmount > 0) detail += ` − fee MP <strong>${fmt(mpAmount)}</strong>`;
+    detail += `<br>Margin keuntungan <strong>${margin}%</strong>`;
+    kdet.innerHTML = detail;
   } else if (untung < 0) {
     banner.className = 'kbanner loss';
-    kdet.innerHTML = `Jual <strong>${fmt(totalHargaJual)}</strong> − modal <strong>${fmt(totalModal)}</strong><br>⚠️ Harga jual lebih kecil dari modal!`;
+    let detail = `Jual <strong>${fmt(totalHargaJual)}</strong> − modal <strong>${fmt(totalModal)}</strong>`;
+    if (mpEnabled && mpAmount > 0) detail += ` − fee MP <strong>${fmt(mpAmount)}</strong>`;
+    detail += `<br>⚠️ Harga jual lebih kecil dari modal!`;
+    kdet.innerHTML = detail;
   } else {
     banner.className = 'kbanner zero';
     kdet.innerHTML = `Jual <strong>${fmt(totalHargaJual)}</strong> = modal. Impas!`;
   }
 }
 
+/* ── MARKETPLACE ── */
+function toggleMP() {
+  mpEnabled = document.getElementById('mp-toggle').checked;
+  document.getElementById('mp-body').classList.toggle('off', !mpEnabled);
+  renderBanner();
+}
+
+function setPreset(btn, name, pct) {
+  document.querySelectorAll('.mp-preset').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  mpPlatform = name;
+  if (pct !== null) {
+    mpPct = pct;
+    document.getElementById('mp-pct').value = pct;
+    document.getElementById('mp-plat-hint').textContent = `(fee default ${name})`;
+  } else {
+    document.getElementById('mp-pct').value = mpPct;
+    document.getElementById('mp-plat-hint').textContent = 'masukkan % sendiri';
+    document.getElementById('mp-pct').focus();
+  }
+  renderBanner();
+}
+
+function onMpInput() {
+  mpPct = parseFloat(document.getElementById('mp-pct').value) || 0;
+  mpPlatform = 'Custom';
+  document.getElementById('mp-plat-hint').textContent = '';
+  document.querySelectorAll('.mp-preset').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn-custom').classList.add('active');
+  renderBanner();
+}
+
+/* ── RESET ── */
 function resetAll() {
   if (!confirm('Reset semua data?')) return;
   rows = []; nextId = 1; totalHargaJual = 0;
+  mpEnabled = false; mpPct = 0; mpPlatform = '';
   document.getElementById('hj-inp').value = '';
   document.getElementById('hj-inp').classList.remove('filled');
   document.getElementById('s-jual').textContent = 'Rp 0';
+  document.getElementById('mp-toggle').checked = false;
+  document.getElementById('mp-body').classList.add('off');
+  document.getElementById('mp-pct').value = 0;
+  document.getElementById('mp-plat-hint').textContent = '';
+  document.querySelectorAll('.mp-preset').forEach(b => b.classList.remove('active'));
   addRow(); addRow(); addRow();
 }
 
