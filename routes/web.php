@@ -35,6 +35,7 @@ use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\TestimonialController;
+use App\Http\Controllers\Admin\ModalPaketController;
 
 /*
 |--------------------------------------------------------------------------
@@ -428,7 +429,7 @@ Route::middleware(['admin.auth'])->group(function () {
         Route::get('/', [InventoryController::class, 'index'])->name('index');
         Route::get('/incoming', [InventoryController::class, 'incoming'])->name('incoming');
         Route::get('/incoming-continuous', fn() => view('admin.inventory.incoming'))->name('incoming.continuous');
-        Route::get('/incoming-grouped', fn() => view('admin.inventory.incoming-grouped'))->name('incoming.grouped');
+        Route::get('/incoming-grouped', fn() => view('admin.inventory.incoming'))->name('incoming.grouped');
         Route::get('/outgoing', [InventoryController::class, 'outgoing'])->name('outgoing');
         Route::get('/outgoing-grouped', fn() => view('admin.inventory.outgoing-grouped'))->name('outgoing.grouped');
         Route::get('/grouped', fn() => view('admin.inventory.grouped-view'))->name('grouped.index');
@@ -558,6 +559,17 @@ Route::middleware(['admin.auth'])->group(function () {
     // =====================================
     Route::get('/admin/modal/kalkulator', [App\Http\Controllers\Admin\KalkulatorModalController::class, 'index'])
         ->name('admin.modal.kalkulator');
+
+    // =====================================
+    // MODAL PAKET (Kalkulator Modal & Keuntungan)
+    // =====================================
+    Route::prefix('admin/modal-paket')->name('modal-paket.')->group(function () {
+        Route::get('/',              [ModalPaketController::class, 'index'])   ->name('index');
+        Route::post('/',             [ModalPaketController::class, 'store'])   ->name('store');
+        Route::get('/{modalPaket}',  [ModalPaketController::class, 'show'])    ->name('show');
+        Route::put('/{modalPaket}',  [ModalPaketController::class, 'update'])  ->name('update');
+        Route::delete('/{modalPaket}',[ModalPaketController::class, 'destroy'])->name('destroy');
+    });
 
 }); // END middleware admin.auth
 

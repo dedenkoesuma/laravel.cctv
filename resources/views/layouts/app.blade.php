@@ -391,6 +391,9 @@
             color: white;
         }
     </style>
+
+    {{-- Stack untuk CSS tambahan dari setiap halaman --}}
+    @stack('styles')
 </head>
 <body>
     <!-- Modern MJA Tech Navbar -->
@@ -520,10 +523,10 @@
                 <div class="col-lg-2 col-md-6">
                     <ul class="footer-links">
                         <li><a href="{{ url('/') }}">Beranda</a></li>
-                        <li><a href="{{ url('/products//hikvision') }}">Kamera CCTV</a></li>
+                        <li><a href="{{ url('/products/hikvision') }}">Kamera CCTV</a></li>
                         <li><a href="{{ url('/access-control') }}">Akses Kontrol</a></li>
                         <li><a href="{{ url('/contact') }}">Kontak</a></li>
-                        <li><a href="{{ https://wa.me/62881025756671}}">Tentang Kami</a></li>
+                        <li><a href="https://wa.me/62881025756671">Tentang Kami</a></li>
                     </ul>
                 </div>
 
@@ -626,7 +629,6 @@
             });
         });
 
-        // Fungsi untuk tombol Back to Top
         function scrollToTop() {
             window.scrollTo({
                 top: 0,
@@ -634,6 +636,9 @@
             });
         }
     </script>
+
+    {{-- Stack untuk JS tambahan dari setiap halaman --}}
+    @stack('scripts')
     @yield('scripts')
 </body>
 </html>

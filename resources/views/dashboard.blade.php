@@ -117,6 +117,9 @@
         <a href="{{ route('admin.modal.kalkulator') }}" class="menu-item {{ request()->routeIs('admin.modal.kalkulator') ? 'active' : '' }}"><i class="bi bi-calculator"></i><span>Kalkulator Modal</span></a>
         @endcan
 
+        {{-- MENU BARU: MODAL PAKET --}}
+        <a href="{{ route('modal-paket.index') }}" class="menu-item {{ request()->routeIs('modal-paket.*') ? 'active' : '' }}"><i class="bi bi-bag-check"></i><span>Modal Paket</span></a>
+
         <div class="menu-section-title">Products Management</div>
         
         @canany(['view_ruijie', 'manage_ruijie'])
@@ -145,7 +148,6 @@
         <a href="{{ route('admin.roles.index') }}" class="menu-item {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}"><i class="bi bi-shield-lock"></i><span>Roles & Permissions</span><span class="badge">SECURE</span></a>
         @endcan
 
-        {{-- MENU BARU: TESTIMONI --}}
         @canany(['view_testimonials', 'manage_testimonials'])
         <a href="{{ route('admin.testimonials.index') }}" class="menu-item {{ request()->routeIs('admin.testimonials.*') ? 'active' : '' }}"><i class="bi bi-images"></i><span>Testimoni & Instalasi</span></a>
         @endcanany
@@ -340,6 +342,20 @@
         </div>
         @endcan
 
+        {{-- CARD BARU: MODAL PAKET --}}
+        <div class="product-category-card" style="border-left: 4px solid #1F4E79;">
+            <div class="category-header">
+                <div class="category-icon" style="background: linear-gradient(135deg, #2b6cb0 0%, #1F4E79 100%);"><i class="bi bi-bag-check" style="color: white;"></i></div>
+                <div class="category-info">
+                    <h3>Modal Paket</h3>
+                    <p class="category-count">Manajemen harga pokok paket produk</p>
+                </div>
+            </div>
+            <div class="category-actions">
+                <a href="{{ route('modal-paket.index') }}" class="btn btn-primary"><i class="bi bi-box-seam"></i><span>Buka Modul</span></a>
+            </div>
+        </div>
+
         @canany(['view_ruijie', 'manage_ruijie'])
         <div class="product-category-card" style="border-left: 4px solid #4299e1;">
             <div class="category-header">
@@ -421,7 +437,6 @@
         </div>
         @endcanany
 
-        {{-- CARD BARU: TESTIMONI --}}
         @canany(['view_testimonials', 'manage_testimonials'])
         <div class="product-category-card" style="border-left: 4px solid #ec4899;">
             <div class="category-header">
