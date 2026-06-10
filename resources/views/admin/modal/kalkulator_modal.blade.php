@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kalkulator Modal & Keuntungan</title>
 <style>
+  #paket-select option {
+  color: #1a1a2e;
+  background: #fff;
+  font-weight: 600;
+}
+#paket-select option:first-child {
+  color: #9ca3af;
+  font-weight: 400;
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',sans-serif;background:#f4f5f7;color:#1a1a2e;font-size:14px}
 .app{max-width:860px;margin:0 auto;padding:20px 16px}
@@ -132,7 +141,29 @@ tr:last-child td{border-bottom:none}
     <div id="summary-box" style="padding:14px 18px"></div>
   </div>
 
-  <!-- Harga Jual + Marketplace dalam satu card -->
+ <div class="card">
+  <div class="sec-title" style="background:#eef2ff;color:#4f46e5;border-bottom:1px solid #e0e7ff;">
+    📦 Pilih Paket Modal (Database)
+  </div>
+  <div style="padding:16px 20px;">
+    <p style="font-size:13px;color:#6b7280;margin-bottom:10px;">
+      Pilih paket modal dari database untuk dibandingkan dengan harga jual
+    </p>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <select id="paket-select"
+        style="flex:1;min-width:200px;border:1.5px solid #e5e7eb;border-radius:8px;padding:9px 12px;font-size:14px;font-weight:600;color:#1a1a2e;outline:none;background:#fff;cursor:pointer;transition:border .15s;"
+        onchange="onPaketChange(this.value)"
+        onfocus="this.style.borderColor='#4f46e5'" onblur="this.style.borderColor='#e5e7eb'">
+        <option value="" style="color:#9ca3af;font-weight:400;">— Pilih paket modal —</option>
+      </select>
+      <div id="paket-modal-val"
+        style="font-size:22px;font-weight:800;color:#4f46e5;min-width:140px;text-align:right;">
+        Rp —
+      </div>
+    </div>
+    <p id="paket-hint" style="font-size:12px;color:#9ca3af;margin-top:8px;"></p>
+  </div>
+</div>
   <div class="card">
     <div class="sec-title">🏷️ Total Harga Jual</div>
     <div class="hj-body">
@@ -143,7 +174,6 @@ tr:last-child td{border-bottom:none}
       </div>
     </div>
 
-    <!-- ── POTONGAN MARKETPLACE ── -->
     <div class="mp-wrap">
       <div class="mp-header">
         <div class="mp-header-left">
@@ -160,7 +190,6 @@ tr:last-child td{border-bottom:none}
       </div>
 
       <div class="mp-body off" id="mp-body">
-        <!-- Preset platform -->
         <div class="mp-presets">
           <button class="mp-preset" onclick="setPreset(this,'Tokopedia',2.5)">🟢 Tokopedia <small style="opacity:.7">2.5%</small></button>
           <button class="mp-preset" onclick="setPreset(this,'Shopee',3)">🟠 Shopee <small style="opacity:.7">3%</small></button>
@@ -170,7 +199,6 @@ tr:last-child td{border-bottom:none}
           <button class="mp-preset" id="btn-custom" onclick="setPreset(this,'Custom',null)">✏️ Custom</button>
         </div>
 
-        <!-- Input % -->
         <div class="mp-input-row">
           <label>Fee marketplace:</label>
           <input class="mp-pct-inp" id="mp-pct" type="number" min="0" max="100" step="0.1" value="0" oninput="onMpInput()">
@@ -178,7 +206,6 @@ tr:last-child td{border-bottom:none}
           <span class="mp-plat-hint" id="mp-plat-hint"></span>
         </div>
 
-        <!-- Hasil nominal -->
         <div class="mp-result">
           <span class="mp-result-lbl">💸 Nominal Potongan Marketplace</span>
           <span class="mp-result-val" id="mp-amount">Rp 0</span>
@@ -204,6 +231,71 @@ let totalHargaJual = 0;
 let mpEnabled = false;
 let mpPct = 0;
 let mpPlatform = '';
+
+let selectedPaketModal = 0;
+
+async function fetchPaketList() {
+  const sel = document.getElementById('paket-select');
+  try {
+    const res  = await fetch('/api/modal-paket/list');
+    const data = await res.json();
+    if (data.success && data.pakets.length > 0) {
+      data.pakets.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value       = p.id;
+        opt.textContent = p.nama;
+         opt.style.color = '#1a1a2e';   
+        sel.appendChild(opt);
+      });
+    } else {
+      const opt = document.createElement('option');
+      opt.value       = '';
+      opt.textContent = 'Belum ada paket tersimpan';
+      opt.disabled    = true;
+      sel.appendChild(opt);
+    }
+  } catch (e) {
+    console.error('Gagal load paket:', e);
+  }
+}
+
+async function onPaketChange(id) {
+  const valEl  = document.getElementById('paket-modal-val');
+  const hint   = document.getElementById('paket-hint');
+  const sel    = document.getElementById('paket-select');
+
+  if (!id) {
+    selectedPaketModal = 0;
+    valEl.textContent  = 'Rp —';
+    hint.textContent   = '';
+    renderBanner();
+    return;
+  }
+
+  valEl.textContent = 'Memuat...';
+  hint.textContent  = '';
+
+  try {
+    const res  = await fetch(`/api/modal-paket/${id}/total`);
+    const data = await res.json();
+    if (data.success) {
+      selectedPaketModal   = data.total_modal;
+      valEl.textContent    = fmt(data.total_modal);
+      hint.textContent     = `Paket: ${data.nama_paket}`;
+      hint.style.color     = '#10b981';
+    } else {
+      selectedPaketModal = 0;
+      valEl.textContent  = 'Error';
+      hint.textContent   = 'Paket tidak ditemukan';
+      hint.style.color   = '#ef4444';
+    }
+  } catch (e) {
+    selectedPaketModal = 0;
+    valEl.textContent  = 'Error Server';
+    hint.style.color   = '#ef4444';
+  }
+  renderBanner();
+}
 
 /* ── ROWS ── */
 function addRow() {
@@ -240,8 +332,10 @@ function updateHJ(el) {
 }
 
 function getTotalModal() {
-  return rows.filter(r => r.qty > 0 && r.harga > 0)
+  const fromRows = rows.filter(r => r.qty > 0 && r.harga > 0)
     .reduce((s,r) => s + r.qty * r.harga * (1 - r.diskon/100), 0);
+  // Pakai paket DB jika dipilih, gabungkan dengan input manual
+  return fromRows + selectedPaketModal;
 }
 
 function renderAll() {
@@ -378,7 +472,11 @@ function resetAll() {
   addRow(); addRow(); addRow();
 }
 
-addRow(); addRow(); addRow();
+// Inisialisasi awal saat halaman dimuat
+document.addEventListener('DOMContentLoaded', () => {
+fetchPaketList();
+  addRow(); addRow(); addRow();
+});
 </script>
 </body>
 </html>

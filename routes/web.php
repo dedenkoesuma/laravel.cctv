@@ -559,7 +559,8 @@ Route::middleware(['admin.auth'])->group(function () {
     // =====================================
     Route::get('/admin/modal/kalkulator', [App\Http\Controllers\Admin\KalkulatorModalController::class, 'index'])
         ->name('admin.modal.kalkulator');
-
+    Route::get('/api/modal-paket/list',        [App\Http\Controllers\Admin\KalkulatorModalController::class, 'getPaketList']);
+    Route::get('/api/modal-paket/{id}/total',  [App\Http\Controllers\Admin\KalkulatorModalController::class, 'getTotalModalByPaket']);
     // =====================================
     // MODAL PAKET (Kalkulator Modal & Keuntungan)
     // =====================================
