@@ -36,7 +36,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\ModalPaketController;
-
+use App\Http\Controllers\PesananOnlineController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -553,6 +553,23 @@ Route::middleware(['admin.auth'])->group(function () {
         Route::put('/{id}', [App\Http\Controllers\Admin\RoleController::class, 'update'])->name('update');
         Route::delete('/{id}', [App\Http\Controllers\Admin\RoleController::class, 'destroy'])->name('destroy');
     });
+
+
+    // dashboard printcraft
+
+Route::prefix('pesanan-online')->name('pesanan-online.')->group(function () {
+    Route::get('/',                    [PesananOnlineController::class, 'index'])->name('index');
+    Route::get('/create',              [PesananOnlineController::class, 'create'])->name('create');
+    Route::post('/',                   [PesananOnlineController::class, 'store'])->name('store');
+    Route::get('/{id}',                [PesananOnlineController::class, 'show'])->name('show');
+    Route::get('/{id}/edit',           [PesananOnlineController::class, 'edit'])->name('edit');
+    Route::put('/{id}',                [PesananOnlineController::class, 'update'])->name('update');
+    Route::patch('/{id}/status',       [PesananOnlineController::class, 'updateStatus'])->name('status');
+    Route::delete('/{id}',             [PesananOnlineController::class, 'destroy'])->name('destroy');
+    Route::patch('/{id}/restore',      [PesananOnlineController::class, 'restore'])->name('restore');
+    Route::delete('/{id}/force',       [PesananOnlineController::class, 'forceDelete'])->name('force-delete');
+    Route::get('/export/csv',          [PesananOnlineController::class, 'exportCsv'])->name('export-csv');
+});
 
     // =====================================
     // KALKULATOR MODAL
