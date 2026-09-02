@@ -18,10 +18,14 @@
                   {{ request()->routeIs('pesanan-online.*') ? 'bg-white/10 text-white border-l-2 border-indigo-400' : '' }}">
             Pesanan online
         </a>
-        <a href="#" class="flex items-center gap-2 px-4 py-2 text-sm text-white/75 hover:bg-white/10 hover:text-white">
+        <a href="{{ route('pesanan-offline.index') }}"
+        class="flex items-center gap-2 px-4 py-2 text-sm text-white/75 hover:bg-white/10 hover:text-white
+                {{ request()->routeIs('pesanan-offline.*') ? 'bg-white/10 text-white border-l-2 border-indigo-400' : '' }}">
             Pesanan offline
         </a>
-        <a href="#" class="flex items-center gap-2 px-4 py-2 text-sm text-white/75 hover:bg-white/10 hover:text-white">
+        <a href="{{ route('invoice.index') }}"
+        class="flex items-center gap-2 px-4 py-2 text-sm text-white/75 hover:bg-white/10 hover:text-white
+                {{ request()->routeIs('invoice.*') ? 'bg-white/10 text-white border-l-2 border-indigo-400' : '' }}">
             Invoice
         </a>
 
@@ -36,7 +40,9 @@
                   {{ request()->routeIs('uang-keluar.*') ? 'bg-white/10 text-white border-l-2 border-indigo-400' : '' }}">
             Uang keluar
         </a>
-        <a href="#" class="flex items-center gap-2 px-4 py-2 text-sm text-white/75 hover:bg-white/10 hover:text-white">
+       <a href="{{ route('laporan-printing.index') }}"
+        class="flex items-center gap-2 px-4 py-2 text-sm text-white/75 hover:bg-white/10 hover:text-white
+                {{ request()->routeIs('laporan-printing.*') ? 'bg-white/10 text-white border-l-2 border-indigo-400' : '' }}">
             Laporan
         </a>
 

@@ -16,11 +16,14 @@ use App\Http\Controllers\UnifiedAdminController;
 use App\Http\Controllers\Admin\PurchaseOrderController;
 use App\Http\Controllers\StaticProductController;
 use App\Http\Controllers\RuijieController;
+use App\Http\Controllers\TagihanCetakController;
 use App\Models\RuijieProduct;
 use App\Models\RuijiePageSettings;
 use App\Models\RuijieCategory;
 use App\Models\WiFiCamera;
+use App\Http\Controllers\LaporanPrintingController;
 use Spatie\Sitemap\SitemapGenerator;
+use App\Http\Controllers\PrintInvoiceController;
 use App\Http\Controllers\BookkeepingController;
 use App\Http\Controllers\InventoryController;
 use App\Http\Controllers\Admin\KeuanganController;
@@ -37,12 +40,30 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\ModalPaketController;
 use App\Http\Controllers\PesananOnlineController;
+use App\Http\Controllers\PesananOfflineController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 */
 
+Route::prefix('pesanan-offline')->name('pesanan-offline.')->group(function () {
+    Route::get('/',               [PesananOfflineController::class, 'index'])->name('index');
+    Route::get('/create',         [PesananOfflineController::class, 'create'])->name('create');
+    Route::post('/',              [PesananOfflineController::class, 'store'])->name('store');
+    Route::get('/{id}',           [PesananOfflineController::class, 'show'])->name('show');
+    Route::get('/{id}/edit',      [PesananOfflineController::class, 'edit'])->name('edit');
+    Route::put('/{id}',           [PesananOfflineController::class, 'update'])->name('update');
+    Route::patch('/{id}/status',  [PesananOfflineController::class, 'updateStatus'])->name('status');
+    Route::delete('/{id}',        [PesananOfflineController::class, 'destroy'])->name('destroy');
+    Route::patch('/{id}/restore', [PesananOfflineController::class, 'restore'])->name('restore');
+    Route::delete('/{id}/force',  [PesananOfflineController::class, 'forceDelete'])->name('force-delete');
+    Route::get('/export/csv',     [PesananOfflineController::class, 'exportCsv'])->name('export-csv');
+});
+Route::prefix('laporan-printing')->name('laporan-printing.')->group(function () {
+    Route::get('/',    [LaporanPrintingController::class, 'index'])->name('index');
+    Route::get('/pdf', [LaporanPrintingController::class, 'pdf'])->name('pdf');
+});
 // =====================================
 // PUBLIC ROUTES
 // =====================================
@@ -663,4 +684,14 @@ Route::get('/setup-roles-rahasia', function () {
     } catch (\Exception $e) {
         return '❌ Error: ' . $e->getMessage();
     }
+});
+
+Route::prefix('invoice')->name('invoice.')->group(function () {
+    Route::get('/',            [TagihanCetakController::class, 'index'])->name('index');
+    Route::get('/create',      [TagihanCetakController::class, 'create'])->name('create');
+    Route::post('/',           [TagihanCetakController::class, 'store'])->name('store');
+    Route::get('/{id}/edit',   [TagihanCetakController::class, 'edit'])->name('edit');
+    Route::put('/{id}',        [TagihanCetakController::class, 'update'])->name('update');
+    Route::patch('/{id}/lunas',[TagihanCetakController::class, 'markLunas'])->name('lunas');
+    Route::delete('/{id}',     [TagihanCetakController::class, 'destroy'])->name('destroy');
 });
