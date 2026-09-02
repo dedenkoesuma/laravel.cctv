@@ -36,33 +36,31 @@
         @endif
 
        {{-- Summary Cards --}}
-        <div class="grid grid-cols-4 gap-4 mb-6">
-            <div class="bg-white rounded-xl border p-4">
-                <p class="text-xs text-gray-500">Total pesanan</p>
-                {{-- Penjumlahan Total Pesanan Online + Offline --}}
-                <p class="text-2xl font-medium">{{ $ringkasanPesanan['total_pesanan'] + $ringkasanOffline['total_pesanan'] }}</p>
-                <p class="text-xs text-gray-400">{{ $ringkasanPesanan['total_selesai'] + $ringkasanOffline['total_selesai'] }} selesai</p>
-            </div>
-            
-            <div class="bg-white rounded-xl border p-4">
-                <p class="text-xs text-gray-500">Omzet (selesai)</p>
-                {{-- Penjumlahan Omzet Online + Offline --}}
-                <p class="text-2xl font-medium">Rp {{ number_format($ringkasanPesanan['total_omzet'] + $ringkasanOffline['total_omzet'], 0, ',', '.') }}</p>
-                <p class="text-xs text-green-500">dari pesanan selesai</p>
-            </div>
-            
-            <div class="bg-white rounded-xl border p-4">
-                <p class="text-xs text-gray-500">Uang masuk</p>
-                <p class="text-2xl font-medium text-green-600">Rp {{ number_format($totalMasuk, 0, ',', '.') }}</p>
-                <p class="text-xs text-gray-400">total tercatat</p>
-            </div>
-            
-            <div class="bg-white rounded-xl border p-4">
-                <p class="text-xs text-gray-500">Uang keluar</p>
-                <p class="text-2xl font-medium text-red-600">Rp {{ number_format($totalKeluar, 0, ',', '.') }}</p>
-                <p class="text-xs text-gray-400">total tercatat</p>
-            </div>
-        </div>
+<div class="grid grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-xl border p-4">
+        <p class="text-xs text-gray-500">Total invoice</p>
+        <p class="text-2xl font-medium">{{ $summary['total'] }}</p>
+        <p class="text-xs text-gray-400">{{ $summary['lunas'] }} lunas</p>
+    </div>
+
+    <div class="bg-white rounded-xl border p-4">
+        <p class="text-xs text-gray-500">Belum dibayar</p>
+        <p class="text-2xl font-medium text-yellow-600">{{ $summary['unpaid'] }}</p>
+        <p class="text-xs text-gray-400">menunggu pembayaran</p>
+    </div>
+
+    <div class="bg-white rounded-xl border p-4">
+        <p class="text-xs text-gray-500">Lunas</p>
+        <p class="text-2xl font-medium text-green-600">{{ $summary['lunas'] }}</p>
+        <p class="text-xs text-gray-400">sudah dibayar</p>
+    </div>
+
+    <div class="bg-white rounded-xl border p-4">
+        <p class="text-xs text-gray-500">Lewat jatuh tempo</p>
+        <p class="text-2xl font-medium text-red-600">{{ $summary['overdue'] }}</p>
+        <p class="text-xs text-gray-400">perlu ditindaklanjuti</p>
+    </div>
+</div>
 
         {{-- Filter --}}
         <form method="GET" action="{{ route('invoice.index') }}" class="flex gap-3 mb-4 flex-wrap">
