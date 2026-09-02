@@ -12,6 +12,96 @@ class PesananOnline extends Model
 
     protected $table = 'pesanan_onlines';
 
+    // ── Auto-sync ke Uang Masuk ───────────────────────────
+    // Setiap pesanan berstatus "Selesai" otomatis punya 1 entry
+    // kembar di uang_kas (jenis=masuk). Diedit/dibatalkan/dihapus
+    // di sini akan ikut menyesuaikan entry tersebut.
+
+    protected static function booted(): void
+    {
+        static::created(function (PesananOnline $pesanan) {
+            if ($pesanan->status === 'Selesai') {
+                static::syncUangMasuk($pesanan);
+            }
+        });
+
+        static::updated(function (PesananOnline $pesanan) {
+            $statusChanged = $pesanan->wasChanged('status');
+
+            $becameSelesai   = $statusChanged && $pesanan->status === 'Selesai';
+            $noLongerSelesai = $statusChanged
+                && $pesanan->getOriginal('status') === 'Selesai'
+                && $pesanan->status !== 'Selesai';
+            $stillSelesaiButDataChanged = ! $statusChanged
+                && $pesanan->status === 'Selesai'
+                && ($pesanan->wasChanged('total') || $pesanan->wasChanged('pelanggan') || $pesanan->wasChanged('no_order'));
+
+            if ($becameSelesai || $stillSelesaiButDataChanged) {
+                static::syncUangMasuk($pesanan);
+            } elseif ($noLongerSelesai) {
+                static::removeUangMasuk($pesanan);
+            }
+        });
+
+        static::deleting(function (PesananOnline $pesanan) {
+            if (! $pesanan->uang_kas_id) {
+                return;
+            }
+
+            if ($pesanan->isForceDeleting()) {
+                UangKas::withTrashed()->find($pesanan->uang_kas_id)?->forceDelete();
+            } else {
+                UangKas::find($pesanan->uang_kas_id)?->delete(); // soft delete
+            }
+        });
+
+        static::restored(function (PesananOnline $pesanan) {
+            if ($pesanan->uang_kas_id) {
+                UangKas::onlyTrashed()->find($pesanan->uang_kas_id)?->restore();
+            }
+        });
+    }
+
+    protected static function syncUangMasuk(PesananOnline $pesanan): void
+    {
+        $data = [
+            'jenis'      => 'masuk',
+            'tanggal'    => optional($pesanan->created_at)->format('Y-m-d') ?? now()->format('Y-m-d'),
+            'kategori'   => 'Penjualan Cetak',
+            'keterangan' => "Pesanan {$pesanan->no_order} - {$pesanan->pelanggan}",
+            'jumlah'     => $pesanan->total,
+            'otomatis'   => true,
+        ];
+
+        if ($pesanan->uang_kas_id) {
+            // Update via query builder (bukan Eloquent save) supaya tidak memicu event lain.
+            UangKas::where('id', $pesanan->uang_kas_id)->update($data);
+            return;
+        }
+
+        $kas = UangKas::create($data);
+
+        static::withTrashed()->where('id', $pesanan->id)->update(['uang_kas_id' => $kas->id]);
+        $pesanan->uang_kas_id = $kas->id;
+    }
+
+    protected static function removeUangMasuk(PesananOnline $pesanan): void
+    {
+        if (! $pesanan->uang_kas_id) {
+            return;
+        }
+
+        UangKas::find($pesanan->uang_kas_id)?->delete(); // soft delete, riwayat tetap ada
+
+        static::withTrashed()->where('id', $pesanan->id)->update(['uang_kas_id' => null]);
+        $pesanan->uang_kas_id = null;
+    }
+
+    public function uangKas()
+    {
+        return $this->belongsTo(UangKas::class);
+    }
+
     protected $fillable = [
         'no_order',
         'pelanggan',

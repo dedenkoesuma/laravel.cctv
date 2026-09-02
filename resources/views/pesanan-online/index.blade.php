@@ -145,6 +145,11 @@
                             <td class="px-4 py-3 text-gray-500">{{ $p->tanggal }}</td>
                             <td class="px-4 py-3">
                                 <div class="flex gap-2">
+                                    {{-- Detail --}}
+                                    <a href="{{ route('pesanan-online.show', $p->id) }}"
+                                       class="text-gray-500 hover:text-gray-700 text-xs border px-2 py-1 rounded">
+                                        Detail
+                                    </a>
                                     {{-- Toggle status --}}
                                     <form method="POST"
                                           action="{{ route('pesanan-online.status', $p->id) }}">

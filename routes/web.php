@@ -571,6 +571,24 @@ Route::prefix('pesanan-online')->name('pesanan-online.')->group(function () {
     Route::get('/export/csv',          [PesananOnlineController::class, 'exportCsv'])->name('export-csv');
 });
 
+Route::prefix('uang-masuk')->name('uang-masuk.')->group(function () {
+    Route::get('/',           [App\Http\Controllers\UangMasukController::class, 'index'])->name('index');
+    Route::get('/create',     [App\Http\Controllers\UangMasukController::class, 'create'])->name('create');
+    Route::post('/',          [App\Http\Controllers\UangMasukController::class, 'store'])->name('store');
+    Route::get('/{id}/edit',  [App\Http\Controllers\UangMasukController::class, 'edit'])->name('edit');
+    Route::put('/{id}',       [App\Http\Controllers\UangMasukController::class, 'update'])->name('update');
+    Route::delete('/{id}',    [App\Http\Controllers\UangMasukController::class, 'destroy'])->name('destroy');
+});
+
+Route::prefix('uang-keluar')->name('uang-keluar.')->group(function () {
+    Route::get('/',           [App\Http\Controllers\UangKeluarController::class, 'index'])->name('index');
+    Route::get('/create',     [App\Http\Controllers\UangKeluarController::class, 'create'])->name('create');
+    Route::post('/',          [App\Http\Controllers\UangKeluarController::class, 'store'])->name('store');
+    Route::get('/{id}/edit',  [App\Http\Controllers\UangKeluarController::class, 'edit'])->name('edit');
+    Route::put('/{id}',       [App\Http\Controllers\UangKeluarController::class, 'update'])->name('update');
+    Route::delete('/{id}',    [App\Http\Controllers\UangKeluarController::class, 'destroy'])->name('destroy');
+});
+
     // =====================================
     // KALKULATOR MODAL
     // =====================================
