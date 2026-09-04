@@ -86,7 +86,7 @@ class LaporanPrintingController extends Controller
     protected function buildReportData(Request $request): array
     {
         [$periode, $dari, $sampai] = $this->resolvePeriode($request);
-        
+
         $pesananOfflineQuery = PesananOffline::query()->orderByDesc('created_at');
         $pesananQuery        = PesananOnline::query()->orderByDesc('created_at');
         $uangMasukQuery      = UangKas::where('jenis', 'masuk')->orderByDesc('tanggal');
@@ -107,10 +107,10 @@ class LaporanPrintingController extends Controller
         });
 
         $ringkasanOffline = [
-            'total_pesanan' => $pesananOffline->count(),
-            'total_selesai' => $pesananOfflineSelesai->count(),
-            // BUG FIX: Ubah 'total' menjadi nama kolom database kamu yang sebenarnya ('total_harga')
-            'total_omzet'   => $pesananOfflineSelesai->sum('total'),
+            'total_pesanan'     => $pesananOffline->count(),
+            'total_selesai'     => $pesananOfflineSelesai->count(),
+            'total_omzet'       => $pesananOfflineSelesai->sum('total'),
+            'total_jasa_potong' => $pesananOffline->where('jasa_potong', true)->count(),
         ];
 
         // --- PROSES PESANAN ONLINE ---
@@ -120,16 +120,65 @@ class LaporanPrintingController extends Controller
         });
 
         $ringkasanPesanan = [
-            'total_pesanan' => $pesanan->count(),
-            'total_selesai' => $pesananSelesai->count(),
-            'total_proses'  => $pesanan->where('status', 'Proses')->count(),
-            'total_batal'   => $pesanan->where('status', 'Dibatalkan')->count(),
-            'total_omzet'   => $pesananSelesai->sum('total'), // Asumsi di tabel online namanya 'total'
-            'per_platform'  => $pesananSelesai->groupBy('platform')->map(fn ($g) => [
+            'total_pesanan'     => $pesanan->count(),
+            'total_selesai'     => $pesananSelesai->count(),
+            'total_proses'      => $pesanan->where('status', 'Proses')->count(),
+            'total_batal'       => $pesanan->where('status', 'Dibatalkan')->count(),
+            'total_omzet'       => $pesananSelesai->sum('total'),
+            'total_jasa_potong' => $pesanan->where('jasa_potong', true)->count(),
+            'per_platform'      => $pesananSelesai->groupBy('platform')->map(fn ($g) => [
                 'jumlah' => $g->count(),
                 'omzet'  => $g->sum('total'),
             ]),
         ];
+
+        // --- PEMAKAIAN KERTAS (gabungan online + offline, exclude Dibatalkan) ---
+        $semuaPesananUntukKertas = $pesanan->merge($pesananOffline)
+            ->filter(function ($item) {
+                return strtolower($item->status) !== 'dibatalkan';
+            });
+
+                       $pemakaianKertas = collect();
+
+        $tambahKertas = function ($tipe, $jumlahLembar, $nilai) use (&$pemakaianKertas) {
+            // Pastikan $tipe selalu string agar aman dipakai sebagai key
+            if (is_array($tipe)) {
+                $tipe = $tipe['tipe'] ?? ($tipe[0] ?? json_encode($tipe));
+            }
+            $tipe = (string) ($tipe ?: '-');
+
+            $existing = $pemakaianKertas->get($tipe, [
+                'jumlah_pesanan' => 0,
+                'total_lembar'   => 0,
+                'total_nilai'    => 0,
+            ]);
+
+            $existing['jumlah_pesanan']++;
+            $existing['total_lembar'] += $jumlahLembar;
+            $existing['total_nilai']  += $nilai;
+
+            $pemakaianKertas->put($tipe, $existing);
+        };
+
+        foreach ($semuaPesananUntukKertas as $item) {
+            $tipeData = $item->tipe_kertas;
+
+            // Format array berisi banyak baris tipe kertas (mis. [['tipe'=>..,'jumlah'=>..], ...])
+            if (is_array($tipeData) && isset($tipeData[0]) && is_array($tipeData[0])) {
+                foreach ($tipeData as $baris) {
+                    $tipe   = $baris['tipe'] ?? '-';
+                    $jumlah = (int) ($baris['jumlah'] ?? 0);
+                    $tambahKertas($tipe, $jumlah, 0);
+                }
+            } else {
+                // Format teks tunggal atau array sederhana lainnya
+                $tambahKertas($tipeData, $item->jumlah_lembar, $item->total);
+            }
+        }
+
+        $pemakaianKertas = $pemakaianKertas->sortByDesc('total_lembar');
+
+        $totalLembarKeseluruhan = $semuaPesananUntukKertas->sum('jumlah_lembar');
 
         $uangMasuk  = $uangMasukQuery->get();
         $uangKeluar = $uangKeluarQuery->get();
@@ -138,19 +187,21 @@ class LaporanPrintingController extends Controller
         $totalKeluar = $uangKeluar->sum('jumlah');
 
         return [
-            'pesananOffline'   => $pesananOffline,
-            'ringkasanOffline' => $ringkasanOffline,
-            'pesanan'          => $pesanan,
-            'ringkasanPesanan' => $ringkasanPesanan,
-            'uangMasuk'        => $uangMasuk,
-            'uangKeluar'       => $uangKeluar,
-            'totalMasuk'       => $totalMasuk,
-            'totalKeluar'      => $totalKeluar,
-            'labaRugi'         => $totalMasuk - $totalKeluar,
-            'periode'          => $periode,
-            'dari'             => $dari,
-            'sampai'           => $sampai,
-            'periodeLabel'     => $this->periodeLabel($periode, $dari, $sampai),
+            'pesananOffline'         => $pesananOffline,
+            'ringkasanOffline'       => $ringkasanOffline,
+            'pesanan'                => $pesanan,
+            'ringkasanPesanan'       => $ringkasanPesanan,
+            'pemakaianKertas'        => $pemakaianKertas,
+            'totalLembarKeseluruhan' => $totalLembarKeseluruhan,
+            'uangMasuk'              => $uangMasuk,
+            'uangKeluar'             => $uangKeluar,
+            'totalMasuk'             => $totalMasuk,
+            'totalKeluar'            => $totalKeluar,
+            'labaRugi'               => $totalMasuk - $totalKeluar,
+            'periode'                => $periode,
+            'dari'                   => $dari,
+            'sampai'                 => $sampai,
+            'periodeLabel'           => $this->periodeLabel($periode, $dari, $sampai),
         ];
     }
 }

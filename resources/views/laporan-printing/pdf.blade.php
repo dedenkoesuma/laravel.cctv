@@ -74,13 +74,14 @@
         .text-center { text-align: center; color: #9ca3af; }
         .text-green { color: #16a34a; }
         .text-red { color: #dc2626; }
+        .text-indigo { color: #4f46e5; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1>LAPORAN PRINTING</h1>
-        <p>Dicetak: {{ now()->format('d/m/Y H:i') }}</p>
+        <p>{{ $periodeLabel }} — Dicetak: {{ now()->format('d/m/Y H:i') }}</p>
     </div>
 
     {{-- Summary --}}
@@ -88,11 +89,11 @@
         <tr>
             <td>
                 <span class="label">TOTAL PESANAN</span>
-                <span class="value">{{ $ringkasanPesanan['total_pesanan'] }}</span>
+                <span class="value">{{ $ringkasanPesanan['total_pesanan'] + $ringkasanOffline['total_pesanan'] }}</span>
             </td>
             <td>
                 <span class="label">OMZET (SELESAI)</span>
-                <span class="value">Rp {{ number_format($ringkasanPesanan['total_omzet'], 0, ',', '.') }}</span>
+                <span class="value">Rp {{ number_format($ringkasanPesanan['total_omzet'] + $ringkasanOffline['total_omzet'], 0, ',', '.') }}</span>
             </td>
             <td>
                 <span class="label">UANG MASUK</span>
@@ -113,7 +114,32 @@
                     Rp {{ number_format($labaRugi, 0, ',', '.') }}
                 </span>
             </td>
+            <td>
+                <span class="label">TOTAL LEMBAR KERTAS TERPAKAI</span>
+                <span class="value text-indigo">{{ number_format($totalLembarKeseluruhan, 0, ',', '.') }} lembar</span>
+            </td>
         </tr>
+    </table>
+
+    {{-- Pemakaian Kertas --}}
+    <div class="section-title">Pemakaian Kertas per Tipe</div>
+    <table class="data">
+        <thead>
+            <tr>
+                <th>Tipe Kertas</th>
+                <th>Total Lembar</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($pemakaianKertas as $tipe => $row)
+                <tr>
+                    <td>{{ $tipe }}</td>
+                    <td>{{ number_format($row['total_lembar'], 0, ',', '.') }}</td>
+                </tr>
+            @empty
+                <tr><td colspan="2" class="text-center">Belum ada data</td></tr>
+            @endforelse
+        </tbody>
     </table>
 
     {{-- Pesanan per Platform --}}
@@ -139,8 +165,8 @@
         </tbody>
     </table>
 
-    {{-- Detail Pesanan --}}
-    <div class="section-title">Detail Pesanan</div>
+    {{-- Detail Pesanan Online --}}
+    <div class="section-title">Detail Pesanan Online</div>
     <table class="data">
         <thead>
             <tr>
@@ -164,6 +190,33 @@
                 </tr>
             @empty
                 <tr><td colspan="6" class="text-center">Belum ada data</td></tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    {{-- Detail Pesanan Offline --}}
+    <div class="section-title">Detail Pesanan Offline</div>
+    <table class="data">
+        <thead>
+            <tr>
+                <th>No. Order</th>
+                <th>Pelanggan</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Tanggal</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($pesananOffline as $p)
+                <tr>
+                    <td>{{ $p->no_order }}</td>
+                    <td>{{ $p->pelanggan }}</td>
+                    <td>Rp {{ number_format($p->total, 0, ',', '.') }}</td>
+                    <td>{{ $p->status }}</td>
+                    <td>{{ $p->created_at->format('d/m/Y') }}</td>
+                </tr>
+            @empty
+                <tr><td colspan="5" class="text-center">Belum ada data</td></tr>
             @endforelse
         </tbody>
     </table>

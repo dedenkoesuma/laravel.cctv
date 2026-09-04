@@ -75,24 +75,40 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm text-gray-500 mb-1">Tipe kertas</label>
-                        <select name="tipe_kertas"
-                                class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
-                            @foreach($tipeKertas as $t)
-                                <option value="{{ $t }}" {{ old('tipe_kertas', $pesanan->tipe_kertas) == $t ? 'selected' : '' }}>{{ $t }}</option>
-                            @endforeach
-                        </select>
+                <div class="mb-4">
+                    <label class="block text-sm text-gray-500 mb-2">Tipe kertas & jumlah lembar <span class="text-red-500">*</span></label>
+                    @php
+                        $existing = collect($pesanan->tipe_kertas ?? [])->mapWithKeys(function ($item) {
+                            if (is_array($item)) {
+                                return [$item['tipe'] => $item['jumlah'] ?? 1];
+                            }
+                            return [$item => 1];
+                        });
+                    @endphp
+                    <div class="border rounded-lg divide-y @error('tipe_kertas') border-red-400 @enderror">
+                        @foreach($tipeKertas as $t)
+                            <div class="flex items-center gap-3 px-3 py-2">
+                                <input type="checkbox"
+                                       name="items[{{ $t }}][pilih]"
+                                       value="1"
+                                       {{ old('items.' . $t . '.pilih', $existing->has($t) ? 1 : '') ? 'checked' : '' }}
+                                       class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-300">
+                                <span class="flex-1 text-sm text-gray-700">{{ $t }}</span>
+                                <input type="number"
+                                       name="items[{{ $t }}][jumlah]"
+                                       min="1"
+                                       value="{{ old('items.' . $t . '.jumlah', $existing->get($t, 1)) }}"
+                                       placeholder="Jumlah lembar"
+                                       class="w-32 border rounded-lg px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+                            </div>
+                        @endforeach
                     </div>
-                    <div>
-                        <label class="block text-sm text-gray-500 mb-1">Jumlah lembar <span class="text-red-500">*</span></label>
-                        <input type="number"
-                               name="jumlah_lembar"
-                               value="{{ old('jumlah_lembar', $pesanan->jumlah_lembar) }}"
-                               min="1"
-                               class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
-                    </div>
+                    <p class="text-xs text-gray-400 mt-1">
+                        Centang tipe kertas yang dipakai, lalu isi jumlah lembarnya masing-masing. Bisa pilih lebih dari satu.
+                    </p>
+                    @error('tipe_kertas')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-4">
@@ -113,6 +129,17 @@
                             @endforeach
                         </select>
                     </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="flex items-center gap-2 text-sm text-gray-700 border rounded-lg px-3 py-2 w-fit cursor-pointer">
+                        <input type="checkbox"
+                               name="jasa_potong"
+                               value="1"
+                               {{ old('jasa_potong', $pesanan->jasa_potong) ? 'checked' : '' }}
+                               class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-300">
+                        Pakai jasa potong
+                    </label>
                 </div>
 
                 <div class="mb-6">

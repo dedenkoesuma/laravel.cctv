@@ -79,27 +79,57 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm text-gray-500 mb-1">Tipe kertas <span class="text-red-500">*</span></label>
-                        <select name="tipe_kertas"
-                                class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
-                            @foreach($tipeKertas as $t)
-                                <option value="{{ $t }}" {{ old('tipe_kertas') == $t ? 'selected' : '' }}>{{ $t }}</option>
-                            @endforeach
-                        </select>
+                                <div class="mb-4">
+                    <label class="block text-sm text-gray-500 mb-2">Tipe kertas & jumlah lembar <span class="text-red-500">*</span></label>
+                    <div class="border rounded-lg overflow-hidden @error('tipe_kertas') border-red-400 @enderror">
+                                                <div class="grid grid-cols-2 divide-x">
+                            <div class="divide-y">
+                                @foreach(collect($tipeKertas)->take(ceil(count($tipeKertas) / 2)) as $t)
+                                    <div class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50">
+                                        <input type="checkbox"
+                                               id="tk-{{ $loop->parent->index ?? $loop->index }}-{{ $loop->index }}"
+                                               name="items[{{ $t }}][pilih]"
+                                               value="1"
+                                               onchange="this.closest('div').querySelector('input[type=number]').disabled = !this.checked"
+                                               {{ collect(old('items', []))->has($t) ? 'checked' : '' }}
+                                               class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-300 shrink-0">
+                                        <span class="flex-1 text-xs text-gray-700 leading-tight">{{ $t }}</span>
+                                        <input type="number"
+                                               name="items[{{ $t }}][jumlah]"
+                                               min="1"
+                                               value="{{ old('items.' . $t . '.jumlah', 1) }}"
+                                               {{ collect(old('items', []))->has($t) ? '' : 'disabled' }}
+                                               class="w-16 border rounded-lg px-2 py-1 text-xs text-center focus:outline-none focus:ring-2 focus:ring-indigo-300 disabled:bg-gray-50 disabled:text-gray-300 shrink-0">
+                                    </div>
+                                @endforeach
+                            </div>
+                                                        <div class="divide-y">
+                                @foreach(collect($tipeKertas)->skip(ceil(count($tipeKertas) / 2)) as $t)
+                                    <div class="flex items-center gap-2 px-3 py-2 hover:bg-gray-50">
+                                        <input type="checkbox"
+                                               name="items[{{ $t }}][pilih]"
+                                               value="1"
+                                               onchange="this.closest('div').querySelector('input[type=number]').disabled = !this.checked"
+                                               {{ collect(old('items', []))->has($t) ? 'checked' : '' }}
+                                               class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-300 shrink-0">
+                                        <span class="flex-1 text-xs text-gray-700 leading-tight">{{ $t }}</span>
+                                        <input type="number"
+                                               name="items[{{ $t }}][jumlah]"
+                                               min="1"
+                                               value="{{ old('items.' . $t . '.jumlah', 1) }}"
+                                               {{ collect(old('items', []))->has($t) ? '' : 'disabled' }}
+                                               class="w-16 border rounded-lg px-2 py-1 text-xs text-center focus:outline-none focus:ring-2 focus:ring-indigo-300 disabled:bg-gray-50 disabled:text-gray-300 shrink-0">
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="block text-sm text-gray-500 mb-1">Jumlah lembar <span class="text-red-500">*</span></label>
-                        <input type="number"
-                               name="jumlah_lembar"
-                               value="{{ old('jumlah_lembar', 1) }}"
-                               min="1"
-                               class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 @error('jumlah_lembar') border-red-400 @enderror">
-                        @error('jumlah_lembar')
-                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+                    <p class="text-xs text-gray-400 mt-1">
+                        Centang tipe kertas yang dipakai, lalu isi jumlah lembarnya masing-masing. Bisa pilih lebih dari satu.
+                    </p>
+                    @error('tipe_kertas')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-4">
@@ -124,6 +154,17 @@
                             @endforeach
                         </select>
                     </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="flex items-center gap-2 text-sm text-gray-700 border rounded-lg px-3 py-2 w-fit cursor-pointer">
+                        <input type="checkbox"
+                               name="jasa_potong"
+                               value="1"
+                               {{ old('jasa_potong') ? 'checked' : '' }}
+                               class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-300">
+                        Pakai jasa potong
+                    </label>
                 </div>
 
                 <div class="mb-6">

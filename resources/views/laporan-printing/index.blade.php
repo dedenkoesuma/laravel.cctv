@@ -77,15 +77,14 @@
         </div>
 
         {{-- Summary Cards --}}
-        <div class="grid grid-cols-4 gap-4 mb-6">
+        <div class="grid grid-cols-5 gap-4 mb-6">
             <div class="bg-white rounded-xl border p-4">
                 <p class="text-xs text-gray-500">Total pesanan</p>
-                <p class="text-2xl font-medium">{{ $ringkasanPesanan['total_pesanan'] }}</p>
-                <p class="text-xs text-gray-400">{{ $ringkasanPesanan['total_selesai'] }} selesai</p>
+                <p class="text-2xl font-medium">{{ $ringkasanPesanan['total_pesanan'] + $ringkasanOffline['total_pesanan'] }}</p>
+                <p class="text-xs text-gray-400">{{ $ringkasanPesanan['total_selesai'] + $ringkasanOffline['total_selesai'] }} selesai</p>
             </div>
             <div class="bg-white rounded-xl border p-4">
                 <p class="text-xs text-gray-500">Omzet (selesai)</p>
-                {{-- Ini harus dijumlah (+), kalau tidak omzetnya tetap 25.000 --}}
                 <p class="text-2xl font-medium">Rp {{ number_format($ringkasanPesanan['total_omzet'] + $ringkasanOffline['total_omzet'], 0, ',', '.') }}</p>
                 <p class="text-xs text-green-500">dari pesanan selesai</p>
             </div>
@@ -99,6 +98,11 @@
                 <p class="text-2xl font-medium text-red-600">Rp {{ number_format($totalKeluar, 0, ',', '.') }}</p>
                 <p class="text-xs text-gray-400">total tercatat</p>
             </div>
+            <div class="bg-white rounded-xl border p-4">
+                <p class="text-xs text-gray-500">Jasa potong</p>
+                <p class="text-2xl font-medium text-indigo-600">{{ $ringkasanPesanan['total_jasa_potong'] + $ringkasanOffline['total_jasa_potong'] }}</p>
+                <p class="text-xs text-gray-400">pesanan pakai jasa potong</p>
+            </div>
         </div>
 
         {{-- Laba Rugi --}}
@@ -107,6 +111,39 @@
             <p class="text-2xl font-medium {{ $labaRugi >= 0 ? 'text-green-600' : 'text-red-600' }}">
                 Rp {{ number_format($labaRugi, 0, ',', '.') }}
             </p>
+        </div>
+
+        {{-- Pemakaian Kertas --}}
+        <div class="bg-white rounded-xl border p-4 mb-6">
+            <p class="text-xs text-gray-500">Total Lembar Kertas Terpakai</p>
+            <p class="text-2xl font-medium text-indigo-600">
+                {{ number_format($totalLembarKeseluruhan, 0, ',', '.') }} lembar
+            </p>
+            <p class="text-xs text-gray-400">gabungan online + offline, tidak termasuk yang dibatalkan</p>
+        </div>
+
+        <h3 class="text-sm font-medium text-gray-700 mb-2">Pemakaian Kertas per Tipe</h3>
+        <div class="bg-white rounded-xl border overflow-hidden mb-6">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-gray-500 font-normal">
+                    <tr>
+                        <th class="text-left px-4 py-3">Tipe Kertas</th>
+                        <th class="text-left px-4 py-3">Total Lembar</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @forelse($pemakaianKertas as $tipe => $row)
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3">{{ $tipe }}</td>
+                            <td class="px-4 py-3 font-medium text-indigo-600">{{ number_format($row['total_lembar'], 0, ',', '.') }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="2" class="px-4 py-8 text-center text-gray-400">Belum ada data.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
 
         {{-- Pesanan per Platform --}}
@@ -169,7 +206,7 @@
             </table>
         </div>
 
-        {{-- Detail Pesanan Offline --}}
+               {{-- Detail Pesanan Offline --}}
         <h3 class="text-sm font-medium text-gray-700 mb-2">Detail Pesanan Offline</h3>
         <div class="bg-white rounded-xl border overflow-hidden mb-6">
             <table class="w-full text-sm">
@@ -179,6 +216,7 @@
                         <th class="text-left px-4 py-3">Pelanggan</th>
                         <th class="text-left px-4 py-3">Total</th>
                         <th class="text-left px-4 py-3">Status</th>
+                        <th class="text-left px-4 py-3">Jasa Potong</th>
                         <th class="text-left px-4 py-3">Tanggal</th>
                     </tr>
                 </thead>
@@ -189,11 +227,12 @@
                             <td class="px-4 py-3">{{ $p->pelanggan }}</td>
                             <td class="px-4 py-3">{{ $p->total_rupiah }}</td>
                             <td class="px-4 py-3">{{ $p->status }}</td>
+                            <td class="px-4 py-3">{{ $p->jasa_potong ? 'Ya' : 'Tidak' }}</td>
                             <td class="px-4 py-3 text-gray-500">{{ $p->tanggal }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-4 py-8 text-center text-gray-400">Belum ada data.</td>
+                            <td colspan="6" class="px-4 py-8 text-center text-gray-400">Belum ada data.</td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -104,6 +104,7 @@
                         <th class="text-left px-4 py-3">Tipe kertas</th>
                         <th class="text-left px-4 py-3">Lembar</th>
                         <th class="text-left px-4 py-3">Total</th>
+                        <th class="text-left px-4 py-3">Potong</th>
                         <th class="text-left px-4 py-3">Status</th>
                         <th class="text-left px-4 py-3">Tanggal</th>
                         <th class="text-left px-4 py-3">Aksi</th>
@@ -127,9 +128,20 @@
                                     {{ $p->platform }}
                                 </span>
                             </td>
-                            <td class="px-4 py-3">{{ $p->tipe_kertas }}</td>
+                                                        <td class="px-4 py-3">
+                                {{ $p->tipe_kertas_text }}
+                            </td>
                             <td class="px-4 py-3">{{ $p->jumlah_lembar }}</td>
                             <td class="px-4 py-3">{{ $p->total_rupiah }}</td>
+                            <td class="px-4 py-3">
+                                @if($p->jasa_potong)
+                                    <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700">
+                                        ✂ Ya
+                                    </span>
+                                @else
+                                    <span class="text-gray-300 text-xs">—</span>
+                                @endif
+                            </td>
                             <td class="px-4 py-3">
                                 @php
                                     $statusColor = [
@@ -179,7 +191,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="px-4 py-8 text-center text-gray-400">
+                                                        <td colspan="10" class="px-4 py-8 text-center text-gray-400">
                                 Tidak ada pesanan ditemukan.
                             </td>
                         </tr>

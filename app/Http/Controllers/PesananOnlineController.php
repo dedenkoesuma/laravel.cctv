@@ -39,32 +39,48 @@ class PesananOnlineController extends Controller
 
     // ── Create ───────────────────────────────────────────
     public function create()
-{
-    $platforms  = PesananOnline::PLATFORMS;
-    $statuses   = PesananOnline::STATUSES;
-    $tipeKertas = $this->listTipeKertas();
-    $noOrder    = PesananOnline::generateNoOrder(); // tambah ini
+    {
+        $platforms  = PesananOnline::PLATFORMS;
+        $statuses   = PesananOnline::STATUSES;
+        $tipeKertas = $this->listTipeKertas();
+        $noOrder    = PesananOnline::generateNoOrder();
 
-    return view('pesanan-online.create', compact('platforms', 'statuses', 'tipeKertas', 'noOrder'));
-}
+        return view('pesanan-online.create', compact('platforms', 'statuses', 'tipeKertas', 'noOrder'));
+    }
 
     // ── Store ────────────────────────────────────────────
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'pelanggan'      => 'required|string|max:100',
-            'platform'       => ['required', Rule::in(PesananOnline::PLATFORMS)],
-            'tipe_kertas'    => 'required|string|max:50',
-            'jumlah_lembar'  => 'required|integer|min:1',
-            'total'          => 'required|integer|min:0',
-            'status'         => ['nullable', Rule::in(PesananOnline::STATUSES)],
-            'catatan'        => 'nullable|string|max:500',
+            'pelanggan'          => 'required|string|max:100',
+            'platform'           => ['required', Rule::in(PesananOnline::PLATFORMS)],
+            'items'              => 'required|array|min:1',
+            'items.*.jumlah'     => 'nullable|integer|min:1',
+            'total'              => 'required|integer|min:0',
+            'jasa_potong'        => 'nullable|boolean',
+            'status'             => ['nullable', Rule::in(PesananOnline::STATUSES)],
+            'catatan'            => 'nullable|string|max:500',
         ]);
 
-        $validated['no_order'] = PesananOnline::generateNoOrder();
-        $validated['status']   = $validated['status'] ?? 'Proses';
+        [$tipeKertas, $totalLembar] = $this->buildTipeKertas($request->input('items', []));
 
-        PesananOnline::create($validated);
+        if (empty($tipeKertas)) {
+            return back()
+                ->withErrors(['tipe_kertas' => 'Pilih minimal satu tipe kertas beserta jumlahnya.'])
+                ->withInput();
+        }
+
+        PesananOnline::create([
+            'no_order'      => PesananOnline::generateNoOrder(),
+            'pelanggan'     => $validated['pelanggan'],
+            'platform'      => $validated['platform'],
+            'tipe_kertas'   => $tipeKertas,
+            'jumlah_lembar' => $totalLembar,
+            'total'         => $validated['total'],
+            'jasa_potong'   => $request->boolean('jasa_potong'),
+            'status'        => $validated['status'] ?? 'Proses',
+            'catatan'       => $validated['catatan'] ?? null,
+        ]);
 
         return redirect()
             ->route('pesanan-online.index')
@@ -96,16 +112,34 @@ class PesananOnlineController extends Controller
         $pesanan = PesananOnline::findOrFail($id);
 
         $validated = $request->validate([
-            'pelanggan'      => 'required|string|max:100',
-            'platform'       => ['required', Rule::in(PesananOnline::PLATFORMS)],
-            'tipe_kertas'    => 'required|string|max:50',
-            'jumlah_lembar'  => 'required|integer|min:1',
-            'total'          => 'required|integer|min:0',
-            'status'         => ['required', Rule::in(PesananOnline::STATUSES)],
-            'catatan'        => 'nullable|string|max:500',
+            'pelanggan'          => 'required|string|max:100',
+            'platform'           => ['required', Rule::in(PesananOnline::PLATFORMS)],
+            'items'              => 'required|array|min:1',
+            'items.*.jumlah'     => 'nullable|integer|min:1',
+            'total'              => 'required|integer|min:0',
+            'jasa_potong'        => 'nullable|boolean',
+            'status'             => ['required', Rule::in(PesananOnline::STATUSES)],
+            'catatan'            => 'nullable|string|max:500',
         ]);
 
-        $pesanan->update($validated);
+        [$tipeKertas, $totalLembar] = $this->buildTipeKertas($request->input('items', []));
+
+        if (empty($tipeKertas)) {
+            return back()
+                ->withErrors(['tipe_kertas' => 'Pilih minimal satu tipe kertas beserta jumlahnya.'])
+                ->withInput();
+        }
+
+        $pesanan->update([
+            'pelanggan'     => $validated['pelanggan'],
+            'platform'      => $validated['platform'],
+            'tipe_kertas'   => $tipeKertas,
+            'jumlah_lembar' => $totalLembar,
+            'total'         => $validated['total'],
+            'jasa_potong'   => $request->boolean('jasa_potong'),
+            'status'        => $validated['status'],
+            'catatan'       => $validated['catatan'] ?? null,
+        ]);
 
         return redirect()
             ->route('pesanan-online.index')
@@ -176,7 +210,7 @@ class PesananOnlineController extends Controller
             fputcsv($file, [
                 'No. Order', 'Pelanggan', 'Platform',
                 'Tipe Kertas', 'Jumlah Lembar', 'Total (Rp)',
-                'Status', 'Catatan', 'Tanggal',
+                'Jasa Potong', 'Status', 'Catatan', 'Tanggal',
             ]);
 
             foreach ($pesanan as $p) {
@@ -184,9 +218,10 @@ class PesananOnlineController extends Controller
                     $p->no_order,
                     $p->pelanggan,
                     $p->platform,
-                    $p->tipe_kertas,
+                    $p->tipe_kertas_text,
                     $p->jumlah_lembar,
                     $p->total,
+                    $p->jasa_potong ? 'Ya' : 'Tidak',
                     $p->status,
                     $p->catatan,
                     $p->created_at->format('d/m/Y H:i'),
@@ -200,34 +235,50 @@ class PesananOnlineController extends Controller
     }
 
     // ── Private Helper ───────────────────────────────────
+    private function buildTipeKertas(array $items): array
+    {
+        $tipeKertas  = [];
+        $totalLembar = 0;
+
+        foreach ($items as $tipe => $data) {
+            $dicentang = !empty($data['pilih']);
+            $jumlah    = (int) ($data['jumlah'] ?? 0);
+
+            if ($dicentang && $jumlah > 0) {
+                $tipeKertas[]  = ['tipe' => $tipe, 'jumlah' => $jumlah];
+                $totalLembar  += $jumlah;
+            }
+        }
+
+        return [$tipeKertas, $totalLembar];
+    }
+
     private function listTipeKertas(): array
     {
         return [
-            'ART PAPER 120 1 SISI',
+            'ART PAPER 120 1 SISI', 
             'ART PAPER 150 1 SISI',
             'ART PAPER 120 2 SISI',
-            'ART PAPER 150 2 SISI',
-            'HVS 100 2 SISI',
             'ART CARTON 190 1 SISI',
-            'ART CARTON 210 1 SISI',
-            'ART CARTON 230 1 SISI',
-            'ART CARTON 260 1 SISI',
-            'ART CARTON 190 2 SISI',
-            'ART CARTON 210 2 SISI',
-            'ART CARTON 230 2 SISI',
-            'ART CARTON 260 2 SISI',
-            'ART CARTON 190 1 SISI LAMINASI DOFF/GLOSY',
-            'ART CARTON 210 1 SISI LAMINASI DOFF/GLOSY',
-            'ART CARTON 230 1 SISI LAMINASI DOFF/GLOSY',
-            'ART CARTON 260 1 SISI LAMINASI DOFF/GLOSY',
-            'ART CARTON 190 2 SISI LAMINASI DOFF/GLOSY',
-            'ART CARTON 210 2 SISI LAMINASI DOFF/GLOSY',
-            'ART CARTON 230 2 SISI LAMINASI DOFF/GLOSY',
-            'ART CARTON 260 2 SISI LAMINASI DOFF/GLOSY',
-           'HVS 100 1 SISI',
-           'HVS 100 2 SISI',
-           'HVS 80 1 SISI',
-           'HVS 80 2 SISI',
+            'ART CARTON 210 1 SISI',             
+            'ART CARTON 230 1 SISI',             
+            'ART CARTON 260 1 SISI',            
+            'ART CARTON 190 2 SISI',             
+            'ART CARTON 210 2 SISI',             
+            'ART CARTON 230 2 SISI',             
+            'ART CARTON 260 2 SISI',             
+            'ART CARTON 190 1 SISI LAMINASI DOFF/GLOSY',             
+            'ART CARTON 210 1 SISI LAMINASI DOFF/GLOSY',             
+            'ART CARTON 230 1 SISI LAMINASI DOFF/GLOSY',             
+            'ART CARTON 260 1 SISI LAMINASI DOFF/GLOSY',             
+            'ART CARTON 190 2 SISI LAMINASI DOFF/GLOSY',             
+            'ART CARTON 210 2 SISI LAMINASI DOFF/GLOSY',             
+            'ART CARTON 230 2 SISI LAMINASI DOFF/GLOSY',             
+            'ART CARTON 260 2 SISI LAMINASI DOFF/GLOSY',             
+            'HVS 100 1 SISI',             
+            'HVS 100 2 SISI',             
+            'HVS 80 1 SISI',             
+            'HVS 80 2 SISI',
         ];
     }
 }

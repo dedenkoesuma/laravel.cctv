@@ -57,15 +57,15 @@
                 </div>
                 <div>
                     <dt class="text-gray-500">Tipe kertas</dt>
-                    <dd class="font-medium text-gray-800">{{ $pesanan->tipe_kertas }}</dd>
+                   <dd class="font-medium text-gray-800">{{ $pesanan->tipe_kertas_text }}</dd>
                 </div>
                 <div>
                     <dt class="text-gray-500">Jumlah lembar</dt>
                     <dd class="font-medium text-gray-800">{{ $pesanan->jumlah_lembar }}</dd>
                 </div>
                 <div>
-                    <dt class="text-gray-500">Total</dt>
-                    <dd class="font-medium text-gray-800">{{ $pesanan->total_rupiah }}</dd>
+                    <dt class="text-gray-500">Jasa potong</dt>
+                    <dd class="font-medium text-gray-800">{{ $pesanan->jasa_potong ? 'Ya' : 'Tidak' }}</dd>
                 </div>
                 <div>
                     <dt class="text-gray-500">Tanggal</dt>

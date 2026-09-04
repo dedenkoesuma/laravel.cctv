@@ -13,10 +13,6 @@ class PesananOnline extends Model
     protected $table = 'pesanan_onlines';
 
     // ── Auto-sync ke Uang Masuk ───────────────────────────
-    // Setiap pesanan berstatus "Selesai" otomatis punya 1 entry
-    // kembar di uang_kas (jenis=masuk). Diedit/dibatalkan/dihapus
-    // di sini akan ikut menyesuaikan entry tersebut.
-
     protected static function booted(): void
     {
         static::created(function (PesananOnline $pesanan) {
@@ -51,7 +47,7 @@ class PesananOnline extends Model
             if ($pesanan->isForceDeleting()) {
                 UangKas::withTrashed()->find($pesanan->uang_kas_id)?->forceDelete();
             } else {
-                UangKas::find($pesanan->uang_kas_id)?->delete(); // soft delete
+                UangKas::find($pesanan->uang_kas_id)?->delete();
             }
         });
 
@@ -74,7 +70,6 @@ class PesananOnline extends Model
         ];
 
         if ($pesanan->uang_kas_id) {
-            // Update via query builder (bukan Eloquent save) supaya tidak memicu event lain.
             UangKas::where('id', $pesanan->uang_kas_id)->update($data);
             return;
         }
@@ -91,7 +86,7 @@ class PesananOnline extends Model
             return;
         }
 
-        UangKas::find($pesanan->uang_kas_id)?->delete(); // soft delete, riwayat tetap ada
+        UangKas::find($pesanan->uang_kas_id)?->delete();
 
         static::withTrashed()->where('id', $pesanan->id)->update(['uang_kas_id' => null]);
         $pesanan->uang_kas_id = null;
@@ -109,6 +104,7 @@ class PesananOnline extends Model
         'tipe_kertas',
         'jumlah_lembar',
         'total',
+        'jasa_potong',
         'status',
         'catatan',
     ];
@@ -116,6 +112,8 @@ class PesananOnline extends Model
     protected $casts = [
         'jumlah_lembar' => 'integer',
         'total'         => 'integer',
+        'tipe_kertas'   => 'array',
+        'jasa_potong'   => 'boolean',
         'created_at'    => 'datetime',
         'updated_at'    => 'datetime',
     ];
@@ -155,7 +153,26 @@ class PesananOnline extends Model
         return $query->whereDate('created_at', today());
     }
 
+    public function scopeJasaPotong($query)
+    {
+        return $query->where('jasa_potong', true);
+    }
+
     // ── Accessors ────────────────────────────────────────
+
+    public function getTipeKertasTextAttribute(): string
+    {
+        $items = (array) $this->tipe_kertas;
+
+        return collect($items)->map(function ($item) {
+            if (is_array($item)) {
+                $tipe   = $item['tipe'] ?? '';
+                $jumlah = $item['jumlah'] ?? null;
+                return $jumlah ? "{$tipe} ({$jumlah} lembar)" : $tipe;
+            }
+            return $item;
+        })->implode(', ');
+    }
 
     public function getTotalRupiahAttribute(): string
     {
