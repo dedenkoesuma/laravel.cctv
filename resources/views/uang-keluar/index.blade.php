@@ -3,129 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Uang Keluar - Toko Print</title>
+    <title>Uang Keluar — Toko Print</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    colors: {
+                        darkBg: '#090D16',
+                        darkSurface: '#0B0F19',
+                        darkPanel: '#111827',
+                        darkRaised: '#1A2234',
+                        line: 'rgba(255, 255, 255, 0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #090D16;
+            color: #F8FAFC;
+            font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .glass-card {
+            background: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+        }
+        .glow-red {
+            box-shadow: 0 0 25px -5px rgba(239, 68, 68, 0.2);
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-[#090D16] text-slate-100 min-h-screen">
 
 <div class="flex min-h-screen">
+    {{-- Sidebar Navigation --}}
     @include('components.sidebar')
 
-    <div class="flex-1 p-6">
-
-        <div class="flex items-center justify-between mb-6">
+    {{-- Main Content Area --}}
+    <main class="flex-1 min-w-0 p-6 lg:p-8 bg-[#0B0F19] overflow-y-auto">
+        
+        {{-- Top Header --}}
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 mb-6 border-b border-white/10">
             <div>
-                <h1 class="text-xl font-medium text-gray-800">Uang Keluar</h1>
-                <p class="text-sm text-gray-500">Catat semua pengeluaran kas toko</p>
+                <div class="flex items-center gap-2 text-xs font-semibold tracking-wider uppercase text-slate-500 mb-1.5">
+                    <span class="w-2 h-2 rounded-full bg-red-500 shadow-sm shadow-red-500/50"></span>
+                    <span>Toko Print · Kas Keuangan</span>
+                </div>
+                <h1 class="text-2xl font-bold font-display text-white tracking-tight">Uang Keluar</h1>
+                <p class="text-sm text-slate-400 mt-0.5">Monitoring dan pencatatan kas keluar operasional toko</p>
             </div>
-            <a href="{{ route('uang-keluar.create') }}"
-               class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700">
-                - Tambah Uang Keluar
-            </a>
+            <div class="flex items-center gap-3">
+                <a href="{{ route('uang-keluar.create') }}"
+                   class="inline-flex items-center gap-2 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition-all shadow-lg shadow-red-900/30 hover:shadow-red-700/40 hover:-translate-y-0.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    <span>Catat Pengeluaran</span>
+                </a>
+            </div>
         </div>
 
+        {{-- Flash Messages --}}
         @if(session('success'))
-            <div class="bg-green-100 text-green-700 px-4 py-3 rounded-lg mb-4 text-sm">
-                {{ session('success') }}
+            <div class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-4 py-3 rounded-xl mb-6 text-sm flex items-center gap-3 animate-fade-in">
+                <svg class="w-5 h-5 shrink-0 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <span>{{ session('success') }}</span>
             </div>
         @endif
 
-        {{-- Summary Cards --}}
-        <div class="grid grid-cols-3 gap-4 mb-6">
-            <div class="bg-white rounded-xl border p-4">
-                <p class="text-xs text-gray-500">Total bulan ini</p>
-                <p class="text-2xl font-medium text-red-600">Rp {{ number_format($summary['bulan_ini'], 0, ',', '.') }}</p>
+        {{-- Executive KPI Stat Cards --}}
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-7">
+            {{-- Total Bulan Ini --}}
+            <div class="glass-card rounded-2xl p-5 relative overflow-hidden group hover:border-red-500/40 transition">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-rose-600"></div>
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Bulan Ini</span>
+                    <span class="p-2 rounded-lg bg-red-500/10 text-red-400 border border-red-500/20">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"/>
+                        </svg>
+                    </span>
+                </div>
+                <div class="text-2xl lg:text-3xl font-bold font-mono text-red-400 tracking-tight">
+                    Rp {{ number_format($summary['bulan_ini'], 0, ',', '.') }}
+                </div>
+                <div class="text-[11px] text-slate-500 mt-2 flex items-center gap-1.5">
+                    <span class="text-red-400 font-medium">Pengeluaran kas</span>
+                    <span>periode {{ now()->translatedFormat('F Y') }}</span>
+                </div>
             </div>
-            <div class="bg-white rounded-xl border p-4">
-                <p class="text-xs text-gray-500">Total hari ini</p>
-                <p class="text-2xl font-medium text-red-600">Rp {{ number_format($summary['hari_ini'], 0, ',', '.') }}</p>
+
+            {{-- Total Hari Ini --}}
+            <div class="glass-card rounded-2xl p-5 relative overflow-hidden group hover:border-rose-500/40 transition">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 to-amber-500"></div>
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Hari Ini</span>
+                    <span class="p-2 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </span>
+                </div>
+                <div class="text-2xl lg:text-3xl font-bold font-mono text-rose-300 tracking-tight">
+                    Rp {{ number_format($summary['hari_ini'], 0, ',', '.') }}
+                </div>
+                <div class="text-[11px] text-slate-500 mt-2">
+                    Kas keluar per {{ now()->translatedFormat('d F Y') }}
+                </div>
             </div>
-            <div class="bg-white rounded-xl border p-4">
-                <p class="text-xs text-gray-500">Jumlah transaksi</p>
-                <p class="text-2xl font-medium text-gray-800">{{ $summary['jumlah_transaksi'] }}</p>
-                <p class="text-xs text-gray-400">bulan ini</p>
+
+            {{-- Jumlah Transaksi --}}
+            <div class="glass-card rounded-2xl p-5 relative overflow-hidden group hover:border-slate-500/40 transition">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-slate-400 to-slate-600"></div>
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Frekuensi Transaksi</span>
+                    <span class="p-2 rounded-lg bg-white/5 text-slate-300 border border-white/10">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                    </span>
+                </div>
+                <div class="text-2xl lg:text-3xl font-bold font-display text-white tracking-tight">
+                    {{ $summary['jumlah_transaksi'] }} <span class="text-sm font-normal text-slate-400">transaksi</span>
+                </div>
+                <div class="text-[11px] text-slate-500 mt-2">
+                    Tercatat aktif di bulan berjalan
+                </div>
             </div>
         </div>
 
-        {{-- Filter --}}
-        <form method="GET" action="{{ route('uang-keluar.index') }}" class="flex gap-3 mb-4 flex-wrap">
-            <input type="text" name="search" value="{{ request('search') }}"
-                   placeholder="Cari keterangan atau kategori..."
-                   class="border rounded-lg px-3 py-2 text-sm flex-1 min-w-48">
-            <select name="kategori" class="border rounded-lg px-3 py-2 text-sm">
-                <option value="">Semua kategori</option>
-                @foreach($kategoriList as $k)
-                    <option value="{{ $k }}" {{ request('kategori') == $k ? 'selected' : '' }}>{{ $k }}</option>
-                @endforeach
-            </select>
-            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700">
-                Cari
-            </button>
-            @if(request()->anyFilled(['search','kategori']))
-                <a href="{{ route('uang-keluar.index') }}" class="border px-4 py-2 rounded-lg text-sm hover:bg-gray-50">
-                    Reset
-                </a>
-            @endif
-        </form>
+        {{-- Filter & Search Toolbar --}}
+        <div class="glass-card rounded-2xl p-4 mb-6">
+            <form method="GET" action="{{ route('uang-keluar.index') }}" class="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+                <div class="relative flex-1 min-w-[220px]">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </span>
+                    <input type="text" name="search" value="{{ request('search') }}"
+                           placeholder="Cari keterangan atau kategori..."
+                           class="w-full bg-[#1A2234] border border-white/10 text-white placeholder-slate-500 text-sm rounded-xl pl-10 pr-4 py-2.5 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition">
+                </div>
 
-        {{-- Tabel --}}
-        <div class="bg-white rounded-xl border overflow-hidden">
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 text-gray-500 font-normal">
-                    <tr>
-                        <th class="text-left px-4 py-3">Tanggal</th>
-                        <th class="text-left px-4 py-3">Kategori</th>
-                        <th class="text-left px-4 py-3">Keterangan</th>
-                        <th class="text-left px-4 py-3">Jumlah</th>
-                        <th class="text-left px-4 py-3">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @forelse($transaksi as $t)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3 text-gray-500">{{ $t->tanggal_formatted }}</td>
-                            <td class="px-4 py-3">
-                                <span class="px-2 py-1 rounded text-xs bg-red-100 text-red-700">{{ $t->kategori }}</span>
-                            </td>
-                            <td class="px-4 py-3">{{ $t->keterangan }}</td>
-                            <td class="px-4 py-3 font-medium text-red-600">− {{ $t->jumlah_rupiah }}</td>
-                            <td class="px-4 py-3">
-                                <div class="flex gap-2">
-                                    <a href="{{ route('uang-keluar.edit', $t->id) }}"
-                                       class="text-gray-500 hover:text-gray-700 text-xs border px-2 py-1 rounded">
-                                        Edit
-                                    </a>
-                                    <form method="POST" action="{{ route('uang-keluar.destroy', $t->id) }}"
-                                          onsubmit="return confirm('Hapus transaksi ini?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit"
-                                                class="text-red-500 hover:text-red-700 text-xs border border-red-200 px-2 py-1 rounded">
-                                            Hapus
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
+                <div class="min-w-[190px]">
+                    <select name="kategori" class="w-full bg-[#1A2234] border border-white/10 text-slate-200 text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition">
+                        <option value="">Semua Kategori</option>
+                        @foreach($kategoriList as $k)
+                            <option value="{{ $k }}" {{ request('kategori') == $k ? 'selected' : '' }}>{{ $k }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button type="submit"
+                            class="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                        </svg>
+                        <span>Filter</span>
+                    </button>
+
+                    @if(request()->anyFilled(['search','kategori']))
+                        <a href="{{ route('uang-keluar.index') }}"
+                           class="inline-flex items-center justify-center bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 font-medium px-4 py-2.5 rounded-xl text-sm transition">
+                            Reset
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
+
+        {{-- Table Container --}}
+        <div class="glass-card rounded-2xl overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-[#161F32]/80 text-slate-400 font-semibold text-xs uppercase tracking-wider border-b border-white/10">
                         <tr>
-                            <td colspan="5" class="px-4 py-8 text-center text-gray-400">
-                                Belum ada transaksi uang keluar.
-                            </td>
+                            <th class="px-5 py-3.5">Tanggal</th>
+                            <th class="px-5 py-3.5">Kategori</th>
+                            <th class="px-5 py-3.5">Keterangan</th>
+                            <th class="px-5 py-3.5 text-right">Jumlah</th>
+                            <th class="px-5 py-3.5 text-center">Aksi</th>
                         </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        @forelse($transaksi as $t)
+                            <tr class="hover:bg-white/[0.025] transition-colors">
+                                <td class="px-5 py-4 whitespace-nowrap text-slate-300 font-mono text-xs">
+                                    {{ $t->tanggal_formatted }}
+                                </td>
+                                <td class="px-5 py-4 whitespace-nowrap">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-400 border border-red-500/20">
+                                        {{ $t->kategori }}
+                                    </span>
+                                </td>
+                                <td class="px-5 py-4 text-slate-200 font-medium">
+                                    {{ $t->keterangan }}
+                                </td>
+                                <td class="px-5 py-4 whitespace-nowrap text-right font-mono font-semibold text-red-400">
+                                    − {{ $t->jumlah_rupiah }}
+                                </td>
+                                <td class="px-5 py-4 whitespace-nowrap text-center">
+                                    <div class="inline-flex items-center gap-1.5">
+                                        <a href="{{ route('uang-keluar.edit', $t->id) }}"
+                                           class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 transition">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                            </svg>
+                                            <span>Edit</span>
+                                        </a>
+                                        <form method="POST" action="{{ route('uang-keluar.destroy', $t->id) }}"
+                                              onsubmit="return confirm('Apakah Anda yakin ingin menghapus transaksi ini?')"
+                                              class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                </svg>
+                                                <span>Hapus</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="5" class="px-5 py-14 text-center">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-slate-500 mb-3">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                            </svg>
+                                        </div>
+                                        <p class="text-slate-300 font-medium text-sm">Belum ada transaksi uang keluar</p>
+                                        <p class="text-slate-500 text-xs mt-1">Silakan gunakan tombol "Catat Pengeluaran" di atas untuk menambahkan data.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
 
-            <div class="px-4 py-3 border-t flex items-center justify-between text-sm text-gray-500">
-                <span>
-                    Menampilkan {{ $transaksi->firstItem() ?? 0 }}–{{ $transaksi->lastItem() ?? 0 }}
-                    dari {{ $transaksi->total() }} transaksi
-                </span>
-                {{ $transaksi->links() }}
+            {{-- Pagination footer --}}
+            <div class="px-5 py-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400 bg-[#161F32]/50">
+                <div>
+                    Menampilkan <span class="font-semibold text-slate-200">{{ $transaksi->firstItem() ?? 0 }}</span>–<span class="font-semibold text-slate-200">{{ $transaksi->lastItem() ?? 0 }}</span>
+                    dari total <span class="font-semibold text-slate-200">{{ $transaksi->total() }}</span> transaksi
+                </div>
+                <div>
+                    {{ $transaksi->links() }}
+                </div>
             </div>
         </div>
 
-    </div>
+    </main>
 </div>
 
 </body>

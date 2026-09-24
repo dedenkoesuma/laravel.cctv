@@ -5,33 +5,41 @@
 @section('content')
 <div class="container-fluid py-4">
 
-    {{-- Header --}}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="mb-0"><i class="fas fa-file-invoice me-2 text-primary"></i>Daftar Sales Order</h4>
-        <div class="d-flex gap-2">
-            {{-- Tombol muncul jika punya izin create ATAU manage --}}
-            @canany(['create_sales_orders', 'manage_sales_orders'])
-            <a href="{{ route('admin.sales-orders.create') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-plus me-1"></i>Buat SO Baru
-            </a>
-            @endcanany
-            
-            <a href="/admin/dashboard" class="btn btn-secondary btn-sm">
-                <i class="bi bi-arrow-left me-1"></i>Kembali ke Dashboard
-            </a>
+    <!-- Executive Header Banner -->
+    <div style="background:#090D16; border-bottom:1px solid rgba(255,255,255,0.08); color:white; padding:32px 28px; border-radius:16px; margin-bottom:24px; box-shadow:0 10px 30px rgba(0,0,0,0.12);">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge" style="background: rgba(220,38,38,0.2); color:#fca5a5; border:1px solid rgba(220,38,38,0.3); font-size:11px; font-weight:700;">
+                        ORDER FULFILLMENT & LOGISTICS
+                    </span>
+                </div>
+                <h1 class="fs-3 fw-bold mb-1 text-white"><i class="bi bi-file-earmark-check me-2 text-danger"></i>Daftar Sales Order (SO)</h1>
+                <p class="mb-0 text-white-50 small">Kelola pemesanan customer terkonfirmasi, status pengiriman barang dari gudang, dan riwayat faktur.</p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="/dashboard" class="btn btn-outline-light fw-bold px-3 py-2" style="border-radius:10px; font-size:13px; border-color:rgba(255,255,255,0.2);">
+                    <i class="bi bi-arrow-left me-1"></i> Dashboard
+                </a>
+                @canany(['create_sales_orders', 'manage_sales_orders'])
+                <a href="{{ route('admin.sales-orders.create') }}" class="btn btn-danger fw-bold px-3 py-2 shadow-sm" style="border-radius:10px; font-size:13px;">
+                    <i class="bi bi-plus-circle me-1"></i> Buat SO Baru
+                </a>
+                @endcanany
+            </div>
         </div>
     </div>
 
     {{-- Alert --}}
     @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show">
-            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+        <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm" style="border-radius:12px; background:#ecfdf5; color:#065f46;">
+            <i class="bi bi-check-circle-fill me-2 text-success"></i>{{ session('success') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
     @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show">
-            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+        <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" style="border-radius:12px; background:#fef2f2; color:#991b1b;">
+            <i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i>{{ session('error') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
@@ -45,27 +53,27 @@
     @endphp
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm text-center py-3">
-                <div class="fs-3 fw-bold text-secondary">{{ $allSo['draft'] ?? 0 }}</div>
-                <div class="small text-muted">Draft</div>
+            <div class="card border-0 shadow-sm text-center py-3" style="border-radius:14px; border:1px solid #e2e8f0; border-top:4px solid #64748b !important;">
+                <div class="fs-2 fw-bold text-dark">{{ $allSo['draft'] ?? 0 }}</div>
+                <div class="small text-muted fw-bold text-uppercase" style="font-size:11px; letter-spacing:0.5px;">Draft</div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm text-center py-3">
-                <div class="fs-3 fw-bold text-success">{{ $allSo['approved'] ?? 0 }}</div>
-                <div class="small text-muted">Disetujui</div>
+            <div class="card border-0 shadow-sm text-center py-3" style="border-radius:14px; border:1px solid #e2e8f0; border-top:4px solid #10b981 !important;">
+                <div class="fs-2 fw-bold text-success">{{ $allSo['approved'] ?? 0 }}</div>
+                <div class="small text-muted fw-bold text-uppercase" style="font-size:11px; letter-spacing:0.5px;">Disetujui</div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm text-center py-3">
-                <div class="fs-3 fw-bold text-primary">{{ $allSo['delivered'] ?? 0 }}</div>
-                <div class="small text-muted">Terkirim</div>
+            <div class="card border-0 shadow-sm text-center py-3" style="border-radius:14px; border:1px solid #e2e8f0; border-top:4px solid #3b82f6 !important;">
+                <div class="fs-2 fw-bold text-primary">{{ $allSo['delivered'] ?? 0 }}</div>
+                <div class="small text-muted fw-bold text-uppercase" style="font-size:11px; letter-spacing:0.5px;">Terkirim</div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="card border-0 shadow-sm text-center py-3">
-                <div class="fs-3 fw-bold text-danger">{{ $allSo['cancelled'] ?? 0 }}</div>
-                <div class="small text-muted">Dibatalkan</div>
+            <div class="card border-0 shadow-sm text-center py-3" style="border-radius:14px; border:1px solid #e2e8f0; border-top:4px solid #ef4444 !important;">
+                <div class="fs-2 fw-bold text-danger">{{ $allSo['cancelled'] ?? 0 }}</div>
+                <div class="small text-muted fw-bold text-uppercase" style="font-size:11px; letter-spacing:0.5px;">Dibatalkan</div>
             </div>
         </div>
     </div>

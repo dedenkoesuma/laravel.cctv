@@ -4,27 +4,30 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h2 class="fw-bold mb-0">
-                        <i class="bi bi-fingerprint"></i> Access Control Management
-                    </h2>
-                    <p class="text-muted mb-0">Manage access control products, images, and specifications</p>
+    <!-- Executive Header Banner -->
+    <div style="background:#090D16; border-bottom:1px solid rgba(255,255,255,0.08); color:white; padding:35px 28px; border-radius:16px; margin-bottom:24px; box-shadow:0 10px 30px rgba(0,0,0,0.12);">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge" style="background: rgba(220,38,38,0.2); color:#fca5a5; border:1px solid rgba(220,38,38,0.3); font-size:11px; font-weight:700;">
+                        BIOMETRIC & RFID SECURITY
+                    </span>
                 </div>
-                <div class="d-flex gap-2">
-                    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-speedometer2"></i> Dashboard
-                    </a>
-                    
-                    {{-- PERBAIKAN: Gunakan canany agar tombol muncul jika punya izin Create ATAU Manage --}}
-                    @canany(['create_access_control', 'manage_access_control'])
-                    <button class="btn btn-primary" onclick="openAddModal()">
-                        <i class="bi bi-plus-circle"></i> Add Product
-                    </button>
-                    @endcanany
-                </div>
+                <h1 class="fw-bold mb-1 fs-3 text-white"><i class="bi bi-fingerprint me-2 text-danger"></i>Access Control Management</h1>
+                <p class="mb-0 text-white-50 small">Kelola katalog mesin absensi, barrier gate, magnetic lock, dan RFID reader profesional.</p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-light fw-bold px-3 py-2" style="border-radius:10px; font-size:13px; border-color:rgba(255,255,255,0.2);">
+                    <i class="bi bi-arrow-left me-1"></i> Dashboard
+                </a>
+                <a href="/access-control" target="_blank" class="btn btn-light text-dark fw-bold px-3 py-2" style="border-radius:10px; font-size:13px;">
+                    <i class="bi bi-eye me-1 text-primary"></i> Halaman Publik
+                </a>
+                @canany(['create_access_control', 'manage_access_control'])
+                <button class="btn btn-danger fw-bold px-3 py-2 shadow-sm" style="border-radius:10px; font-size:13px;" onclick="openAddModal()">
+                    <i class="bi bi-plus-circle me-1"></i> Tambah Produk Baru
+                </button>
+                @endcanany
             </div>
         </div>
     </div>

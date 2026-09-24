@@ -3,28 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buat Invoice - Toko Print</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <title>Buat Invoice — Toko Print</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #090D16;
+            color: #F8FAFC;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            overflow-x: hidden;
+        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .glass-card {
+            background: #111827;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-[#090D16] text-slate-100 min-h-screen">
 
 <div class="flex min-h-screen">
+    {{-- Sidebar Navigation --}}
     @include('components.sidebar')
 
-    <div class="flex-1 p-6">
-        <div class="mb-6">
-            <div class="flex items-center gap-2 text-sm text-gray-500 mb-1">
-                <a href="{{ route('invoice.index') }}" class="hover:text-indigo-600">Invoice</a>
+    {{-- Main Content Area --}}
+    <main class="flex-1 min-w-0 p-6 lg:p-8 bg-[#0B0F19] overflow-y-auto">
+        
+        {{-- Breadcrumb & Title --}}
+        <div class="mb-6 pb-6 border-b border-white/10">
+            <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                <a href="{{ route('invoice.index') }}" class="hover:text-violet-400 transition">Invoice</a>
                 <span>/</span>
-                <span class="text-gray-800">Buat invoice baru</span>
+                <span class="text-slate-300">Buat Tagihan Baru</span>
             </div>
-            <h1 class="text-xl font-medium text-gray-800">Buat Invoice</h1>
+            <h1 class="text-2xl font-bold font-display text-white tracking-tight">Buat Invoice Cetak</h1>
+            <p class="text-sm text-slate-400 mt-1">Nomor tagihan terbit: <span class="font-mono font-semibold text-violet-400">{{ $noInvoice }}</span></p>
         </div>
 
-        <div class="max-w-2xl bg-white rounded-xl border p-6">
+        {{-- Form Box --}}
+        <div class="max-w-2xl glass-card rounded-2xl p-6 lg:p-8">
             @if($errors->any())
-                <div class="bg-red-50 text-red-600 px-4 py-3 rounded-lg mb-4 text-sm">
-                    <ul class="list-disc list-inside">
+                <div class="bg-rose-500/10 border border-rose-500/30 text-rose-400 px-4 py-3 rounded-xl mb-6 text-sm">
+                    <div class="font-semibold mb-1">Terdapat kesalahan pengisian data:</div>
+                    <ul class="list-disc list-inside space-y-0.5 text-xs text-rose-300">
                         @foreach($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
@@ -32,68 +56,55 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('invoice.store') }}">
+            <form method="POST" action="{{ route('invoice.store') }}" class="space-y-5">
                 @csrf
 
-                <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm text-gray-500 mb-1">No. Invoice</label>
-                        <input type="text"
-                               value="{{ $noInvoice }}"
-                               readonly
-                               class="w-full border rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-400">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">No. Invoice</label>
+                        <input type="text" value="{{ $noInvoice }}" readonly
+                               class="w-full bg-[#1A2234]/60 border border-white/5 text-violet-400 font-mono text-sm rounded-xl px-4 py-2.5 cursor-not-allowed">
+                        <input type="hidden" name="no_invoice" value="{{ $noInvoice }}">
                     </div>
                     <div>
-                        <label class="block text-sm text-gray-500 mb-1">Tanggal invoice <span class="text-red-500">*</span></label>
-                        <input type="date"
-                               name="tgl_tagihan"
-                               value="{{ old('tgl_tagihan', now()->format('Y-m-d')) }}"
-                               class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 @error('tgl_tagihan') border-red-400 @enderror">
-                        @error('tgl_tagihan')
-                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                            Tanggal Invoice <span class="text-rose-500">*</span>
+                        </label>
+                        <input type="date" name="tgl_tagihan" value="{{ old('tgl_tagihan', now()->format('Y-m-d')) }}"
+                               class="w-full bg-[#1A2234] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition @error('tgl_tagihan') border-rose-500 @enderror">
+                        @error('tgl_tagihan') <p class="text-rose-400 text-xs mt-1.5">{{ $message }}</p> @enderror
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <label class="block text-sm text-gray-500 mb-1">Nama pelanggan <span class="text-red-500">*</span></label>
-                    <input type="text"
-                           name="pelanggan"
-                           value="{{ old('pelanggan') }}"
-                           placeholder="Nama lengkap pelanggan"
-                           class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 @error('pelanggan') border-red-400 @enderror">
-                    @error('pelanggan')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                        Nama Pelanggan / Perusahaan <span class="text-rose-500">*</span>
+                    </label>
+                    <input type="text" name="pelanggan" value="{{ old('pelanggan') }}" placeholder="Nama lengkap atau instansi pembayar"
+                           class="w-full bg-[#1A2234] border border-white/10 text-white placeholder-slate-500 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition @error('pelanggan') border-rose-500 @enderror">
+                    @error('pelanggan') <p class="text-rose-400 text-xs mt-1.5">{{ $message }}</p> @enderror
                 </div>
 
-                <div class="mb-4">
-                    <label class="block text-sm text-gray-500 mb-1">Deskripsi pesanan</label>
-                    <input type="text"
-                           name="deskripsi"
-                           value="{{ old('deskripsi') }}"
-                           placeholder="Contoh: Cetak brosur 500 lembar A4"
-                           class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 @error('deskripsi') border-red-400 @enderror">
-                    @error('deskripsi')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                        Deskripsi Pesanan Cetak
+                    </label>
+                    <input type="text" name="deskripsi" value="{{ old('deskripsi') }}" placeholder="Contoh: Cetak Brosur 500 Lembar A4 Art Paper 150g"
+                           class="w-full bg-[#1A2234] border border-white/10 text-white placeholder-slate-500 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition @error('deskripsi') border-rose-500 @enderror">
+                    @error('deskripsi') <p class="text-rose-400 text-xs mt-1.5">{{ $message }}</p> @enderror
                 </div>
 
-                <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm text-gray-500 mb-1">Jatuh tempo</label>
-                        <input type="date"
-                               name="jatuh_tempo"
-                               value="{{ old('jatuh_tempo') }}"
-                               class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 @error('jatuh_tempo') border-red-400 @enderror">
-                        @error('jatuh_tempo')
-                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Jatuh Tempo (Opsional)</label>
+                        <input type="date" name="jatuh_tempo" value="{{ old('jatuh_tempo') }}"
+                               class="w-full bg-[#1A2234] border border-white/10 text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition @error('jatuh_tempo') border-rose-500 @enderror">
+                        @error('jatuh_tempo') <p class="text-rose-400 text-xs mt-1.5">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-sm text-gray-500 mb-1">Status</label>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Status Pembayaran</label>
                         <select name="status"
-                                class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">
+                                class="w-full bg-[#1A2234] border border-white/10 text-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition">
                             @foreach($statuses as $s)
                                 <option value="{{ $s }}" {{ old('status') == $s ? 'selected' : '' }}>
                                     {{ \App\Models\TagihanCetak::STATUS_LABELS[$s] }}
@@ -103,40 +114,44 @@
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <label class="block text-sm text-gray-500 mb-1">Total (Rp) <span class="text-red-500">*</span></label>
-                    <input type="number"
-                           name="total"
-                           value="{{ old('total') }}"
-                           min="0"
-                           placeholder="150000"
-                           class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300 @error('total') border-red-400 @enderror">
-                    @error('total')
-                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                        Total Nilai Tagihan (Rp) <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 font-mono text-xs">
+                            Rp
+                        </span>
+                        <input type="number" name="total" value="{{ old('total') }}" min="0" placeholder="150000"
+                               class="w-full bg-[#1A2234] border border-white/10 text-white placeholder-slate-500 rounded-xl pl-11 pr-4 py-2.5 text-sm font-mono focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition @error('total') border-rose-500 @enderror">
+                    </div>
+                    @error('total') <p class="text-rose-400 text-xs mt-1.5">{{ $message }}</p> @enderror
                 </div>
 
-                <div class="mb-6">
-                    <label class="block text-sm text-gray-500 mb-1">Catatan</label>
-                    <textarea name="catatan"
-                              rows="3"
-                              placeholder="Catatan tambahan..."
-                              class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300">{{ old('catatan') }}</textarea>
+                <div>
+                    <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
+                        Catatan Invoice (Opsional)
+                    </label>
+                    <textarea name="catatan" rows="3" placeholder="Instruksi nomor rekening pembayaran, kontak PIC, atau syarat..."
+                              class="w-full bg-[#1A2234] border border-white/10 text-white placeholder-slate-500 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition">{{ old('catatan') }}</textarea>
                 </div>
 
-                <div class="flex gap-3 justify-end">
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
                     <a href="{{ route('invoice.index') }}"
-                       class="border px-4 py-2 rounded-lg text-sm hover:bg-gray-50">
+                       class="px-5 py-2.5 rounded-xl text-sm font-medium text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition">
                         Batal
                     </a>
                     <button type="submit"
-                            class="bg-indigo-600 text-white px-5 py-2 rounded-lg text-sm hover:bg-indigo-700">
-                        Simpan invoice
+                            class="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-700 hover:from-violet-500 hover:to-indigo-600 text-white font-semibold px-6 py-2.5 rounded-xl text-sm transition shadow-lg shadow-violet-900/30 hover:-translate-y-0.5">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                        </svg>
+                        <span>Simpan Invoice</span>
                     </button>
                 </div>
             </form>
         </div>
-    </div>
+    </main>
 </div>
 
 </body>

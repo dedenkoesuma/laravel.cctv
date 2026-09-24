@@ -80,7 +80,7 @@
         }
 
         .modal-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0f172a;
             color: white;
         }
 
@@ -100,22 +100,32 @@
     };
 @endphp
     <div class="container-fluid py-4">
-        <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2 class="mb-1">📦 Inventory Management</h2>
-                <p class="text-muted mb-0">Monitor and manage your inventory items</p>
-            </div>
-            <div class="btn-group">
-                <a href="{{ route('admin.inventory.incoming') }}" class="btn btn-success">
-                    <i class="bi bi-box-arrow-in-down"></i> Barang Masuk
-                </a>
-                <a href="{{ route('admin.inventory.outgoing') }}" class="btn btn-danger">
-                    <i class="bi bi-box-arrow-up"></i> Barang Keluar
-                </a>
-                <a href="{{ route('admin.inventory.reports') }}" class="btn btn-info">
-                    <i class="bi bi-file-earmark-text"></i> Reports
-                </a>
+        <!-- Executive Header Banner -->
+        <div style="background:#090D16; border-bottom:1px solid rgba(255,255,255,0.08); color:white; padding:32px 28px; border-radius:16px; margin-bottom:24px; box-shadow:0 10px 30px rgba(0,0,0,0.12);">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge" style="background: rgba(220,38,38,0.2); color:#fca5a5; border:1px solid rgba(220,38,38,0.3); font-size:11px; font-weight:700;">
+                            INVENTORY & WAREHOUSE CONTROL
+                        </span>
+                    </div>
+                    <h1 class="fs-3 fw-bold mb-1 text-white"><i class="bi bi-boxes me-2 text-danger"></i>Inventory Stock Management</h1>
+                    <p class="mb-0 text-white-50 small">Pusat kontrol stok masuk, serial number scan, stok keluar, dan audit inventaris gudang.</p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="/dashboard" class="btn btn-outline-light fw-bold px-3 py-2" style="border-radius:10px; font-size:13px; border-color:rgba(255,255,255,0.2);">
+                        <i class="bi bi-arrow-left me-1"></i> Dashboard
+                    </a>
+                    <a href="{{ route('admin.inventory.incoming') }}" class="btn btn-success fw-bold px-3 py-2" style="border-radius:10px; font-size:13px;">
+                        <i class="bi bi-box-arrow-in-down me-1"></i> Barang Masuk
+                    </a>
+                    <a href="{{ route('admin.inventory.outgoing') }}" class="btn btn-danger fw-bold px-3 py-2" style="border-radius:10px; font-size:13px;">
+                        <i class="bi bi-box-arrow-up me-1"></i> Barang Keluar
+                    </a>
+                    <a href="{{ route('admin.inventory.reports') }}" class="btn btn-dark fw-bold px-3 py-2 border border-secondary" style="border-radius:10px; font-size:13px;">
+                        <i class="bi bi-file-earmark-text me-1 text-info"></i> Reports
+                    </a>
+                </div>
             </div>
         </div>
 

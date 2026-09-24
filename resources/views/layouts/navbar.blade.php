@@ -9,10 +9,10 @@
 <style>
 /* ===== NAVBAR STYLES ===== */
 :root {
-    --primary-color: #667eea;
-    --secondary-color: #764ba2;
-    --navbar-bg: #2c3e50;
-    --navbar-hover: #34495e;
+    --primary-color: #dc2626;
+    --secondary-color: #b91c1c;
+    --navbar-bg: #090D16;
+    --navbar-hover: #0F172A;
     --text-dark: #2d3748;
     --text-light: #718096;
     --border-color: #e2e8f0;
@@ -66,7 +66,7 @@ body {
 .logo-icon {
     width: 42px;
     height: 42px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
     border-radius: 10px;
     display: flex;
     align-items: center;

@@ -41,6 +41,7 @@ use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Admin\ModalPaketController;
 use App\Http\Controllers\PesananOnlineController;
 use App\Http\Controllers\PesananOfflineController;
+use App\Http\Controllers\BerandaController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -169,9 +170,12 @@ Route::get('/admin/logout', [AuthController::class, 'logout'])->name('admin.logo
 // =====================================
 Route::middleware(['admin.auth'])->group(function () {
 
-    // Dashboard
+    // Dashboard Admin CCTV (Unified Console)
     Route::get('/admin/dashboard', fn() => view('dashboard'))->name('admin.dashboard');
-    Route::get('/dashboard', fn() => view('dashboard'))->name('dashboard');
+
+    // Dashboard Toko Print (Beranda Manajemen Print)
+    Route::get('/dashboard', [BerandaController::class, 'index'])->name('dashboard');
+    Route::get('/beranda', [BerandaController::class, 'index'])->name('beranda');
 
     // =====================================
     // STATIC PRODUCTS

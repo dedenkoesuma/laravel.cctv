@@ -286,7 +286,6 @@
                      id="tab-pane-{{ $key }}" 
                      role="tabpanel">
                     
-                    <div class="row g-4">
                         @php
                             $categoryProducts = $staticProducts[$key] ?? collect([]);
                             if ($categoryProducts->isEmpty() && isset($dynamicProducts) && $dynamicProducts->isNotEmpty()) {

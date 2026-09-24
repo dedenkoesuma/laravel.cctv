@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18137062204"></script>
@@ -13,52 +13,111 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-   <!-- Title Dinamis (Default jika tidak diisi) -->
-    <title>@yield('title', 'TechStore - Solusi CCTV & IT Security Terpercaya')</title>
+    
+    <!-- Title Dinamis -->
+    <title>@yield('title', 'TechStore - Solusi Pengadaan & Pemasangan CCTV Profesional')</title>
     
     <!-- Meta Description Dinamis -->
-    <meta name="description" content="@yield('meta_description', 'Pusat penjualan dan jasa instalasi perlengkapan CCTV, Ruijie, dan Access Control dengan harga terbaik.')">
-    
-    <!-- Meta Keywords (Opsional, tapi bagus ditambahkan) -->
-    <meta name="keywords" content="@yield('meta_keywords', 'CCTV, pasang cctv, hikvision, dahua, ruijie, access control')">
+    <meta name="description" content="@yield('meta_description', 'PT. MJA TEKNOLOGI - Layanan pengadaan paket CCTV, WiFi Cam, dan Akses Kontrol bergaransi resmi 2 tahun untuk rumah, kantor, dan industri.')">
+    <meta name="keywords" content="@yield('meta_keywords', 'CCTV, pasang cctv jakarta, paket cctv, hikvision, dahua, ruijie, access control, ezviz, imou, hilook, jasa instalasi cctv')">
     <link rel="icon" href="/storage/gambar/logo-mja.png" type="image/png">
-    <!-- Bootstrap CSS -->
+
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap 5.3 & Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
     <style>
+        :root {
+            --ts-slate-900: #0f172a;
+            --ts-slate-800: #1e293b;
+            --ts-slate-700: #334155;
+            --ts-slate-600: #475569;
+            --ts-slate-500: #64748b;
+            --ts-slate-200: #e2e8f0;
+            --ts-slate-100: #f1f5f9;
+            --ts-slate-50:  #f8fafc;
+            
+            --ts-primary: #dc2626;
+            --ts-primary-dark: #b91c1c;
+            --ts-primary-light: #fef2f2;
+            
+            --ts-green: #059669;
+            --ts-green-dark: #047857;
+            
+            --ts-font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
+            font-family: var(--ts-font);
+            color: var(--ts-slate-800);
+            background-color: #ffffff;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             margin: 0;
             padding: 0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+            color: var(--ts-slate-900);
+            letter-spacing: -0.02em;
         }
 
         main {
             flex: 1;
         }
 
-        /* ===== MODERN NAVBAR ===== */
+        /* ===== TOP CORPORATE BAR ===== */
+        .top-corp-bar {
+            background-color: #0b1120;
+            color: #94a3b8;
+            font-size: 12.5px;
+            padding: 7px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .top-corp-bar a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .top-corp-bar a:hover {
+            color: #ffffff;
+        }
+
+        /* ===== PROFESSIONAL NAVBAR ===== */
         .techstore-navbar {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            background: #ffffff;
+            border-bottom: 1px solid var(--ts-slate-200);
             position: sticky;
             top: 0;
-            z-index: 9999;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
         }
 
         .navbar-container {
-            max-width: 1400px;
+            max-width: 1320px;
             margin: 0 auto;
-            padding: 0 24px;
+            padding: 0 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            height: 70px;
+            height: 74px;
         }
 
         /* Brand Logo */
@@ -66,25 +125,20 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            color: white;
             text-decoration: none;
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
         }
 
         .brand-icon {
-            width: 45px; 
-            height: 45px;
-            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: #ffffff;
+            border: 1px solid var(--ts-slate-200);
             overflow: hidden;
-            padding: 5px;
+            padding: 4px;
         }
 
         .brand-icon img {
@@ -93,31 +147,37 @@
             object-fit: contain;
         }
 
-        .navbar-brand:hover {
-            color: #ff3333;
-            transform: translateY(-2px);
+        .brand-info {
+            display: flex;
+            flex-direction: column;
         }
 
-        .navbar-brand:hover .brand-icon {
-            transform: scale(1.1);
-            box-shadow: 0 8px 30px rgba(255, 0, 0, 0.4);
-        }
-
-        /* Warna Teks Brand Disesuaikan dengan Logo Merah */
         .brand-text {
-            background: linear-gradient(135deg, #f50000 0%, #e2e1ff 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-size: 20px;
             font-weight: 800;
-            filter: drop-shadow(0 2px 4px rgba(255, 0, 0, 0.2));
+            color: var(--ts-slate-900);
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+
+        .brand-text span {
+            color: var(--ts-primary);
+        }
+
+        .brand-subtitle {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            color: var(--ts-slate-500);
+            text-transform: uppercase;
         }
 
         /* Navigation Menu */
         .navbar-menu {
             display: flex;
+            align-items: center;
             list-style: none;
-            gap: 4px;
+            gap: 2px;
             margin: 0;
             padding: 0;
         }
@@ -129,144 +189,160 @@
         .navbar-link {
             display: flex;
             align-items: center;
-            gap: 8px;
-            color: #cbd5e1;
+            gap: 6px;
+            color: var(--ts-slate-700);
             text-decoration: none;
-            padding: 10px 20px;
-            font-size: 15px;
-            font-weight: 500;
-            border-radius: 10px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            transition: all 0.2s ease;
         }
 
-        .navbar-link::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(168, 0, 0, 0.1));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            border-radius: 10px;
-        }
-
-        .navbar-link:hover::before {
-            opacity: 1;
+        .navbar-link i {
+            font-size: 14px;
+            color: var(--ts-slate-500);
+            transition: color 0.2s ease;
         }
 
         .navbar-link:hover {
-            color: white;
-            transform: translateY(-2px);
+            color: var(--ts-slate-900);
+            background-color: var(--ts-slate-100);
+        }
+
+        .navbar-link:hover i {
+            color: var(--ts-primary);
         }
 
         .navbar-link.active {
-            color: white;
-            background: linear-gradient(135deg, rgba(255, 0, 0, 0.15), rgba(168, 0, 0, 0.15));
-            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);
+            color: var(--ts-primary);
+            background-color: var(--ts-primary-light);
+            font-weight: 700;
         }
 
-        .navbar-link svg {
-            width: 18px;
-            height: 18px;
-            transition: transform 0.3s ease;
-        }
-
-        .navbar-link:hover svg {
-            transform: scale(1.1);
+        .navbar-link.active i {
+            color: var(--ts-primary);
         }
 
         .dropdown-arrow {
-            width: 14px;
-            height: 14px;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 10px;
+            transition: transform 0.2s ease;
+            margin-left: 2px;
         }
 
-        .navbar-item.show .dropdown-arrow {
+        .navbar-item.show .dropdown-arrow,
+        .navbar-item:hover .dropdown-arrow {
             transform: rotate(180deg);
         }
 
-        /* Dropdown Menu */
+        /* Professional Dropdown */
         .dropdown-menu-custom {
             position: absolute;
             top: calc(100% + 8px);
             left: 0;
-            background: rgba(30, 41, 59, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            min-width: 260px;
-            border-radius: 16px;
-            padding: 8px;
+            background: #ffffff;
+            min-width: 230px;
+            border-radius: 10px;
+            padding: 6px;
             opacity: 0;
             visibility: hidden;
-            transform: translateY(-10px) scale(0.95);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            z-index: 10000;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(148, 163, 184, 0.1);
+            transform: translateY(-6px);
+            transition: all 0.2s ease;
+            z-index: 1000;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+            border: 1px solid var(--ts-slate-200);
             pointer-events: none;
-        }
-
-        .navbar-item.show .dropdown-menu-custom {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0) scale(1);
-            pointer-events: auto;
         }
 
         @media (min-width: 993px) {
             .navbar-item:hover .dropdown-menu-custom {
                 opacity: 1;
                 visibility: visible;
-                transform: translateY(0) scale(1);
+                transform: translateY(0);
                 pointer-events: auto;
             }
-            .navbar-item:hover .dropdown-arrow {
-                transform: rotate(180deg);
-            }
         }
 
-        .dropdown-item {
+        .navbar-item.show .dropdown-menu-custom {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .dropdown-item-custom {
             display: flex;
             align-items: center;
-            gap: 12px;
-            color: #e2e8f0;
-            padding: 12px 16px;
+            justify-content: space-between;
+            padding: 9px 12px;
+            color: var(--ts-slate-700);
             text-decoration: none;
-            font-size: 14px;
+            font-size: 13.5px;
             font-weight: 500;
-            border-radius: 10px;
-            transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
+            border-radius: 6px;
+            transition: all 0.15s ease;
         }
 
-        .dropdown-item:hover {
-            background: rgba(255, 0, 0, 0.15);
-            color: white;
-            transform: translateX(4px);
+        .dropdown-item-custom:hover {
+            background-color: var(--ts-slate-100);
+            color: var(--ts-primary);
+        }
+
+        .dropdown-item-custom i {
+            font-size: 11px;
+            opacity: 0.4;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .dropdown-item-custom:hover i {
+            opacity: 1;
+            transform: translateX(2px);
+        }
+
+        /* Navbar CTA Button */
+        .nav-btn-wa {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--ts-primary);
+            color: #ffffff;
             text-decoration: none;
+            padding: 10px 18px;
+            font-size: 13.5px;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.2s ease;
         }
 
-        /* Mobile Menu Toggle */
+        .nav-btn-wa:hover {
+            color: #ffffff;
+            background-color: var(--ts-primary-dark);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+        }
+
+        /* Mobile Menu Toggle Button */
         .mobile-menu-toggle {
             display: none;
-            background: rgba(255, 0, 0, 0.1);
-            border: none;
-            border-radius: 10px;
-            color: white;
+            background: #ffffff;
+            border: 1px solid var(--ts-slate-200);
+            color: var(--ts-slate-800);
+            border-radius: 6px;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
             cursor: pointer;
-            padding: 10px;
-            transition: all 0.3s ease;
         }
 
-        /* Responsive Mobile */
         @media (max-width: 992px) {
             .mobile-menu-toggle {
                 display: flex;
-                align-items: center;
-                justify-content: center;
+            }
+
+            .navbar-container {
+                height: 66px;
+                padding: 0 16px;
             }
 
             .navbar-menu {
@@ -274,69 +350,131 @@
                 top: 100%;
                 left: 0;
                 right: 0;
-                background: rgba(15, 23, 42, 0.98);
-                backdrop-filter: blur(20px);
+                background: #ffffff;
                 flex-direction: column;
-                gap: 0;
+                align-items: stretch;
+                padding: 14px 16px;
+                gap: 2px;
                 display: none;
-                padding: 16px;
-                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-                border-bottom-left-radius: 16px;
-                border-bottom-right-radius: 16px;
+                border-bottom: 1px solid var(--ts-slate-200);
+                box-shadow: 0 16px 24px rgba(0, 0, 0, 0.08);
             }
 
             .navbar-menu.show {
                 display: flex;
             }
 
+            .navbar-link {
+                padding: 11px 14px;
+                font-size: 14.5px;
+                justify-content: space-between;
+            }
+
             .dropdown-menu-custom {
                 position: static;
-                transform: none;
+                transform: none !important;
                 box-shadow: none;
-                background: rgba(30, 41, 59, 0.5);
-                margin-top: 8px;
-                margin-left: 16px;
+                background: var(--ts-slate-50);
+                margin: 4px 0 6px 12px;
                 max-height: 0;
                 padding: 0;
                 overflow: hidden;
-                transition: all 0.3s ease;
+                transition: max-height 0.25s ease;
+                border: 1px solid var(--ts-slate-200);
             }
 
             .navbar-item.show .dropdown-menu-custom {
-                max-height: 500px;
-                padding: 8px;
+                max-height: 400px;
+                padding: 6px;
+            }
+
+            .nav-btn-wa-desktop {
+                display: none;
             }
         }
 
-        html {
-            scroll-behavior: smooth;
+        /* ===== FLOATING WHATSAPP BUTTON (BOTTOM LEFT) ===== */
+        .floating-wa-btn {
+            position: fixed;
+            bottom: 24px;
+            left: 24px;
+            z-index: 998;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: #25d366;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 10px 18px;
+            border-radius: 9999px;
+            font-size: 13.5px;
+            font-weight: 700;
+            box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35);
+            transition: all 0.25s ease;
         }
 
-        /* ===== MODERN FOOTER ===== */
+        .floating-wa-btn i {
+            font-size: 18px;
+        }
+
+        .floating-wa-btn:hover {
+            color: #ffffff;
+            background-color: #20ba5a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+        }
+
+        @media (max-width: 576px) {
+            .floating-wa-btn {
+                padding: 11px;
+                width: 44px;
+                height: 44px;
+                justify-content: center;
+                border-radius: 50%;
+                bottom: 20px;
+                left: 16px;
+            }
+            .floating-wa-btn .wa-text {
+                display: none;
+            }
+        }
+
+        /* ===== CORPORATE FOOTER ===== */
         .techstore-footer {
-            background: rgba(15, 23, 42, 0.95);
-            border-top: 1px solid rgba(148, 163, 184, 0.1);
-            padding: 60px 0 20px 0;
+            background-color: #0b1120;
+            color: #94a3b8;
+            padding-top: 60px;
+            padding-bottom: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
             margin-top: auto;
         }
 
         .footer-container {
-            max-width: 1400px;
+            max-width: 1320px;
             margin: 0 auto;
-            padding: 0 24px;
+            padding: 0 20px;
         }
 
         .footer-heading {
-            color: #f8fafc;
-            font-size: 1.1rem;
+            color: #ffffff;
+            font-size: 14.5px;
             font-weight: 700;
-            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 18px;
         }
 
-        .footer-text {
-            color: #cbd5e1;
-            line-height: 1.8;
-            font-size: 0.95rem;
+        .footer-desc {
+            font-size: 13.5px;
+            line-height: 1.7;
+            color: #94a3b8;
+            margin-bottom: 18px;
+        }
+
+        .footer-corp-meta {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.6;
         }
 
         .footer-links {
@@ -346,279 +484,385 @@
         }
 
         .footer-links li {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .footer-links a {
-            color: #cbd5e1;
+            color: #94a3b8;
             text-decoration: none;
-            transition: all 0.3s ease;
+            font-size: 13.5px;
+            transition: color 0.2s ease;
             display: inline-flex;
             align-items: center;
-            font-size: 0.95rem;
+            gap: 6px;
         }
 
         .footer-links a:hover {
-            color: #ff3333;
-            transform: translateX(4px);
+            color: #ffffff;
+        }
+
+        .footer-contact-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        .footer-contact-item i {
+            color: #ef4444;
+            margin-top: 3px;
+            flex-shrink: 0;
         }
 
         .footer-divider {
-            border-color: rgba(148, 163, 184, 0.2);
-            margin: 30px 0 20px 0;
+            border-color: rgba(255, 255, 255, 0.08);
+            margin: 36px 0 20px;
         }
 
-        /* Back to Top Button */
+        .footer-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            font-size: 12.5px;
+            color: #64748b;
+        }
+
         .btn-back-to-top {
-            background: #dc2626;
-            color: white;
-            border: none;
+            width: 36px;
+            height: 36px;
             border-radius: 6px;
-            width: 40px;
-            height: 40px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+            transition: all 0.2s ease;
         }
 
         .btn-back-to-top:hover {
-            background: #ef4444;
-            transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.5);
-            color: white;
+            background-color: var(--ts-primary);
+            border-color: var(--ts-primary);
+            color: #ffffff;
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
         }
     </style>
 </head>
 <body>
-    <!-- Modern MJA Tech Navbar -->
+    <!-- Top Corporate Bar -->
+    <div class="top-corp-bar d-none d-md-block">
+        <div class="container d-flex justify-content-between align-items-center" style="max-width: 1320px;">
+            <div class="d-flex align-items-center gap-4">
+                <span><i class="bi bi-shield-check text-danger me-1"></i> PT. MJA TEKNOLOGI • Solusi CCTV & Keamanan Terpercaya</span>
+                <span><i class="bi bi-clock me-1"></i> Jam Operasional: Senin - Sabtu (08.30 - 17.30 WIB)</span>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <a href="mailto:techstorecctv@gmail.com"><i class="bi bi-envelope me-1"></i> techstorecctv@gmail.com</a>
+                <span class="text-secondary">|</span>
+                <a href="https://wa.me/62881025756671" target="_blank"><i class="bi bi-whatsapp text-success me-1"></i> Hotline: +62 881-0257-56671</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Professional White TechStore Navbar -->
     <nav class="techstore-navbar">
         <div class="navbar-container">
+            <!-- Brand Logo -->
             <a href="{{ url('/') }}" class="navbar-brand">
                 <div class="brand-icon">
-                    <img src="{{ asset('storage/gambar/logo-mja.png') }}" alt="MJA Tech Logo">
+                    <img src="{{ asset('storage/gambar/logo-mja.png') }}" 
+                         alt="MJA Tech Logo" 
+                         onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23dc2626\'%3E%3Cpath d=\'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5\'/%3E%3C/svg%3E';">
                 </div>
-                <span class="brand-text">Tech Store</span>
+                <div class="brand-info">
+                    <span class="brand-text">Tech<span>Store</span></span>
+                    <span class="brand-subtitle">PT. MJA TEKNOLOGI</span>
+                </div>
             </a>
 
-            <button class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="Toggle menu">
-                <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
-                </svg>
+            <!-- Mobile Menu Toggle Button -->
+            <button class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="Buka Menu Navigasi">
+                <i class="bi bi-list"></i>
             </button>
 
+            <!-- Navigation Links -->
             <ul class="navbar-menu" id="mainMenu">
                 <li class="navbar-item">
-                    <a href="{{ url('/') }}" class="navbar-link">
-                        <svg fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
-                        </svg>
-                        Home
+                    <a href="{{ url('/') }}" class="navbar-link {{ request()->is('home') || request()->is('/') ? 'active' : '' }}">
+                        <i class="bi bi-house"></i>
+                        <span>Beranda</span>
                     </a>
                 </li>
                 
+                <!-- Dropdown: Paket CCTV -->
                 <li class="navbar-item dropdown-parent">
-                    <a href="#" class="navbar-link dropdown-trigger">
-                        <svg fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
-                        </svg>
-                        Produk Paket
-                        <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                        </svg>
+                    <a href="#" class="navbar-link dropdown-trigger {{ request()->is('products/*') ? 'active' : '' }}">
+                        <i class="bi bi-camera-video"></i>
+                        <span>Paket CCTV</span>
+                        <i class="bi bi-chevron-down dropdown-arrow"></i>
                     </a>
                     <div class="dropdown-menu-custom">
-                        <a href="{{ url('/products/hikvision') }}" class="dropdown-item">Hikvision</a>
-                        <a href="{{ url('/products/dahua') }}" class="dropdown-item">Dahua</a>
-                        <a href="{{ url('/products/hilook') }}" class="dropdown-item">HiLook</a>
-                        <a href="{{ url('/products/unv') }}" class="dropdown-item">UNV</a>
-                        <a href="{{ url('/products/hiview') }}" class="dropdown-item">HiView</a>
+                        <a href="{{ url('/products/hikvision') }}" class="dropdown-item-custom">
+                            <span>Hikvision</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="{{ url('/products/dahua') }}" class="dropdown-item-custom">
+                            <span>Dahua</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="{{ url('/products/hilook') }}" class="dropdown-item-custom">
+                            <span>HiLook</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="{{ url('/products/unv') }}" class="dropdown-item-custom">
+                            <span>UNV (Uniview)</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="{{ url('/products/hiview') }}" class="dropdown-item-custom">
+                            <span>HiView</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
                     </div>
                 </li>
 
+                <!-- WiFi Cam -->
                 <li class="navbar-item">
-                    <a href="{{ url('/access-control') }}" class="navbar-link">
-                        <svg fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                        </svg>
-                        Akses Kontrol
+                    <a href="{{ url('/wifi-cam') }}" class="navbar-link {{ request()->is('wifi-cam*') ? 'active' : '' }}">
+                        <i class="bi bi-broadcast"></i>
+                        <span>WiFi Camera</span>
                     </a>
                 </li>
 
+                <!-- Akses Kontrol -->
                 <li class="navbar-item">
-                    <a href="{{ url('/wifi-cam') }}" class="navbar-link">
-                        <svg fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
-                        </svg>
-                        WiFi Cam
+                    <a href="{{ url('/access-control') }}" class="navbar-link {{ request()->is('access-control*') ? 'active' : '' }}">
+                        <i class="bi bi-fingerprint"></i>
+                        <span>Akses Kontrol</span>
                     </a>
                 </li>
 
+                <!-- Dropdown: Networking -->
                 <li class="navbar-item dropdown-parent">
                     <a href="#" class="navbar-link dropdown-trigger">
-                        <svg fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
-                        </svg>
-                        Produk Networking
-                        <svg class="dropdown-arrow" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                        </svg>
+                        <i class="bi bi-hdd-network"></i>
+                        <span>Networking</span>
+                        <i class="bi bi-chevron-down dropdown-arrow"></i>
                     </a>
                     <div class="dropdown-menu-custom">
-                        <a href="{{ url('/products/ruijie') }}" class="dropdown-item">RUIJIE/REYEE</a>
-                        <a href="{{ url('/products/foreage') }}" class="dropdown-item">FOREAGES</a>
+                        <a href="{{ url('/products/ruijie') }}" class="dropdown-item-custom">
+                            <span>RUIJIE / REYEE</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                        <a href="{{ url('/products/foreage') }}" class="dropdown-item-custom">
+                            <span>FOREAGES</span>
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
                     </div>
                 </li>
 
+                <!-- Tentang Kami -->
                 <li class="navbar-item">
-                    <a href="{{ url('/about') }}" class="navbar-link">
-                        <svg fill="currentColor" viewBox="0 0 20 20">
-                           <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
-                        </svg>
-                        Tentang Kami
+                    <a href="{{ url('/about') }}" class="navbar-link {{ request()->is('about') || request()->is('tentang-kami') ? 'active' : '' }}">
+                        <i class="bi bi-building"></i>
+                        <span>Tentang Kami</span>
+                    </a>
+                </li>
+
+                <!-- Kontak -->
+                <li class="navbar-item">
+                    <a href="{{ url('/contact') }}" class="navbar-link {{ request()->is('contact') ? 'active' : '' }}">
+                        <i class="bi bi-headset"></i>
+                        <span>Kontak</span>
                     </a>
                 </li>
             </ul>
+
+            <!-- Navbar Quick Action: WhatsApp Button -->
+            <div class="navbar-cta-group">
+                <a href="https://wa.me/62881025756671?text=Halo%20TechStore%2C%20saya%20ingin%20konsultasi%20pemasangan%20CCTV" 
+                   target="_blank" 
+                   class="nav-btn-wa nav-btn-wa-desktop">
+                    <i class="bi bi-whatsapp"></i>
+                    <span>Konsultasi & Survey</span>
+                </a>
+            </div>
         </div>
     </nav>
 
-    <!-- Main Content -->
+    <!-- Main Content Slot -->
     <main>
         @yield('content')
     </main>
 
-    <!-- Modern Footer -->
+    <!-- Floating WhatsApp Action (Bottom Left) -->
+    <a href="https://wa.me/62881025756671?text=Halo%20TechStore%2C%20saya%20tertarik%20dengan%20produk%20dan%20jasa%20CCTV" 
+       target="_blank" 
+       class="floating-wa-btn" 
+       title="Chat WhatsApp Resmi TechStore">
+        <i class="bi bi-whatsapp"></i>
+        <span class="wa-text">Chat Teknisi WA</span>
+    </a>
+
+    <!-- Corporate Footer -->
     <footer class="techstore-footer">
         <div class="footer-container">
-            <div class="row gy-4 w-100 m-0">
-                <!-- Kolom 1: Logo & Nama Perusahaan -->
-                <div class="col-lg-4 col-md-6 ps-0">
-                    <a href="{{ url('/') }}" class="navbar-brand d-inline-flex align-items-center mb-3">
-                        <div class="brand-icon me-2">
-                            <img src="{{ asset('storage/gambar/logo-mja.png') }}" alt="MJA Tech Logo">
+            <div class="row g-4 mb-4">
+                <!-- Col 1: Profile & Company Legal -->
+                <div class="col-lg-4 col-md-6">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="brand-icon bg-white p-1" style="width: 38px; height: 38px; border-radius: 6px;">
+                            <img src="{{ asset('storage/gambar/logo-mja.png') }}" 
+                                 alt="MJA Tech Logo" 
+                                 style="width: 100%; height: 100%; object-fit: contain;"
+                                 onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23dc2626\'%3E%3Cpath d=\'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5\'/%3E%3C/svg%3E';">
                         </div>
-                        <div class="d-flex flex-column">
-                            <span class="brand-text fs-4 mb-0" style="line-height: 1;">Tech Store</span>
-                            <small class="fw-bold mt-1" style="color: #cbd5e1; font-size: 0.75rem; letter-spacing: 0.5px;">PT. MJA TEKNOLOGI</small>
+                        <div>
+                            <span class="text-white fw-bold fs-5">TechStore</span>
+                            <div class="text-secondary" style="font-size: 11px; letter-spacing: 0.5px;">PT. MJA TEKNOLOGI</div>
                         </div>
-                    </a>
-                </div>
-
-                <!-- Kolom 2: Alamat -->
-                <div class="col-lg-3 col-md-6">
-                    <h5 class="footer-heading">Head Office</h5>
-                    <p class="footer-text mb-0">
-                        Jl. Kalibaru Timur, RT.3/RW.2, Bungur,<br>
-                        Kec. Senen, Kota Jakarta Pusat,<br>
-                        Daerah Khusus Ibukota Jakarta 10460
+                    </div>
+                    <p class="footer-desc">
+                        Perusahaan penyedia pengadaan perlengkapan dan jasa instalasi kamera CCTV, WiFi Cam, Mesin Akses Kontrol, dan solusi IT Network bergaransi resmi untuk perumahan, instansi, dan industri.
                     </p>
+                    <div class="footer-corp-meta">
+                        <div><i class="bi bi-check-circle-fill text-danger me-1"></i> Distributor & Kontraktor Resmi CCTV</div>
+                        <div><i class="bi bi-check-circle-fill text-danger me-1"></i> Garansi Resmi Unit & Jasa Pasang 2 Tahun</div>
+                    </div>
                 </div>
 
-                <!-- Kolom 3: Navigasi Menu -->
+                <!-- Col 2: Alamat Head Office -->
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="footer-heading">Kantor Operasional</h5>
+                    <div class="footer-contact-item">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <span>
+                            Jl. Kalibaru Timur, RT.3/RW.2, Bungur,<br>
+                            Kec. Senen, Kota Jakarta Pusat,<br>
+                            DKI Jakarta 10460
+                        </span>
+                    </div>
+                    <div class="footer-contact-item">
+                        <i class="bi bi-clock-fill"></i>
+                        <span>
+                            Senin - Sabtu: 08.30 - 17.30 WIB<br>
+                            <span class="text-success fw-semibold">Layanan Konsultasi Online 24 Jam</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Col 3: Link Navigasi -->
                 <div class="col-lg-2 col-md-6">
+                    <h5 class="footer-heading">Navigasi</h5>
                     <ul class="footer-links">
-                           <li><a href="{{ url('/') }}">Beranda</a></li>
-                        <li><a href="{{ url('/products/hikvision') }}">Kamera CCTV</a></li>
-                        <li><a href="{{ url('/access-control') }}">Akses Kontrol</a></li>
-                        <li><a href="{{ 'https://wa.me/62881025756671' }}">Kontak</a></li>
-                        <li><a href="{{ url('/about')}}">Tentang Kami</a></li>
+                        <li><a href="{{ url('/') }}"><i class="bi bi-chevron-right text-secondary small"></i> Beranda</a></li>
+                        <li><a href="{{ url('/products/hikvision') }}"><i class="bi bi-chevron-right text-secondary small"></i> Paket CCTV</a></li>
+                        <li><a href="{{ url('/wifi-cam') }}"><i class="bi bi-chevron-right text-secondary small"></i> WiFi Camera</a></li>
+                        <li><a href="{{ url('/access-control') }}"><i class="bi bi-chevron-right text-secondary small"></i> Akses Kontrol</a></li>
+                        <li><a href="{{ url('/products/ruijie') }}"><i class="bi bi-chevron-right text-secondary small"></i> Produk Ruijie</a></li>
+                        <li><a href="{{ url('/about') }}"><i class="bi bi-chevron-right text-secondary small"></i> Tentang Kami</a></li>
                     </ul>
                 </div>
 
-                <!-- Kolom 4: Kontak & Sosmed -->
-                <div class="col-lg-3 col-md-6 pe-0">
+                <!-- Col 4: Layanan Pelanggan -->
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="footer-heading">Kontak & Layanan</h5>
                     <ul class="footer-links">
                         <li>
-                            <a href="#"><i class="bi bi-instagram me-3 fs-5"></i> Instagram</a>
+                            <a href="https://wa.me/62881025756671" target="_blank">
+                                <i class="bi bi-whatsapp text-success"></i> +62 881-0257-56671
+                            </a>
                         </li>
                         <li>
-                            <a href="mailto:techstorecctv@gmail.com"><i class="bi bi-envelope me-3 fs-5"></i> Email</a>
+                            <a href="mailto:techstorecctv@gmail.com">
+                                <i class="bi bi-envelope"></i> techstorecctv@gmail.com
+                            </a>
                         </li>
                         <li>
-                            <a href="https://wa.me/62881025756671"><i class="bi bi-telephone me-3 fs-5"></i> Telfon</a>
+                            <a href="tel:0881025756671">
+                                <i class="bi bi-telephone"></i> Layanan Konsultasi & Survey
+                            </a>
                         </li>
                     </ul>
+                    <div class="mt-3 pt-2">
+                        <span class="badge bg-secondary bg-opacity-25 text-light px-3 py-2 rounded-2">
+                            <i class="bi bi-patch-check-fill text-danger me-1"></i> Authorized System Integrator
+                        </span>
+                    </div>
                 </div>
             </div>
 
             <hr class="footer-divider">
 
-            <!-- Baris Copyright & Tombol Back to Top -->
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
-                <p class="footer-text mb-0 text-center text-md-start">
-                    &copy; 2021 MJA Tech. All rights reserved. 
-                </p>
-                <button onclick="scrollToTop()" class="btn-back-to-top mt-3 mt-md-0" aria-label="Back to top">
-                    <i class="bi bi-arrow-up fs-5"></i>
-                </button>
+            <!-- Bottom Row -->
+            <div class="footer-bottom">
+                <div>
+                    &copy; {{ date('Y') }} PT. MJA TEKNOLOGI. Hak Cipta Dilindungi Undang-Undang.
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="d-none d-md-inline text-secondary small">Unit 100% Original • Garansi Resmi • Teknisi Berpengalaman</span>
+                    <button onclick="scrollToTop()" class="btn-back-to-top" aria-label="Kembali ke Atas" title="Kembali ke Atas">
+                        <i class="bi bi-arrow-up"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </footer>
 
-    <!-- Bootstrap JS -->
+    <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const DROPDOWN_CLOSE_DELAY = 800; 
-            let closeTimeout = null;
-
             const mobileBtn = document.getElementById('mobileMenuBtn');
             const mainMenu = document.getElementById('mainMenu');
 
-            if (mobileBtn) {
+            if (mobileBtn && mainMenu) {
                 mobileBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     mainMenu.classList.toggle('show');
+                    const icon = mobileBtn.querySelector('i');
+                    if (icon) {
+                        icon.classList.toggle('bi-list');
+                        icon.classList.toggle('bi-x-lg');
+                    }
                 });
             }
 
             const dropdownTriggers = document.querySelectorAll('.dropdown-trigger');
             dropdownTriggers.forEach(function(trigger) {
                 trigger.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    const parent = this.closest('.navbar-item');
-                    document.querySelectorAll('.navbar-item').forEach(function(item) {
-                        if (item !== parent) item.classList.remove('show');
-                    });
-                    parent.classList.toggle('show');
-                });
-            });
-
-            if (window.innerWidth > 992) {
-                const dropdownParents = document.querySelectorAll('.dropdown-parent');
-                dropdownParents.forEach(function(parent) {
-                    parent.addEventListener('mouseenter', function() {
-                        if (closeTimeout) { clearTimeout(closeTimeout); closeTimeout = null; }
+                    if (window.innerWidth <= 992) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const parent = this.closest('.navbar-item');
                         document.querySelectorAll('.navbar-item').forEach(function(item) {
                             if (item !== parent) item.classList.remove('show');
                         });
-                        parent.classList.add('show');
-                    });
-                    parent.addEventListener('mouseleave', function() {
-                        const currentParent = this;
-                        closeTimeout = setTimeout(function() {
-                            currentParent.classList.remove('show');
-                        }, DROPDOWN_CLOSE_DELAY);
-                    });
+                        parent.classList.toggle('show');
+                    }
                 });
-            }
+            });
 
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.navbar-container')) {
-                    if (mainMenu) mainMenu.classList.remove('show');
-                    document.querySelectorAll('.navbar-item').forEach(function(item) {
-                        item.classList.remove('show');
-                    });
-                }
-            });
-
-            window.addEventListener('resize', function() {
-                if (window.innerWidth > 992) {
-                    if (mainMenu) mainMenu.classList.remove('show');
+                    if (mainMenu && mainMenu.classList.contains('show')) {
+                        mainMenu.classList.remove('show');
+                        const icon = mobileBtn ? mobileBtn.querySelector('i') : null;
+                        if (icon) {
+                            icon.classList.add('bi-list');
+                            icon.classList.remove('bi-x-lg');
+                        }
+                    }
                     document.querySelectorAll('.navbar-item').forEach(function(item) {
                         item.classList.remove('show');
                     });
@@ -626,7 +870,6 @@
             });
         });
 
-        // Fungsi untuk tombol Back to Top
         function scrollToTop() {
             window.scrollTo({
                 top: 0,
@@ -634,6 +877,7 @@
             });
         }
     </script>
+
     @yield('scripts')
 </body>
 </html>

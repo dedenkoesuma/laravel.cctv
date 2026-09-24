@@ -3,16 +3,16 @@
 @section('title', 'Finance Staff - Input Penjualan, Piutang & Pengeluaran')
 @section('content')
 <style>
-.fin-header { background: linear-gradient(135deg, #1e3a5f 0%, #2563eb 100%); color: white; padding: 28px 24px; border-radius: 14px; margin-bottom: 24px; }
+.fin-header { background: #090D16; border-bottom: 1px solid rgba(255, 255, 255, 0.08); color: white; padding: 32px 28px; border-radius: 16px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); }
 .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
-.sum-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.07); border-left: 4px solid #e5e7eb; transition: transform 0.2s; }
-.sum-card:hover { transform: translateY(-2px); }
-.sum-card.pengeluaran-pending { border-left-color: #ef4444; }
-.sum-card.penjualan-lunas { border-left-color: #10b981; }
-.sum-card.pengeluaran     { border-left-color: #8b5cf6; }
+.sum-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; border-top: 4px solid #0f172a; transition: all 0.2s ease; }
+.sum-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,0.06); }
+.sum-card.pengeluaran-pending { border-top-color: #ef4444; }
+.sum-card.penjualan-lunas { border-top-color: #10b981; }
+.sum-card.pengeluaran     { border-top-color: #8b5cf6; }
 .sum-icon { width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:12px; }
-.sum-value { font-size: 1.4rem; font-weight: 800; color: #111827; }
-.sum-label { font-size: 0.78rem; color: #6b7280; margin-top: 2px; }
+.sum-value { font-size: 1.5rem; font-weight: 800; color: #0f172a; letter-spacing: -0.02em; }
+.sum-label { font-size: 0.78rem; color: #64748b; margin-top: 2px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 .sum-sublabel { font-size: 0.72rem; color: #9ca3af; margin-top: 2px; }
 /* TABS */
 .fin-tabs { display:flex;gap:4px;background:white;border-radius:12px;padding:6px;box-shadow:0 2px 10px rgba(0,0,0,0.07);margin-bottom:18px;flex-wrap:wrap; }
@@ -96,14 +96,30 @@
     <div class="fin-header">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
-                <h1 class="fs-3 fw-bold mb-1">📋 Finance Staff</h1>
-                <p class="mb-0 opacity-75">Kelola penjualan, piutang & pengeluaran — data terhubung ke laporan bos</p>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge" style="background: rgba(220,38,38,0.2); color:#fca5a5; border:1px solid rgba(220,38,38,0.3); font-size:11px; font-weight:700;">
+                        OPERATIONAL FINANCIAL DESK
+                    </span>
+                </div>
+                <h1 class="fs-3 fw-bold mb-1"><i class="bi bi-cash-coin me-2 text-danger"></i>Finance Staff Console</h1>
+                <p class="mb-0 text-white-50 small">Kelola pencatatan penjualan, monitoring piutang jatuh tempo & pengeluaran operasional.</p>
             </div>
             <div class="d-flex gap-2 flex-wrap justify-content-center">
-                <button class="btn fw-bold" style="background:#10b981;color:white;" onclick="bukaModalLaporan()">📊 Laporan</button>
-                <button class="btn fw-bold" style="background:#3b82f6;color:white;" onclick="bukaModal('penjualan')">🛍️ Input Penjualan</button>
-                <button class="btn fw-bold" style="background:#f59e0b;color:white;" onclick="bukaModal('piutang')">💰 Input Piutang</button>
-                <button class="btn btn-danger fw-bold" onclick="bukaModal('pengeluaran')">💸 Input Pengeluaran</button>
+                <a href="/dashboard" class="btn btn-outline-light fw-bold px-3 py-2" style="border-radius:10px; font-size:13px; border-color:rgba(255,255,255,0.2);">
+                    <i class="bi bi-arrow-left me-1"></i> Dashboard
+                </a>
+                <button class="btn fw-bold px-3 py-2" style="background:#10b981;color:white;border-radius:10px;font-size:13px;" onclick="bukaModalLaporan()">
+                    <i class="bi bi-bar-chart-fill me-1"></i> Laporan
+                </button>
+                <button class="btn btn-danger fw-bold px-3 py-2 shadow-sm" style="border-radius:10px;font-size:13px;" onclick="bukaModal('penjualan')">
+                    <i class="bi bi-bag-plus-fill me-1"></i> Input Penjualan
+                </button>
+                <button class="btn fw-bold px-3 py-2" style="background:#f59e0b;color:white;border-radius:10px;font-size:13px;" onclick="bukaModal('piutang')">
+                    <i class="bi bi-wallet2 me-1"></i> Input Piutang
+                </button>
+                <button class="btn btn-dark fw-bold px-3 py-2 border border-secondary" style="border-radius:10px;font-size:13px;" onclick="bukaModal('pengeluaran')">
+                    <i class="bi bi-dash-circle me-1 text-danger"></i> Input Pengeluaran
+                </button>
             </div>
         </div>
     </div>

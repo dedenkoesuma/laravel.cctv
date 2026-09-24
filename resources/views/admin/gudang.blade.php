@@ -7,30 +7,34 @@
 
 <style>
 .gudang-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #090D16;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     color: white;
-    padding: 40px 30px 80px;
-    border-radius: 20px;
+    padding: 35px 30px 75px;
+    border-radius: 16px;
     margin-bottom: 0;
     text-align: left;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
-.summary-section { position: relative; margin-top: -50px; z-index: 10; padding: 0 20px; }
-.summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1200px; margin: 0 auto 30px; }
-.summary-card { background: white; border-radius: 16px; padding: 24px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); text-align: center; border-bottom: 4px solid #667eea; transition: transform 0.3s ease; }
-.summary-card:hover { transform: translateY(-5px); }
-.summary-card.danger  { border-bottom-color: #ef4444; }
-.summary-card.warning { border-bottom-color: #f59e0b; }
-.summary-card.success { border-bottom-color: #10b981; }
-.summary-value { font-size: 2.2rem; font-weight: 800; color: #1f2937; line-height: 1.2; }
-.summary-label { font-size: 0.85rem; color: #6b7280; margin-top: 4px; font-weight: 600; text-transform: uppercase; }
-.toolbar-card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 24px; border: 1px solid #f1f5f9; }
-.search-input-group { display: flex; align-items: center; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 4px 16px; transition: all 0.3s ease; }
-.search-input-group:focus-within { border-color: #667eea; background: white; box-shadow: 0 0 0 4px rgba(102,126,234,0.1); }
-.toolbar-select { border: 2px solid #e2e8f0; border-radius: 12px; padding: 10px 15px; outline: none; font-weight: 600; color: #475569; }
-.table-card { background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden; border: 1px solid #f1f5f9; }
-.table thead th { background: #f8fafc; font-size: 0.75rem; font-weight: 700; color: #64748b; text-transform: uppercase; padding: 15px 20px; border: none; }
-.table tbody td { padding: 14px 20px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
-.stok-badge { padding: 6px 14px; border-radius: 50px; font-size: 0.8rem; font-weight: 700; }
+.summary-section { position: relative; margin-top: -45px; z-index: 10; padding: 0 10px; }
+.summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; max-width: 1200px; margin: 0 auto 24px; }
+.summary-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.04); text-align: center; border: 1px solid #e2e8f0; border-top: 4px solid #0f172a; transition: all 0.25s ease; }
+.summary-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,0.07); }
+.summary-card.danger  { border-top-color: #ef4444; }
+.summary-card.warning { border-top-color: #f59e0b; }
+.summary-card.success { border-top-color: #10b981; }
+.summary-value { font-size: 2rem; font-weight: 800; color: #0f172a; line-height: 1.2; letter-spacing: -0.02em; }
+.summary-label { font-size: 0.78rem; color: #64748b; margin-top: 4px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.toolbar-card { background: white; border-radius: 14px; padding: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); margin-bottom: 24px; border: 1px solid #e2e8f0; }
+.search-input-group { display: flex; align-items: center; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 4px 14px; transition: all 0.2s ease; }
+.search-input-group:focus-within { border-color: #dc2626; background: white; box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
+.toolbar-select { border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 9px 14px; outline: none; font-weight: 600; color: #334155; font-size: 13.5px; }
+.toolbar-select:focus { border-color: #dc2626; }
+.table-card { background: white; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); overflow: hidden; border: 1px solid #e2e8f0; }
+.table thead th { background: #f8fafc; font-size: 0.72rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 18px; border-bottom: 1px solid #e2e8f0; }
+.table tbody td { padding: 14px 18px; vertical-align: middle; border-bottom: 1px solid #f1f5f9; font-size: 13.5px; }
+.stok-badge { padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
 .stok-badge.habis   { background: #fee2e2; color: #dc2626; }
 .stok-badge.menipis { background: #fef3c7; color: #d97706; }
 .stok-badge.aman    { background: #d1fae5; color: #059669; }
@@ -45,29 +49,37 @@
 .harga-input-wrap { position: relative; }
 .harga-input-wrap .rp-prefix { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #888; font-size: 12px; pointer-events: none; }
 .harga-input-wrap input { padding-left: 30px; }
-.modal-content { border-radius: 20px; border: none; }
-.form-control, .form-select { border-radius: 10px; padding: 10px 12px; border: 2px solid #e2e8f0; }
-.form-control:focus { border-color: #667eea; box-shadow: none; }
+.modal-content { border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
+.form-control, .form-select { border-radius: 8px; padding: 9px 12px; border: 1.5px solid #e2e8f0; font-size: 13.5px; }
+.form-control:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220,38,38,0.1); }
 
 @media (max-width: 768px) { .summary-cards { grid-template-columns: repeat(2, 1fr); } }
 </style>
 
 <div class="gudang-header">
-    <div class="container-fluid">
-        <div class="d-flex justify-content-between align-items-center">
+    <div class="container-fluid p-0">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
-                <h1 class="fw-bold mb-1"><i class="bi bi-box-seam me-2"></i>Manajemen Gudang</h1>
-                <p class="mb-0 opacity-75">Kontrol inventaris, stok masuk, dan integrasi Sales Order PT Trac.</p>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge" style="background: rgba(220,38,38,0.2); color:#fca5a5; border:1px solid rgba(220,38,38,0.3); font-size:11px; font-weight:700;">
+                        INVENTORY & STOCK CONTROL
+                    </span>
+                </div>
+                <h1 class="fw-bold mb-1 fs-3"><i class="bi bi-box-seam me-2 text-danger"></i>Manajemen Gudang</h1>
+                <p class="mb-0 text-white-50 small">Kontrol inventaris, stok masuk, margin keuntungan, dan integrasi Sales Order PT Trac.</p>
             </div>
-            <div class="d-flex gap-2">
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="/dashboard" class="btn btn-outline-light fw-bold px-3 py-2" style="border-radius:10px; font-size:13px; border-color:rgba(255,255,255,0.2);">
+                    <i class="bi bi-arrow-left me-1"></i> Dashboard
+                </a>
                 @canany(['view_sales_orders', 'manage_sales_orders'])
-                <a href="{{ route('admin.sales-orders.index') }}" class="btn btn-light text-primary fw-bold px-4 shadow-sm" style="border-radius:12px;">
-                    <i class="bi bi-file-earmark-check me-2"></i>Sales Order
+                <a href="{{ route('admin.sales-orders.index') }}" class="btn btn-light text-dark fw-bold px-3 py-2 shadow-sm" style="border-radius:10px; font-size:13px;">
+                    <i class="bi bi-file-earmark-check me-1 text-danger"></i> Sales Order
                 </a>
                 @endcanany
                 @canany(['create_inventory', 'manage_inventory'])
-                <button class="btn btn-warning fw-bold px-4 shadow-sm" style="border-radius:12px;" data-bs-toggle="modal" data-bs-target="#modalBarangMasuk">
-                    <i class="bi bi-plus-circle me-2"></i>Barang Masuk
+                <button class="btn btn-danger fw-bold px-3 py-2 shadow-sm" style="border-radius:10px; font-size:13px;" data-bs-toggle="modal" data-bs-target="#modalBarangMasuk">
+                    <i class="bi bi-plus-circle me-1"></i> Barang Masuk
                 </button>
                 @endcanany
             </div>

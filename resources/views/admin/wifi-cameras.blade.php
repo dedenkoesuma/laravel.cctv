@@ -5,32 +5,36 @@
 @section('content')
 <style>
 .dashboard-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #090D16;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     color: white;
-    padding: 40px 20px;
-    border-radius: 12px;
-    margin-bottom: 30px;
+    padding: 35px 28px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
 }
 
 .section-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 1.5rem;
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.02em;
 }
 
 .table-card {
     background: white;
-    border-radius: 12px;
+    border-radius: 14px;
     padding: 1.5rem;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
 }
 
 .product-img-thumb {
-    width: 80px;
-    height: 80px;
+    width: 75px;
+    height: 75px;
     object-fit: cover;
     border-radius: 8px;
+    border: 1px solid #e2e8f0;
 }
 
 .action-buttons {
@@ -43,7 +47,7 @@
     font-size: 0.875rem;
 }
 
-/* ===== FORM STYLES (screenshot style) ===== */
+/* ===== FORM STYLES ===== */
 .form-section {
     margin-bottom: 1.25rem;
 }
@@ -69,8 +73,8 @@
 
 .form-section .form-control:focus,
 .form-section .form-select:focus {
-    border-color: #6366f1;
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
     outline: none;
 }
 
@@ -95,8 +99,8 @@
 }
 
 .modal-content {
-    border-radius: 14px;
-    border: none;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
     box-shadow: 0 20px 60px rgba(0,0,0,0.18);
 }
 
@@ -104,13 +108,13 @@
     background: #fff;
     border-bottom: 1px solid #e5e7eb;
     padding: 1.25rem 1.5rem 1rem;
-    border-radius: 14px 14px 0 0;
+    border-radius: 16px 16px 0 0;
 }
 
 .modal-header.form-modal-header .modal-title {
     font-size: 1.1rem;
-    font-weight: 700;
-    color: #111827;
+    font-weight: 800;
+    color: #0f172a;
 }
 
 .modal-body {
@@ -119,9 +123,9 @@
 }
 
 .modal-footer {
-    background: #f9fafb;
-    border-top: 1px solid #e5e7eb;
-    border-radius: 0 0 14px 14px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    border-radius: 0 0 16px 16px;
     padding: 1rem 1.5rem;
 }
 
@@ -151,7 +155,7 @@
     position: absolute;
     top: 4px;
     right: 4px;
-    background: rgba(220, 53, 69, 0.9);
+    background: rgba(220, 38, 38, 0.9);
     color: white;
     border: none;
     border-radius: 50%;
@@ -185,34 +189,37 @@
 @endphp
 
 <div id="dashboardContent">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url('/') }}">
-                <i class="bi bi-shop me-2"></i>TechStore Admin
-            </a>
-            <div class="ms-auto">
-                <a class="nav-link text-white" href="{{ url('/dashboard') }}">
-                    <i class="bi bi-speedometer2 me-1"></i>Dashboard
-                </a>
+    <div class="container py-4">
+        <!-- Executive Header -->
+        <div class="dashboard-header">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div>
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <span class="badge" style="background: rgba(220,38,38,0.2); color:#fca5a5; border:1px solid rgba(220,38,38,0.3); font-size:11px; font-weight:700;">
+                            PRODUCT CATALOG MANAGEMENT
+                        </span>
+                    </div>
+                    <h1 class="fw-bold mb-1 fs-3 text-white"><i class="bi bi-camera-video me-2 text-danger"></i>Manage WiFi Cameras</h1>
+                    <p class="mb-0 text-white-50 small">Kelola katalog kamera nirkabel Ezviz, Imou, Dahua, HiView: tambah spesifikasi, ubah harga, dan upload galeri foto.</p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="/dashboard" class="btn btn-outline-light fw-bold px-3 py-2" style="border-radius:10px; font-size:13px; border-color:rgba(255,255,255,0.2);">
+                        <i class="bi bi-arrow-left me-1"></i> Dashboard
+                    </a>
+                    <a href="/wifi-cameras" target="_blank" class="btn btn-light text-dark fw-bold px-3 py-2" style="border-radius:10px; font-size:13px;">
+                        <i class="bi bi-eye me-1 text-primary"></i> Halaman Publik
+                    </a>
+                    @canany(['create_wifi_cameras', 'manage_wifi_cameras'])
+                    <button class="btn btn-danger fw-bold px-3 py-2 shadow-sm" style="border-radius:10px; font-size:13px;" data-bs-toggle="modal" data-bs-target="#addCameraModal">
+                        <i class="bi bi-plus-circle me-1"></i> Tambah Kamera Baru
+                    </button>
+                    @endcanany
+                </div>
             </div>
         </div>
-    </nav>
 
-    <div class="container py-4">
-        <div class="dashboard-header">
-            <h1 class="dashboard-title">Manage WiFi Camera</h1>
-            <p class="dashboard-subtitle">Kelola produk WiFi Camera: tambah, edit, hapus, dan upload gambar</p>
-        </div>
-
-        <div class="mb-4 d-flex justify-content-between align-items-center">
-            <h2 class="section-title mb-0">Daftar WiFi Camera</h2>
-            
-            {{-- DIBUNGKUS CANANY --}}
-            @canany(['create_wifi_cameras', 'manage_wifi_cameras'])
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCameraModal">
-                <i class="bi bi-plus-circle me-2"></i>Tambah WiFi Camera
-            </button>
-            @endcanany
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <h2 class="section-title mb-0">Daftar Produk WiFi Camera</h2>
         </div>
 
         <div class="table-card mb-4">

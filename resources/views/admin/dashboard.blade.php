@@ -380,12 +380,12 @@
     width: 50px;
     height: 50px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border: none;
+    background: linear-gradient(135deg, #090D16 0%, #0F172A 100%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     color: white;
-    font-size: 22px;
+    font-size: 20px;
     cursor: pointer;
-    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
     transition: all 0.3s ease;
     display: flex;
     align-items: center;
@@ -494,7 +494,7 @@
 .sidebar-logo {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #dc2626, #991b1b);
     border-radius: 10px;
     display: flex;
     align-items: center;
@@ -598,7 +598,7 @@
 
 .dark-stat-icon {
     font-size: 32px;
-    color: #667eea;
+    color: #ef4444;
     margin-bottom: 15px;
 }
 

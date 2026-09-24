@@ -10,139 +10,163 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <style>
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
         }
         .header-section {
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 1.5rem 0;
+            background: #090D16;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 1.25rem 0;
             margin-bottom: 2rem;
+            color: white;
         }
         .card {
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            border: none;
-            border-radius: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e2e8f0;
+            border-radius: 1rem;
             overflow: hidden;
+            background: #ffffff;
         }
         .card-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0f172a;
             color: white;
-            font-weight: 700;
-            padding: 2rem;
-            font-size: 1.5rem;
+            font-weight: 800;
+            padding: 1.5rem 2rem;
+            font-size: 1.25rem;
+            letter-spacing: -0.01em;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
         }
         .form-label {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 0.7rem;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
         }
         .required:after {
             content: " *";
-            color: #e74c3c;
+            color: #dc2626;
         }
-        .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.3);
-            border-width: 2px;
+        .form-control:focus, .form-select:focus {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
         }
-        .form-control, .input-group-text {
-            padding: 0.75rem 1rem;
-            border-radius: 0.75rem;
-            border-width: 2px;
+        .form-control, .input-group-text, .form-select {
+            padding: 0.65rem 1rem;
+            border-radius: 0.5rem;
+            border: 1.5px solid #cbd5e1;
+            font-size: 0.95rem;
         }
         .input-group-text {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-weight: 600;
-            border: none;
+            background: #f1f5f9;
+            color: #475569;
+            font-weight: 700;
+            border: 1.5px solid #cbd5e1;
+            border-right: none;
         }
         .btn-save {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #dc2626;
             border: none;
-            padding: 1rem 2.5rem;
-            font-weight: 600;
+            padding: 0.85rem 2.5rem;
+            font-weight: 700;
             color: white;
-            border-radius: 0.75rem;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
         }
         .btn-save:hover {
-            background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+            background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.35);
+            color: white;
         }
         .btn-cancel {
-            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
-            border: none;
-            padding: 1rem 2.5rem;
-            font-weight: 600;
-            color: white;
-            border-radius: 0.75rem;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
+            background: #ffffff;
+            border: 1.5px solid #cbd5e1;
+            padding: 0.85rem 2rem;
+            font-weight: 700;
+            color: #475569;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s ease;
         }
         .btn-cancel:hover {
-            background: linear-gradient(135deg, #7f8c8d 0%, #6c7a7b 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(127, 140, 141, 0.4);
+            background: #f8fafc;
+            color: #0f172a;
+            border-color: #94a3b8;
         }
         .image-upload-area {
-            border: 3px dashed #667eea;
-            border-radius: 1rem;
-            padding: 3rem;
+            border: 2px dashed #cbd5e1;
+            border-radius: 0.75rem;
+            padding: 2.5rem;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s ease;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+            transition: all 0.2s ease;
+            background: #f8fafc;
+            display: block;
         }
         .image-upload-area:hover {
-            border-color: #764ba2;
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-            transform: scale(1.02);
+            border-color: #dc2626;
+            background: #fef2f2;
         }
         .image-preview {
             max-width: 100%;
-            max-height: 300px;
+            max-height: 260px;
             object-fit: cover;
-            border-radius: 1rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
         }
         .delete-image-btn {
-            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fca5a5;
+            padding: 0.45rem 1.25rem;
             border-radius: 50px;
-            font-weight: 600;
-            transition: all 0.3s ease;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
         }
         .delete-image-btn:hover {
-            background: linear-gradient(135deg, #c0392b 0%, #a93226 100%);
-            transform: scale(1.05);
+            background: #dc2626;
+            color: white;
         }
         textarea.form-control {
-            border-radius: 1rem;
+            border-radius: 0.5rem;
         }
     </style>
 </head>
 <body>
 
-<div class="container-fluid">
+<div class="container-fluid p-0">
     <!-- Header -->
     <div class="header-section">
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h3 class="mb-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-weight: 700;">
-                        <i class="bi bi-pencil-square"></i> Edit Produk
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge" style="background: rgba(220,38,38,0.2); color:#fca5a5; border:1px solid rgba(220,38,38,0.3); font-size:11px; font-weight:700;">
+                        CATALOG EDITOR
+                    </span>
+                    <h3 class="mb-0 text-white fw-bold fs-5">
+                        <i class="bi bi-pencil-square me-2 text-danger"></i>Edit Produk: {{ $product->product_name ?? $product->nama_produk ?? 'Static Product' }}
                     </h3>
                 </div>
                 <div>
-                    <a href="{{ route('admin.static-products.index') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left"></i> Kembali
+                    <a href="{{ route('admin.static-products.index') }}" class="btn btn-outline-light btn-sm fw-bold px-3 py-1.5" style="border-radius:8px; border-color:rgba(255,255,255,0.2);">
+                        <i class="bi bi-arrow-left me-1"></i> Kembali ke Daftar
                     </a>
                 </div>
             </div>
@@ -198,8 +222,8 @@
                         <!-- Upload New Image -->
                         <label for="imageInput" class="image-upload-area">
                             <div id="uploadPlaceholder">
-                                <i class="bi bi-cloud-upload" style="font-size: 3rem; color: #667eea;"></i>
-                                <p class="mb-0 mt-3" style="color: #667eea; font-weight: 600;">Klik untuk upload gambar baru</p>
+                                <i class="bi bi-cloud-upload" style="font-size: 3rem; color: #dc2626;"></i>
+                                <p class="mb-0 mt-3" style="color: #dc2626; font-weight: 600;">Klik untuk upload gambar baru</p>
                                 <small class="text-muted">PNG, JPG, JPEG (Max: 2MB)</small>
                             </div>
                             <div id="newImagePreview" class="d-none">

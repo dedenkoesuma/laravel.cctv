@@ -56,7 +56,8 @@
         }
         
         .form-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #090D16 0%, #0F172A 100%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             color: white;
             padding: 24px 32px;
         }
@@ -122,8 +123,8 @@
         
         .form-control:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #0F172A;
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
             background: white;
         }
         
@@ -243,14 +244,15 @@
         }
         
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #dc2626;
             color: white;
             flex: 1;
         }
         
         .btn-primary:hover:not(:disabled) {
+            background: #b91c1c;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
         }
         
         .btn-primary:disabled {
@@ -316,11 +318,17 @@
 </head>
 <body>
     <div class="form-container">
-        <!-- Back Button -->
-        <a href="/admin/bookkeeping" class="btn-back">
-            <i class="bi bi-arrow-left"></i>
-            <span>Kembali</span>
-        </a>
+        <!-- Back Navigation -->
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <a href="{{ route('admin.dashboard') }}" class="btn-back" style="background: #0F172A;">
+                <i class="bi bi-grid-fill"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ route('admin.bookkeeping.index') }}" class="btn-back">
+                <i class="bi bi-arrow-left"></i>
+                <span>Pembukuan</span>
+            </a>
+        </div>
         
         <!-- Alert Messages -->
         <div id="successAlert" class="alert success"></div>

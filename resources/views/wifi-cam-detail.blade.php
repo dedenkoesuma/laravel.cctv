@@ -15,7 +15,7 @@
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: #667eea;
+    color: #ef4444;
     text-decoration: none;
     font-weight: 600;
     margin-bottom: 30px;
@@ -23,30 +23,31 @@
 }
 
 .back-button:hover {
-    color: #764ba2;
+    color: #dc2626;
     transform: translateX(-5px);
 }
 
 .product-detail-card {
     background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
     overflow: hidden;
 }
 
 /* ===== PRODUCT IMAGES ===== */
 .product-images {
     padding: 40px;
-    background: #f8f9fa;
+    background: #f8fafc;
 }
 
 .main-image {
     background: white;
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 40px;
     margin-bottom: 20px;
     text-align: center;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
 }
 
 .main-image img {
@@ -64,8 +65,8 @@
 .thumbnail {
     width: 80px;
     height: 80px;
-    border-radius: 8px;
-    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
     cursor: pointer;
     overflow: hidden;
     transition: all 0.3s ease;
@@ -73,7 +74,7 @@
 }
 
 .thumbnail:hover, .thumbnail.active {
-    border-color: #667eea;
+    border-color: #ef4444;
     transform: scale(1.05);
 }
 
@@ -120,13 +121,13 @@
 .product-title {
     font-size: 2rem;
     font-weight: 700;
-    color: #333;
+    color: #0f172a;
     margin-bottom: 15px;
 }
 
 .product-subtitle {
     font-size: 1.1rem;
-    color: #6c757d;
+    color: #64748b;
     margin-bottom: 30px;
 }
 
@@ -134,10 +135,10 @@
 .section-title {
     font-size: 1.3rem;
     font-weight: 700;
-    color: #333;
+    color: #0f172a;
     margin-bottom: 20px;
     padding-bottom: 10px;
-    border-bottom: 2px solid #667eea;
+    border-bottom: 2px solid #ef4444;
 }
 
 /* ===== SPESIFIKASI GRID ===== */
@@ -155,7 +156,7 @@
 }
 
 .spec-item i {
-    color: #667eea;
+    color: #ef4444;
     font-size: 1.2rem;
     margin-top: 2px;
 }
@@ -202,7 +203,7 @@
 }
 
 .package-item i {
-    color: #28a745;
+    color: #10b981;
     font-size: 1.2rem;
 }
 
@@ -217,31 +218,36 @@
 
 /* ===== PRICE & ORDER ===== */
 .price-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #090d16 0%, #1e293b 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 30px;
-    border-radius: 12px;
+    border-radius: 20px;
     color: white;
     margin-top: 30px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
 .price-label {
     font-size: 0.9rem;
-    opacity: 0.9;
+    opacity: 0.8;
     margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .price-value {
-    font-size: 2.5rem;
-    font-weight: 700;
+    font-size: 2.4rem;
+    font-weight: 800;
     margin-bottom: 20px;
+    color: #ffffff;
 }
 
 .btn-order {
-    background: white;
-    color: #667eea;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
     border: none;
     padding: 15px 40px;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 1.1rem;
     font-weight: 700;
     width: 100%;
@@ -250,11 +256,14 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
 }
 
 .btn-order:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5);
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    color: white;
 }
 
 /* ===== SIMILAR PRODUCTS ===== */
@@ -272,28 +281,28 @@
 .similar-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #333;
+    color: #0f172a;
     margin: 0;
 }
 
 .btn-view-all {
-    color: #667eea;
+    color: #ef4444;
     text-decoration: none;
     font-weight: 600;
     font-size: 0.9rem;
 }
 
 .btn-view-all:hover {
-    color: #764ba2;
+    color: #dc2626;
     text-decoration: underline;
 }
 
 .similar-card {
     background: white;
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 20px;
     text-align: center;
-    border: 1px solid #eee;
+    border: 1px solid #e2e8f0;
     transition: all 0.3s ease;
     height: 100%;
     display: flex;
@@ -301,8 +310,8 @@
 }
 
 .similar-card:hover {
-    border-color: #667eea;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border-color: #ef4444;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.06);
     transform: translateY(-5px);
 }
 

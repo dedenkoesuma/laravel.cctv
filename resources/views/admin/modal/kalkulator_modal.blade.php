@@ -15,18 +15,19 @@
   font-weight: 400;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Segoe UI',sans-serif;background:#f4f5f7;color:#1a1a2e;font-size:14px}
-.app{max-width:860px;margin:0 auto;padding:20px 16px}
-.hdr{display:flex;align-items:center;gap:12px;margin-bottom:20px}
-.hdr-icon{width:40px;height:40px;background:#4f46e5;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.hdr h1{font-size:18px;font-weight:700;color:#1a1a2e}
-.hdr p{font-size:12px;color:#6b7280;margin-top:2px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
-.stat{background:white;border-radius:12px;padding:14px 18px;border:1px solid #e5e7eb}
-.stat label{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#9ca3af;font-weight:600}
-.stat .val{font-size:22px;font-weight:700;margin-top:4px}
-.val.blue{color:#4f46e5}.val.green{color:#10b981}.val.red{color:#ef4444}.val.neutral{color:#1a1a2e}
-.card{background:white;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;margin-bottom:14px}
+body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:#f8fafc;color:#0f172a;font-size:14px;-webkit-font-smoothing:antialiased}
+.app{max-width:920px;margin:0 auto;padding:28px 20px}
+.hdr{display:flex;align-items:center;justify-content:space-between;background:#090D16;border-radius:16px;padding:22px 28px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);box-shadow:0 10px 30px rgba(0,0,0,0.12);color:white}
+.hdr-left{display:flex;align-items:center;gap:14px}
+.hdr-icon{width:42px;height:42px;background:linear-gradient(135deg,#dc2626 0%,#991b1b 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 12px rgba(220,38,38,0.35);color:white}
+.hdr h1{font-size:18px;font-weight:800;color:#ffffff;letter-spacing:-0.02em}
+.hdr p{font-size:12px;color:#94a3b8;margin-top:2px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.stat{background:white;border-radius:14px;padding:18px 20px;border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,0.03)}
+.stat label{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:#64748b;font-weight:700}
+.stat .val{font-size:24px;font-weight:800;margin-top:4px;letter-spacing:-0.02em}
+.val.blue{color:#2563eb}.val.green{color:#059669}.val.red{color:#dc2626}.val.neutral{color:#0f172a}
+.card{background:white;border-radius:14px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,0.03)}
 table{width:100%;border-collapse:collapse;table-layout:fixed}
 thead tr{background:#f9fafb}
 th{padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.4px;color:#6b7280;font-weight:600;border-bottom:1px solid #e5e7eb}
@@ -101,12 +102,20 @@ tr:last-child td{border-bottom:none}
 
 <div class="app">
   <div class="hdr">
-    <div class="hdr-icon">
-      <svg width="20" height="20" fill="white" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+    <div class="hdr-left">
+      <div class="hdr-icon">
+        <svg width="22" height="22" fill="white" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14h-2v-2h2v2zm0-4h-2V7h2v6zm4 4h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V7h2v2z"/></svg>
+      </div>
+      <div>
+        <div style="font-size:10.5px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:#fca5a5;margin-bottom:2px">PROFIT & MARGIN ENGINE</div>
+        <h1>Kalkulator Modal & Keuntungan</h1>
+        <p>Hitung total modal produk, lalu bandingkan dengan total harga jual</p>
+      </div>
     </div>
     <div>
-      <h1>Kalkulator Modal & Keuntungan</h1>
-      <p>Hitung total modal produk, lalu bandingkan dengan total harga jual</p>
+      <a href="/dashboard" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#e2e8f0;text-decoration:none;font-size:12.5px;font-weight:600;transition:all .2s">
+        ← Dashboard
+      </a>
     </div>
   </div>
 

@@ -19,15 +19,23 @@
 </head>
 <body class="bg-gray-50">
 
-    <header class="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <header class="bg-[#090D16] border-b border-white/10 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
             <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-3">
-                        <div class="bg-white p-2 rounded-lg">
-                            <i class="fas fa-home text-indigo-600 text-xl"></i>
+                <div class="flex items-center space-x-3">
+                    <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-3 group">
+                        <div class="w-9 h-9 rounded-lg bg-red-600 flex items-center justify-center text-white shadow-sm">
+                            <i class="fas fa-shield-alt text-base"></i>
                         </div>
-                        <span class="text-white font-bold text-xl">TechStore</span>
+                        <div>
+                            <span class="text-white font-extrabold text-base tracking-tight">PT TRAC</span>
+                            <span class="text-slate-400 text-xs block -mt-1 font-medium">Enterprise Console</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('admin.dashboard') }}" class="text-slate-300 hover:text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 transition flex items-center gap-2">
+                        <i class="fas fa-arrow-left"></i> Dashboard
                     </a>
                 </div>
             </div>
@@ -36,27 +44,30 @@
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="mb-8">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-                <div class="mb-4 md:mb-0">
-                    <h1 class="text-3xl font-bold text-gray-900">Ruijie Products Management</h1>
-                    <p class="text-gray-600 mt-1">Manage your Ruijie network products</p>
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700 mb-2">
+                        ENTERPRISE NETWORKING
+                    </span>
+                    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">Ruijie & Reyee Networks</h1>
+                    <p class="text-gray-500 text-sm mt-1">Kelola portofolio Switch PoE, Router Cloud, dan Wireless AP Ruijie Reyee.</p>
                 </div>
-                <div class="flex flex-wrap gap-3">
-                    <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
-                        <i class="fas fa-arrow-left mr-2"></i>
-                        Back to Dashboard
+                <div class="flex flex-wrap gap-2.5">
+                    <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center px-3.5 py-2 bg-white border border-gray-300 rounded-lg text-xs font-bold text-gray-700 hover:bg-gray-50 shadow-sm transition">
+                        <i class="fas fa-arrow-left mr-2 text-gray-500"></i>
+                        Dashboard
                     </a>
                     
                     @canany(['create_ruijie', 'manage_ruijie'])
-                    <a href="{{ route('admin.ruijie.products.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                    <a href="{{ route('admin.ruijie.products.create') }}" class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700 shadow-sm transition">
                         <i class="fas fa-plus mr-2"></i>
-                        Add New Product
+                        Tambah Produk Baru
                     </a>
                     @endcanany
                     
-                    <a href="{{ route('products.ruijie') }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-                        <i class="fas fa-eye mr-2"></i>
-                        View Public Page
+                    <a href="{{ route('products.ruijie') }}" target="_blank" class="inline-flex items-center px-3.5 py-2 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 shadow-sm transition">
+                        <i class="fas fa-eye mr-2 text-red-400"></i>
+                        Halaman Publik
                     </a>
                 </div>
             </div>

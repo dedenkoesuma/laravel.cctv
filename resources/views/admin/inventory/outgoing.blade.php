@@ -45,12 +45,14 @@
         }
 
         .item-info-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #090D16 0%, #0F172A 100%);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             color: white;
             border-radius: 16px;
             padding: 24px;
             margin-bottom: 24px;
             display: none;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
 
         .item-info-card.show {
@@ -236,14 +238,19 @@
 <body>
     <div class="container py-4">
         <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
             <div>
-                <h2 class="mb-1">📤 Barang Keluar</h2>
-                <p class="text-muted mb-0">Scan Serial Number untuk proses barang keluar</p>
+                <h2 class="mb-1 fw-bold">📤 Barang Keluar</h2>
+                <p class="text-muted mb-0">Scan Serial Number untuk proses verifikasi barang keluar</p>
             </div>
-            <a href="{{ route('admin.inventory.index') }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left"></i> Kembali
-            </a>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-dark rounded-pill px-3">
+                    <i class="bi bi-grid-fill me-1"></i> Dashboard
+                </a>
+                <a href="{{ route('admin.inventory.index') }}" class="btn btn-outline-secondary rounded-pill px-3">
+                    <i class="bi bi-arrow-left"></i> Kembali ke Inventory
+                </a>
+            </div>
         </div>
 
         <div class="row">

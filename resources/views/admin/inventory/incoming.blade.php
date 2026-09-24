@@ -17,9 +17,10 @@
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0b0f19;
             min-height: 100vh;
             font-family: 'Inter', sans-serif;
+            color: #e2e8f0;
         }
 
         .scan-container {
@@ -29,11 +30,13 @@
         }
 
         .header-card {
-            background: white;
+            background: linear-gradient(135deg, #090D16 0%, #0F172A 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 28px 32px;
+            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.4);
             margin-bottom: 30px;
+            color: #ffffff;
         }
 
         .mode-selector {
@@ -62,7 +65,7 @@
 
         .mode-card.active {
             border-color: var(--primary);
-            background: linear-gradient(135deg, #667eea15, #764ba215);
+            background: rgba(79, 70, 229, 0.08);
         }
 
         .mode-badge {
@@ -291,7 +294,7 @@
         }
 
         .btn-process {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
             color: white;
             border: none;
             padding: 15px 40px;
@@ -300,11 +303,12 @@
             font-size: 18px;
             transition: all 0.3s;
             width: 100%;
+            box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
         }
 
         .btn-process:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.4);
+            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.45);
         }
 
         .btn-process:disabled {
@@ -404,21 +408,24 @@
     <div class="scan-container">
         <!-- Header -->
         <div class="header-card">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
-                    <h2 class="mb-1">
-                        <i class="bi bi-box-arrow-in-down"></i> Barang Masuk - Enhanced Scan
+                    <h2 class="mb-1 text-white fw-bold">
+                        <i class="bi bi-box-arrow-in-down text-danger"></i> Barang Masuk - Enhanced Scan
                     </h2>
-                    <p class="text-muted mb-0">
-                        <span class="badge bg-success">✨ Bulk Mode Available</span>
-                        Scan ratusan barang sekaligus dengan mudah
+                    <p class="text-white-50 mb-0 small">
+                        <span class="badge bg-success me-2">✨ Bulk Mode Available</span>
+                        Scan ratusan barang sekaligus dengan mudah dan cepat
                     </p>
                 </div>
                 <div class="d-flex gap-2">
-                    <a href="/admin/inventory" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left"></i> Dashboard
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-light rounded-pill px-3">
+                        <i class="bi bi-grid-fill me-1"></i> Dashboard
                     </a>
-                    <button class="btn btn-success" onclick="exportData()">
+                    <a href="{{ route('admin.inventory.index') }}" class="btn btn-outline-light rounded-pill px-3">
+                        <i class="bi bi-arrow-left"></i> Inventory
+                    </a>
+                    <button class="btn btn-success rounded-pill px-3" onclick="exportData()">
                         <i class="bi bi-download"></i> Export
                     </button>
                 </div>

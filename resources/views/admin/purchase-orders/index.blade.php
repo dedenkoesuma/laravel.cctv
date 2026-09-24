@@ -4,31 +4,42 @@
 
 @section('content')
 <style>
-.po-header{background:linear-gradient(135deg,#1e3a5f 0%,#2d6a9f 100%);color:white;padding:28px 24px;border-radius:14px;margin-bottom:24px}
-.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
-.sum-card{background:white;border-radius:12px;padding:18px;box-shadow:0 2px 10px rgba(0,0,0,.07);border-left:4px solid #e5e7eb}
-.sum-card.c1{border-left-color:#6b7280}.sum-card.c2{border-left-color:#3b82f6}
-.sum-card.c3{border-left-color:#10b981}.sum-card.c4{border-left-color:#f59e0b}
-.sum-val{font-size:1.6rem;font-weight:800;color:#111827;margin-bottom:3px}
-.sum-lbl{font-size:.75rem;color:#6b7280;font-weight:600;text-transform:uppercase}
-.toolbar{background:white;border-radius:12px;padding:14px 18px;box-shadow:0 2px 10px rgba(0,0,0,.07);margin-bottom:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.toolbar input,.toolbar select{border:1px solid #d1d5db;border-radius:8px;padding:8px 12px;font-size:.875rem}
-.toolbar input:focus,.toolbar select:focus{border-color:#2563eb;outline:none}
-.table-card{background:white;border-radius:12px;box-shadow:0 2px 10px rgba(0,0,0,.07);overflow:hidden}
-.table-card table thead th{background:#f8fafc;font-size:.75rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.05em;padding:12px 16px;border-bottom:2px solid #e5e7eb}
-.table-card table tbody td{padding:12px 16px;font-size:.875rem;border-bottom:1px solid #f3f4f6;vertical-align:middle}
-.table-card table tbody tr:hover{background:#f9fafb}
-.status-badge{padding:4px 10px;border-radius:20px;font-size:.72rem;font-weight:700;white-space:nowrap}
-.status-badge.draft{background:#f3f4f6;color:#374151}
-.status-badge.sent{background:#dbeafe;color:#1d4ed8}
-.status-badge.confirmed{background:#d1fae5;color:#065f46}
-.status-badge.partial{background:#fef3c7;color:#92400e}
-.status-badge.completed{background:#dcfce7;color:#14532d}
-.status-badge.cancelled{background:#fee2e2;color:#991b1b}
-.ppn-tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:8px;font-size:.68rem;font-weight:700}
-.ppn-tag.yes{background:#dbeafe;color:#1d4ed8}
-.ppn-tag.no{background:#f3f4f6;color:#6b7280}
-.loading-overlay{text-align:center;padding:40px;color:#9ca3af}
+.po-header {
+    background: #090D16;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    color: white;
+    padding: 32px 28px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+.summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 22px; }
+.sum-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; border-top: 4px solid #0f172a; transition: all 0.2s ease; }
+.sum-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(0,0,0,0.06); }
+.sum-card.c1 { border-top-color: #64748b; }
+.sum-card.c2 { border-top-color: #3b82f6; }
+.sum-card.c3 { border-top-color: #10b981; }
+.sum-card.c4 { border-top-color: #f59e0b; }
+.sum-val { font-size: 1.8rem; font-weight: 800; color: #0f172a; margin-bottom: 3px; letter-spacing: -0.02em; }
+.sum-lbl { font-size: .75rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+.toolbar { background: white; border-radius: 14px; padding: 16px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); margin-bottom: 18px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; border: 1px solid #e2e8f0; }
+.toolbar input, .toolbar select { border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; font-size: .875rem; outline: none; }
+.toolbar input:focus, .toolbar select:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1); }
+.table-card { background: white; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); overflow: hidden; border: 1px solid #e2e8f0; }
+.table-card table thead th { background: #f8fafc; font-size: .72rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .05em; padding: 14px 18px; border-bottom: 1px solid #e2e8f0; }
+.table-card table tbody td { padding: 13px 18px; font-size: .875rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+.table-card table tbody tr:hover { background: #f8fafc; }
+.status-badge { padding: 4px 10px; border-radius: 20px; font-size: .72rem; font-weight: 700; white-space: nowrap; }
+.status-badge.draft { background: #f1f5f9; color: #475569; }
+.status-badge.sent { background: #dbeafe; color: #1d4ed8; }
+.status-badge.confirmed { background: #d1fae5; color: #065f46; }
+.status-badge.partial { background: #fef3c7; color: #92400e; }
+.status-badge.completed { background: #dcfce7; color: #14532d; }
+.status-badge.cancelled { background: #fee2e2; color: #991b1b; }
+.ppn-tag { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 8px; font-size: .68rem; font-weight: 700; }
+.ppn-tag.yes { background: #dbeafe; color: #1d4ed8; }
+.ppn-tag.no { background: #f1f5f9; color: #64748b; }
+.loading-overlay { text-align: center; padding: 40px; color: #9ca3af; }
 
 /* ⭐ Dropdown status */
 .status-dropdown { position: relative; display: inline-block; }
@@ -45,20 +56,28 @@
     <div class="po-header">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
-                <h1 class="fs-3 fw-bold mb-1">📦 Purchase Order (PO)</h1>
-                <p class="mb-0 opacity-75">Kelola pemesanan barang ke distributor & supplier</p>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge" style="background: rgba(220,38,38,0.2); color:#fca5a5; border:1px solid rgba(220,38,38,0.3); font-size:11px; font-weight:700;">
+                        PURCHASING & SUPPLY CHAIN
+                    </span>
+                </div>
+                <h1 class="fs-3 fw-bold mb-1"><i class="bi bi-cart-check me-2 text-danger"></i>Purchase Order (PO)</h1>
+                <p class="mb-0 text-white-50 small">Kelola pemesanan barang dan restock perlengkapan CCTV ke distributor & supplier resmi.</p>
             </div>
             <div class="d-flex gap-2 flex-wrap">
-                <a href="{{ route('admin.po.history') }}" class="btn btn-warning fw-bold text-dark">
-                    <i class="bi bi-clock-history me-1"></i>History Tracking
+                <a href="/dashboard" class="btn btn-outline-light fw-bold px-3 py-2" style="border-radius:10px; font-size:13px; border-color:rgba(255,255,255,0.2);">
+                    <i class="bi bi-arrow-left me-1"></i> Dashboard
+                </a>
+                <a href="{{ route('admin.po.history') }}" class="btn btn-light fw-bold px-3 py-2" style="border-radius:10px; font-size:13px;">
+                    <i class="bi bi-clock-history me-1 text-warning"></i> History
                 </a>
                 @canany(['create_purchase_orders', 'manage_purchase_orders'])
-                <a href="{{ route('admin.po.create') }}" class="btn btn-light fw-bold">
-                    <i class="bi bi-plus-circle me-1"></i>Buat PO Baru
+                <a href="{{ route('admin.po.create') }}" class="btn btn-danger fw-bold px-3 py-2 shadow-sm" style="border-radius:10px; font-size:13px;">
+                    <i class="bi bi-plus-circle me-1"></i> Buat PO Baru
                 </a>
                 @endcanany
-                <button class="btn btn-outline-light fw-bold" onclick="exportExcel()">
-                    <i class="bi bi-download me-1"></i>Export
+                <button class="btn btn-dark fw-bold px-3 py-2 border border-secondary" style="border-radius:10px; font-size:13px;" onclick="exportExcel()">
+                    <i class="bi bi-download me-1 text-danger"></i> Export
                 </button>
             </div>
         </div>

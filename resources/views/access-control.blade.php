@@ -1,197 +1,336 @@
 @extends('layouts.simple')
 
-@section('title', 'Access Control - TechStore')
+@section('title', 'Katalog Akses Kontrol & Mesin Absensi - PT. MJA TEKNOLOGI')
+@section('meta_description', 'Katalog produk Access Control, Mesin Absensi Fingerprint & Face Recognition dari HIKVISION, Dahua, dan ZKTeco bergaransi resmi.')
 
 @section('content')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-
 <style>
-/* ===== UI RUIJIE STYLE ADAPTATION ===== */
-:root {
-    --access-primary: #ff6b6b;
-    --access-dark: #ee5a6f;
-    --access-light: #fff5f5;
-    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ===== HERO SECTION ===== */
-.hero-section {
-    position: relative;
-    background-image: url("{{ asset('storage/gambar/access-control.jpeg') }}");
+/* ===== ACCESS CONTROL CORPORATE STYLES ===== */
+.access-hero-corp {
+    background-color: #0f172a;
     color: white;
-    padding: 100px 0 140px;
-    background-size: cover;
-    background-position: center;
+    padding: 70px 20px 85px;
     text-align: center;
+    border-bottom: 1px solid var(--ts-slate-800);
 }
 
-.hero-section::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
+.access-hero-content {
+    max-width: 800px;
+    margin: 0 auto;
 }
 
-.hero-content { position: relative; z-index: 1; }
+.access-corp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fca5a5;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 5px 16px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+}
 
-.hero-title {
-    font-size: clamp(2.5rem, 5vw, 4rem);
+.access-hero-corp h1 {
+    font-size: clamp(2.2rem, 4.5vw, 3.2rem);
     font-weight: 800;
-    margin-bottom: 1rem;
-    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+    color: #ffffff;
+    line-height: 1.2;
 }
 
-/* ===== FILTER SECTION (Floating Card) ===== */
-.filter-section {
+.access-hero-corp h1 span {
+    color: #f87171;
+}
+
+.access-hero-corp p {
+    font-size: clamp(0.95rem, 1.6vw, 1.1rem);
+    color: #cbd5e1;
+    line-height: 1.6;
+    margin: 0 auto;
+}
+
+/* Filter Card */
+.filter-section-corp {
     position: relative;
-    margin-top: -70px;
-    margin-bottom: 60px;
+    margin-top: -45px;
+    margin-bottom: 40px;
     z-index: 10;
 }
 
-.filter-card {
+.filter-card-corp {
     background: white;
-    border-radius: 20px;
-    padding: 32px;
-    box-shadow: var(--shadow-lg);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.04);
     max-width: 1000px;
     margin: 0 auto;
-    border: 1px solid rgba(0,0,0,0.05);
+    border: 1px solid var(--ts-slate-200);
 }
 
-.filter-header {
+.filter-header-corp {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 24px;
+    margin-bottom: 18px;
     flex-wrap: wrap;
-    gap: 16px;
+    gap: 10px;
 }
 
-.filter-title { font-size: 1.25rem; font-weight: 700; color: #1e293b; }
-.filter-count { font-size: 0.875rem; color: #64748b; }
-.filter-count strong { color: var(--access-primary); }
-
-/* SEARCH BAR */
-.search-wrapper { margin-bottom: 24px; }
-.search-input-group {
+.filter-title-corp {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--ts-slate-900);
+    margin: 0;
     display: flex;
     align-items: center;
-    background: #f8fafc;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
+    gap: 8px;
+}
+
+/* Search Bar */
+.search-wrapper-corp {
+    margin-bottom: 16px;
+}
+
+.search-input-corp {
+    display: flex;
+    align-items: center;
+    background: var(--ts-slate-50);
+    border: 1px solid var(--ts-slate-200);
+    border-radius: 8px;
     padding: 4px 16px;
-    gap: 10px;
-    transition: var(--transition);
+    transition: border-color 0.2s ease;
 }
 
-.search-input-group:focus-within {
-    border-color: var(--access-primary);
+.search-input-corp:focus-within {
+    border-color: var(--ts-slate-800);
     background: white;
-    box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
 }
 
-.search-input-group input {
-    flex: 1; border: none; background: transparent; padding: 10px 0;
-    font-size: 0.95rem; outline: none;
+.search-input-corp i {
+    color: var(--ts-slate-500);
+    font-size: 15px;
+    margin-right: 10px;
 }
 
-/* FILTER GRID */
-.filter-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
+.search-input-corp input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 9px 0;
+    outline: none;
+    font-size: 14px;
+    color: var(--ts-slate-800);
 }
 
-.filter-btn {
-    display: flex; align-items: center; justify-content: center;
-    gap: 8px; padding: 14px; border-radius: 12px;
-    border: 2px solid #e2e8f0; background: white;
-    color: #475569; font-weight: 700; font-size: 0.9rem;
-    cursor: pointer; transition: var(--transition);
+/* Filter Grid */
+.filter-grid-corp {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
-.filter-btn:hover { border-color: var(--access-primary); color: var(--access-primary); }
+.filter-btn-corp {
+    padding: 8px 20px;
+    border-radius: 6px;
+    border: 1px solid var(--ts-slate-200);
+    background: #ffffff;
+    color: var(--ts-slate-700);
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
 
-.filter-btn.active {
-    background: var(--access-primary);
-    border-color: var(--access-primary);
+.filter-btn-corp:hover {
+    border-color: var(--ts-slate-700);
+    color: var(--ts-slate-900);
+    background-color: var(--ts-slate-100);
+}
+
+.filter-btn-corp.active {
+    background-color: var(--ts-slate-900);
+    border-color: var(--ts-slate-900);
     color: white;
-    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);
 }
 
-/* ===== PRODUCTS GRID ===== */
-.products-grid {
+/* Products Grid */
+.products-grid-corp {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 28px;
-    padding-bottom: 80px;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 24px;
 }
 
-.product-card {
-    background: white; border-radius: 16px; overflow: hidden;
-    border: 1px solid #e2e8f0; transition: var(--transition);
-    display: flex; flex-direction: column;
+.access-card-corp {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--ts-slate-200);
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
 }
 
-.product-card:hover { transform: translateY(-8px); box-shadow: var(--shadow-lg); }
+.access-card-corp:hover {
+    border-color: var(--ts-slate-700);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    transform: translateY(-3px);
+}
 
-.product-image-wrapper {
-    height: 260px; background: #f8fafc;
-    display: flex; align-items: center; justify-content: center;
+.access-img-corp {
+    height: 220px;
+    background: var(--ts-slate-50);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
     position: relative;
+    border-bottom: 1px solid var(--ts-slate-100);
 }
 
-.product-image { width: 100%; height: 100%; object-fit: cover; }
+.access-img-corp img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
 
-.product-content { padding: 24px; flex: 1; display: flex; flex-direction: column; }
-.product-brand { font-size: 0.75rem; font-weight: 800; color: var(--access-primary); text-transform: uppercase; margin-bottom: 8px; }
-.product-name { font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 12px; min-height: 50px; }
+.access-brand-pill {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #ffffff;
+    border: 1px solid var(--ts-slate-200);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ts-slate-700);
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
 
-.price-current { font-size: 1.5rem; font-weight: 800; color: var(--access-primary); }
-.product-footer { margin-top: auto; padding-top: 15px; display: flex; gap: 10px; }
+.access-body-corp {
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
 
-.btn-detail { flex: 1; padding: 10px; border-radius: 10px; border: 2px solid var(--access-primary); color: var(--access-primary); background: white; font-weight: 700; }
-.btn-buy { flex: 1; padding: 10px; border-radius: 10px; background: var(--access-primary); color: white; border: none; font-weight: 700; }
+.access-title-corp {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--ts-slate-900);
+    margin-bottom: 6px;
+    line-height: 1.35;
+    min-height: 42px;
+}
+
+.access-price-corp {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--ts-primary);
+    margin-bottom: 16px;
+    display: block;
+}
+
+.access-footer-corp {
+    margin-top: auto;
+    display: flex;
+    gap: 8px;
+}
+
+.btn-detail-corp {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background-color: var(--ts-slate-100);
+    color: var(--ts-slate-700);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-detail-corp:hover {
+    background-color: var(--ts-slate-200);
+    color: var(--ts-slate-900);
+}
+
+.btn-buy-corp {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background-color: var(--ts-green);
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-buy-corp:hover {
+    background-color: var(--ts-green-dark);
+}
+
+.btn-buy-corp:disabled {
+    background-color: var(--ts-slate-200);
+    color: var(--ts-slate-500);
+    cursor: not-allowed;
+}
 </style>
 
-<div class="hero-section">
-    <div class="hero-content container">
-        <h1 class="hero-title">Access Control Systems</h1>
-        <p class="hero-subtitle">Keamanan akses cerdas dengan teknologi biometric terdepan.</p>
+<div class="access-hero-corp">
+    <div class="access-hero-content container">
+        <div class="access-corp-badge">
+            <i class="bi bi-fingerprint me-1"></i> Biometric & RFID Security Systems
+        </div>
+        <h1>Sistem <span>Akses Kontrol & Absensi</span></h1>
+        <p>Tingkatkan standar perlindungan pintu masuk ruangan dan fasilitas gedung Anda dengan perangkat sidik jari, pengenalan wajah, & smart RFID terdepan.</p>
     </div>
 </div>
 
-<div class="container filter-section">
-    <div class="filter-card">
-        <div class="filter-header">
-            <h2 class="filter-title">Filter Produk</h2>
-            <div class="filter-count" id="filterCount">Menampilkan <strong>0</strong> produk</div>
+<div class="container filter-section-corp">
+    <div class="filter-card-corp">
+        <div class="filter-header-corp">
+            <h2 class="filter-title-corp">
+                <i class="bi bi-funnel-fill text-danger"></i> Filter & Cari Akses Kontrol
+            </h2>
+            <div class="filter-count text-muted small fw-semibold" id="filterCount">Menampilkan <strong>0</strong> produk</div>
         </div>
 
-        <div class="search-wrapper">
-            <div class="search-input-group">
+        <div class="search-wrapper-corp">
+            <div class="search-input-corp">
                 <i class="bi bi-search"></i>
-                <input type="text" id="productSearch" placeholder="Cari tipe atau nama access control..." onkeyup="handleSearch()">
+                <input type="text" id="productSearch" placeholder="Cari tipe, nomor model, atau nama perangkat..." onkeyup="handleSearch()">
             </div>
         </div>
 
-        <div class="filter-grid" id="brandFilters">
-            <button class="filter-btn active" data-brand="HIKVISION" onclick="filterByBrand('HIKVISION', event)">HIKVISION</button>
-            <button class="filter-btn" data-brand="Dahua" onclick="filterByBrand('Dahua', event)">Dahua</button>
-            <button class="filter-btn" data-brand="ZKTeco" onclick="filterByBrand('ZKTeco', event)">ZKTeco</button>
+        <div class="filter-grid-corp" id="brandFilters">
+            <button class="filter-btn-corp active" data-brand="HIKVISION" onclick="filterByBrand('HIKVISION', event)">HIKVISION</button>
+            <button class="filter-btn-corp" data-brand="Dahua" onclick="filterByBrand('Dahua', event)">Dahua</button>
+            <button class="filter-btn-corp" data-brand="ZKTeco" onclick="filterByBrand('ZKTeco', event)">ZKTeco</button>
         </div>
     </div>
 </div>
 
-<div class="container">
+<div class="container pb-5 mb-4">
     <div id="loadingState" class="text-center py-5">
         <div class="spinner-border text-danger" role="status"></div>
-        <p class="mt-2 text-muted">Memuat produk...</p>
+        <p class="mt-2 text-muted fw-semibold">Memuat perangkat Akses Kontrol...</p>
     </div>
 
-    <div class="products-grid" id="productsGrid" style="display: none;"></div>
+    <div class="products-grid-corp" id="productsGrid" style="display: none;"></div>
 </div>
 
 <script>
@@ -213,7 +352,7 @@ async function loadProducts() {
         }
     } catch (error) {
         console.error('Error:', error);
-        document.getElementById('loadingState').innerHTML = '<p class="text-danger">Gagal memuat data.</p>';
+        document.getElementById('loadingState').innerHTML = '<p class="text-danger fw-semibold">Gagal memuat data. Silakan refresh halaman.</p>';
     }
 }
 
@@ -223,7 +362,7 @@ function handleSearch() {
 }
 
 function filterByBrand(brand, event) {
-    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.filter-btn-corp').forEach(btn => btn.classList.remove('active'));
     event.currentTarget.classList.add('active');
     currentBrand = brand;
     renderProducts();
@@ -244,32 +383,34 @@ function renderProducts() {
     document.getElementById('filterCount').innerHTML = `Menampilkan <strong>${filtered.length}</strong> produk`;
 
     if (filtered.length === 0) {
-        grid.innerHTML = `<div class="text-center py-5" style="grid-column: 1/-1;">
-            <i class="bi bi-search" style="font-size: 3rem; color: #ddd;"></i>
-            <h3 class="mt-3">Produk tidak ditemukan</h3>
-        </div>`;
+        grid.innerHTML = `
+            <div class="text-center py-5" style="grid-column: 1/-1;">
+                <i class="bi bi-search text-muted" style="font-size: 2.8rem;"></i>
+                <h4 class="mt-3 fw-bold text-dark">Perangkat Tidak Ditemukan</h4>
+                <p class="text-muted small">Silakan coba kata kunci lain atau pilih brand yang berbeda.</p>
+            </div>`;
         return;
     }
 
     filtered.forEach(p => {
-        const hasDiscount = p.original_price && p.original_price > p.sell_price;
         const col = document.createElement('div');
-        col.className = 'product-card';
+        col.className = 'access-card-corp';
         col.innerHTML = `
-            <div class="product-image-wrapper">
+            <div class="access-img-corp">
+                <span class="access-brand-pill">${p.brand}</span>
                 <img src="${p.main_image ? '/storage/' + p.main_image : 'https://via.placeholder.com/300'}" 
-                     class="product-image" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300'">
+                     alt="${p.name}" 
+                     onerror="this.src='https://via.placeholder.com/300?text=Access+Control'">
             </div>
-            <div class="product-content">
-                <div class="product-brand">${p.brand}</div>
-                <h3 class="product-name">${p.name}</h3>
-                <div class="product-price-wrapper">
-                    <span class="price-current">Rp ${parseInt(p.sell_price).toLocaleString('id-ID')}</span>
-                </div>
-                <div class="product-footer">
-                    <button class="btn-detail" onclick="window.location.href='/access-control/${p.id}'">Detail</button>
-                    <button class="btn-buy" ${p.stock === 0 ? 'disabled' : ''} onclick="buyProduct('${p.name}')">
-                        ${p.stock === 0 ? 'Habis' : 'Beli'}
+            <div class="access-body-corp">
+                <div class="access-title-corp">${p.name}</div>
+                <span class="access-price-corp">Rp ${parseInt(p.sell_price).toLocaleString('id-ID')}</span>
+                <div class="access-footer-corp">
+                    <button class="btn-detail-corp" onclick="window.location.href='/access-control/${p.id}'">
+                        <i class="bi bi-info-circle"></i> Detail
+                    </button>
+                    <button class="btn-buy-corp" ${p.stock === 0 ? 'disabled' : ''} onclick="buyProduct('${p.name}')">
+                        <i class="bi bi-whatsapp"></i> ${p.stock === 0 ? 'Habis' : 'Pesan WA'}
                     </button>
                 </div>
             </div>`;
@@ -278,7 +419,7 @@ function renderProducts() {
 }
 
 function buyProduct(name) {
-    const msg = encodeURIComponent(`Halo Admin TechStore, saya tertarik dengan produk Access Control: *${name}*`);
+    const msg = encodeURIComponent(`Halo TechStore, saya berminat memesan perangkat Access Control: *${name}*`);
     window.open(`https://wa.me/62881025756671?text=${msg}`, '_blank');
 }
 </script>

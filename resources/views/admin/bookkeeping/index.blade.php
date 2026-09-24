@@ -7,15 +7,16 @@
 /* ===== BOOKKEEPING DASHBOARD STYLES ===== */
 .bookkeeping-container {
     padding: 30px;
-    background: #f8f9fa;
+    background: #f8fafc;
     min-height: 100vh;
 }
 
 .page-header-bookkeeping {
-    background: white;
-    padding: 24px;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    background: linear-gradient(135deg, #090D16 0%, #0F172A 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 24px 28px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px -5px rgba(0,0,0,0.3);
     margin-bottom: 30px;
     display: flex;
     justify-content: space-between;
@@ -25,29 +26,55 @@
 }
 
 .page-title-bookkeeping {
-    font-size: 1.75rem;
+    font-size: 1.65rem;
     font-weight: 700;
-    color: #333;
+    color: #ffffff;
     margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-dash-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.08);
+    color: #e2e8f0;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    transition: all 0.2s ease;
+}
+
+.btn-dash-back:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    transform: translateY(-1px);
 }
 
 .btn-add-transaction {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #dc2626;
     color: white;
-    padding: 12px 24px;
-    border-radius: 8px;
+    padding: 11px 22px;
+    border-radius: 9999px;
     border: none;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
     gap: 8px;
+    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
 }
 
 .btn-add-transaction:hover {
+    background: #b91c1c;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: 0 6px 18px rgba(220, 38, 38, 0.45);
 }
 
 /* ===== STATISTICS CARDS ===== */
@@ -85,7 +112,7 @@
 }
 
 .stat-card.profit {
-    border-left-color: #667eea;
+    border-left-color: #10b981;
 }
 
 .stat-icon {
@@ -115,8 +142,8 @@
 }
 
 .stat-card.profit .stat-icon {
-    background: rgba(102, 126, 234, 0.1);
-    color: #667eea;
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
 }
 
 .stat-label {
@@ -177,13 +204,13 @@
 
 .form-control:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #0F172A;
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
 }
 
 .btn-filter {
     padding: 10px 24px;
-    background: #667eea;
+    background: #0F172A;
     color: white;
     border: none;
     border-radius: 8px;
@@ -193,7 +220,7 @@
 }
 
 .btn-filter:hover {
-    background: #5568d3;
+    background: #1e293b;
 }
 
 /* ===== TRANSACTIONS TABLE ===== */
@@ -297,12 +324,12 @@
 }
 
 .btn-primary {
-    background: #667eea;
+    background: #2563eb;
     color: white;
 }
 
 .btn-primary:hover {
-    background: #5568d3;
+    background: #1d4ed8;
 }
 
 .btn-danger {
@@ -380,7 +407,7 @@
 
 .dropdown-item:hover {
     background-color: #f8f9fa;
-    color: #667eea;
+    color: #2563eb;
 }
 
 .dropdown-item i {
@@ -446,13 +473,25 @@
 <div class="bookkeeping-container">
     <!-- Page Header -->
     <div class="page-header-bookkeeping">
-        <h1 class="page-title-bookkeeping">
-            <i class="bi bi-calculator"></i> Pembukuan & Laporan
-        </h1>
-        <button class="btn-add-transaction" onclick="openAddModal()">
-            <i class="bi bi-plus-circle"></i>
-            <span>Tambah Transaksi</span>
-        </button>
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.72rem; letter-spacing: 0.05em; text-transform: uppercase;">Finance Management</span>
+                <span class="text-white-50 small">•</span>
+                <span class="text-white-50 small">Internal Ledger</span>
+            </div>
+            <h1 class="page-title-bookkeeping">
+                <i class="bi bi-calculator text-danger"></i> Pembukuan & Laporan
+            </h1>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('admin.dashboard') }}" class="btn-dash-back">
+                <i class="bi bi-arrow-left"></i> Dashboard
+            </a>
+            <button class="btn-add-transaction" onclick="openAddModal()">
+                <i class="bi bi-plus-circle"></i>
+                <span>Tambah Transaksi</span>
+            </button>
+        </div>
     </div>
 
     <!-- Statistics Cards -->
